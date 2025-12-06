@@ -1,14 +1,19 @@
-import 'dart:io';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'dart:io' show File, Platform;
+import 'package:path_provider/path_provider.dart';
+import 'package:stc_client/services/api_service.dart';
+import '../utils/web_save.dart'; // <-- NEW
 
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
-import 'package:path_provider/path_provider.dart';
+
 import '../utils/ubl_generator.dart';
 import '../widgets/custom_field.dart';
 import '../widgets/section_title.dart';
 import '../widgets/totals_row.dart';
 import '../widgets/item_card.dart';
 import '../models/invoice_item.dart';
+import 'package:http/http.dart' as http;
 
 class InvoicePage extends StatefulWidget {
   @override
@@ -216,17 +221,29 @@ class _InvoicePageState extends State<InvoicePage> {
                   items: items,
                 );
 
-                // Save XML to a file
-                final directory = await getApplicationDocumentsDirectory();
-                final path =
-                    '${directory.path}/invoice_${invoiceNumber.text}.xml';
-                final file = File(path);
-                await file.writeAsString(xml);
+                // Generate filename
+                final fileName = 'invoice_${invoiceNumber.text}.xml';
 
-                // Optional: Show success message
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Invoice saved to $path')),
-                );
+                if (kIsWeb) {
+                  // ----------- WEB DOWNLOAD -----------
+                  saveXmlWeb(xml, fileName);
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Invoice downloaded as $fileName')),
+                  );
+                } else {
+                  // ----------- ANDROID / IOS SAVE -----------
+                  final directory = await getApplicationDocumentsDirectory();
+                  final path = '${directory.path}/$fileName';
+                  final file = File(path);
+
+                  await file.writeAsString(xml);
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Invoice saved at $path')),
+                  );
+                }
+                await ApiService.sendToServer(xml);
               },
               child: Text("Generate UBL"),
             ),
