@@ -221,31 +221,19 @@ class _InvoicePageState extends State<InvoicePage> {
                   items: items,
                 );
 
-                // Generate filename
-                final fileName = 'invoice_${invoiceNumber.text}.xml';
+                final response = await ApiService.sendToServer(xml);
 
-                if (kIsWeb) {
-                  // ----------- WEB DOWNLOAD -----------
-                  saveXmlWeb(xml, fileName);
-
+                if (response != null && response.statusCode == 200) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Invoice downloaded as $fileName')),
+                    const SnackBar(content: Text('Invoice sent successfully!')),
                   );
                 } else {
-                  // ----------- ANDROID / IOS SAVE -----------
-                  final directory = await getApplicationDocumentsDirectory();
-                  final path = '${directory.path}/$fileName';
-                  final file = File(path);
-
-                  await file.writeAsString(xml);
-
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Invoice saved at $path')),
+                    const SnackBar(content: Text('Failed to send invoice.')),
                   );
                 }
-                await ApiService.sendToServer(xml);
               },
-              child: Text("Generate UBL"),
+              child: const Text("Send to Server"),
             ),
           ],
         ),

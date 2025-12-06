@@ -1,16 +1,26 @@
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
 
 class ApiService {
-  static Future<void> sendToServer(String xmlInvoice) async {
-    final url = Uri.parse("https://stc-server.onrender.com/submit_invoice");
+  static final Dio _dio = Dio();
 
-    final response = await http.post(
-      url,
-      headers: {"Content-Type": "application/xml"},
-      body: xmlInvoice,
-    );
+  /// Sends the XML invoice to the STC server
+  static Future<Response?> sendToServer(String xmlInvoice) async {
+    final url = "https://stc-server.onrender.com/submit_invoice";
 
-    print("Status: ${response.statusCode}");
-    print("Body: ${response.body}");
+    try {
+      final response = await _dio.post(
+        url,
+        data: xmlInvoice,
+        options: Options(headers: {"Content-Type": "application/xml"}),
+      );
+
+      print("Status: ${response.statusCode}");
+      print("Body: ${response.data}");
+
+      return response; // Return response for further handling
+    } catch (e) {
+      print("Error sending invoice: $e");
+      return null;
+    }
   }
 }
