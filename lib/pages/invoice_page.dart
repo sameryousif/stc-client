@@ -235,12 +235,12 @@ class _InvoicePageState extends State<InvoicePage> {
                 await invoiceFile.writeAsString(xml);
                 print('✔ Invoice saved locally at $invoicePath');
 
-                // 3️⃣ Compute SHA-256 hash of invoice
-                final invoiceBytes = utf8.encode(xml);
-                final invoiceHash = sha256.convert(invoiceBytes);
+                //  Compute SHA-256 hash of invoice
+                final xmlBytes = await invoiceFile.readAsBytes();
+                final invoiceHash = sha256.convert(xmlBytes);
                 print('✔ Invoice SHA-256 hash: $invoiceHash');
 
-                // 4️⃣ Sign the invoice using OpenSSL
+                //  Sign the invoice using OpenSSL
                 final signaturePath =
                     '${directory.path}/invoice_${invoiceNumber.text}.sig';
                 final privateKeyPath = 'C:/openssl_keys/private_key.pem';
