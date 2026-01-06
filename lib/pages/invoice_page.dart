@@ -1,28 +1,31 @@
-import 'package:flutter/foundation.dart' show kIsWeb;
-import 'dart:io' show File, Platform;
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:crypto/crypto.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:stc_client/services/api_service.dart';
-import '../utils/web_save.dart'; // <-- NEW
-
+import 'package:stc_client/utils/csr_picker.dart';
+import 'package:stc_client/utils/generate_pkey_csr.dart';
+import 'package:stc_client/utils/send_csr.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
-
 import '../utils/ubl_generator.dart';
 import '../widgets/custom_field.dart';
 import '../widgets/section_title.dart';
 import '../widgets/totals_row.dart';
 import '../widgets/item_card.dart';
 import '../models/invoice_item.dart';
-import 'package:http/http.dart' as http;
 
 class InvoicePage extends StatefulWidget {
+  const InvoicePage({super.key});
+
   @override
   State<InvoicePage> createState() => _InvoicePageState();
 }
 
 class _InvoicePageState extends State<InvoicePage> {
   // -------------------------------------------------------------
-  // ALL CONTROLLERS (you forgot these before)
+  // ALL CONTROLLERS
   // -------------------------------------------------------------
 
   // Invoice info
@@ -49,6 +52,8 @@ class _InvoicePageState extends State<InvoicePage> {
   final customerPhone = TextEditingController();
   final customerEmail = TextEditingController();
 
+  final String privateKeyPath = r'C:\openssl_keys\merchant_private.key';
+  final String csrPath = r'C:\openssl_keys\merchant_csr.pem';
   // Items list
   List<InvoiceItem> items = [];
 
@@ -199,6 +204,7 @@ class _InvoicePageState extends State<InvoicePage> {
             // -------------------------------------------------------------
             ElevatedButton(
               onPressed: () async {
+                // 1️⃣ Generate the XML invoice
                 final xml = generateUBLInvoice(
                   invoiceNumber: invoiceNumber.text,
                   invoiceDate: invoiceDate.text,
@@ -221,19 +227,94 @@ class _InvoicePageState extends State<InvoicePage> {
                   items: items,
                 );
 
-                final response = await ApiService.sendToServer(xml);
+                // 2️⃣ Save invoice XML locally
+                Directory directory = await getApplicationDocumentsDirectory();
+                final invoicePath =
+                    '${directory.path}/invoice_${invoiceNumber.text}.xml';
+                final invoiceFile = File(invoicePath);
+                await invoiceFile.writeAsString(xml);
+                print('✔ Invoice saved locally at $invoicePath');
 
-                if (response != null && response.statusCode == 200) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Invoice sent successfully!')),
-                  );
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Failed to send invoice.')),
-                  );
+                // 3️⃣ Compute SHA-256 hash of invoice
+                final invoiceBytes = utf8.encode(xml);
+                final invoiceHash = sha256.convert(invoiceBytes);
+                print('✔ Invoice SHA-256 hash: $invoiceHash');
+
+                // 4️⃣ Sign the invoice using OpenSSL
+                final signaturePath =
+                    '${directory.path}/invoice_${invoiceNumber.text}.sig';
+                final privateKeyPath = 'C:/openssl_keys/private_key.pem';
+                final opensslPath =
+                    r"C:\Program Files\OpenSSL-Win64\bin\openssl.exe";
+
+                final signResult = Process.runSync(opensslPath, [
+                  'dgst',
+                  '-sha256',
+                  '-sign',
+                  privateKeyPath,
+                  '-out',
+                  signaturePath,
+                  invoicePath,
+                ]);
+
+                if (signResult.exitCode != 0) {
+                  print('Failed to sign invoice: ${signResult.stderr}');
+                  return;
                 }
+                print('✔ Invoice signed at $signaturePath');
+
+                // 5️⃣ Read signature and encode to Base64
+                final signatureBytes = File(signaturePath).readAsBytesSync();
+                final signatureBase64 = base64.encode(signatureBytes);
+
+                // 6️⃣ Read the public certificate and encode to Base64
+                final certificatePath =
+                    'C:/openssl_keys/merchant.der'; // or your cert path
+                final certificateBytes =
+                    File(certificatePath).readAsBytesSync();
+                final certificateBase64 = base64.encode(certificateBytes);
+
+                // 7️⃣ Encode invoice XML to Base64
+                final invoiceBase64 = base64.encode(utf8.encode(xml));
+
+                // 8️⃣ Build the DTO
+                final submitInvoiceDto = {
+                  "invoice_base64": invoiceBase64.toString(),
+                  "invoice_hash": invoiceHash.toString(),
+                  "signature_base64": signatureBase64.toString(),
+                  "certificate_base64": certificateBase64.toString(),
+                };
+
+                print('✔ Prepared SubmitInvoiceDto: $submitInvoiceDto');
+
+                // 9️⃣ Send to server
+                final response = await ApiService.sendToServerDto(
+                  submitInvoiceDto,
+                );
+                print('Server response: $response');
               },
               child: const Text("Send to Server"),
+            ),
+
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () async {
+                final csrFile = await pickCsrFile();
+                if (csrFile == null) {
+                  print('No CSR selected');
+                  return;
+                }
+
+                await sendCsrAndSaveCert(csrFile);
+              },
+              child: const Text('Send CSR to STC'),
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              child: Text('Generate Key '),
+              onPressed: () {
+                generateKeyandCSR();
+              },
             ),
           ],
         ),

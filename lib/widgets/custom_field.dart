@@ -6,11 +6,11 @@ class CustomField extends StatelessWidget {
   final bool readOnly;
 
   const CustomField({
-    Key? key,
+    super.key,
     required this.controller,
     required this.label,
     this.readOnly = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
