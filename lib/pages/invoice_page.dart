@@ -204,7 +204,7 @@ class _InvoicePageState extends State<InvoicePage> {
             // -------------------------------------------------------------
             ElevatedButton(
               onPressed: () async {
-                // 1️⃣ Generate the XML invoice
+                //  Generate the XML invoice
                 final xml = generateUBLInvoice(
                   invoiceNumber: invoiceNumber.text,
                   invoiceDate: invoiceDate.text,
@@ -227,7 +227,7 @@ class _InvoicePageState extends State<InvoicePage> {
                   items: items,
                 );
 
-                // 2️⃣ Save invoice XML locally
+                //  Save invoice XML locally
                 Directory directory = await getApplicationDocumentsDirectory();
                 final invoicePath =
                     '${directory.path}/invoice_${invoiceNumber.text}.xml';
@@ -263,31 +263,32 @@ class _InvoicePageState extends State<InvoicePage> {
                 }
                 print('✔ Invoice signed at $signaturePath');
 
-                // 5️⃣ Read signature and encode to Base64
+                //  Read signature and encode to Base64
                 final signatureBytes = File(signaturePath).readAsBytesSync();
                 final signatureBase64 = base64.encode(signatureBytes);
 
-                // 6️⃣ Read the public certificate and encode to Base64
+                //  Read the public certificate and encode to Base64
                 final certificatePath =
-                    'C:/openssl_keys/merchant.der'; // or your cert path
-                final certificateBytes =
-                    File(certificatePath).readAsBytesSync();
-                final certificateBase64 = base64.encode(certificateBytes);
+                    'C:/openssl_keys/merchant.pem'; // or your cert path
+                final certificateString =
+                    await File(certificatePath).readAsString();
 
-                // 7️⃣ Encode invoice XML to Base64
+                //final certificateBase64 = base64.encode(certificateBytes);
+
+                //  Encode invoice XML to Base64
                 final invoiceBase64 = base64.encode(utf8.encode(xml));
 
-                // 8️⃣ Build the DTO
+                //  Build the DTO
                 final submitInvoiceDto = {
                   "invoice_base64": invoiceBase64.toString(),
                   "invoice_hash": invoiceHash.toString(),
                   "signature_base64": signatureBase64.toString(),
-                  "certificate_base64": certificateBase64.toString(),
+                  "certificate": certificateString.toString(),
                 };
 
                 print('✔ Prepared SubmitInvoiceDto: $submitInvoiceDto');
 
-                // 9️⃣ Send to server
+                //  Send to server
                 final response = await ApiService.sendToServerDto(
                   submitInvoiceDto,
                 );

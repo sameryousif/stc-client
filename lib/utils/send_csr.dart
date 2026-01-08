@@ -8,12 +8,13 @@ Future<void> sendCsrAndSaveCert(File csrFile) async {
   final dio = Dio();
 
   final csrText = await csrFile.readAsString();
-  final csrBase64 = base64.encode(utf8.encode(csrText));
+  /////////remove encoding
+  // final csrBase64 = base64.encode(utf8.encode(csrText));
 
   try {
     final response = await dio.post(
       'https://stc-server.onrender.com/enroll',
-      data: {'csr_base64': csrBase64},
+      data: {'csr': csrText},
       options: Options(headers: {'Content-Type': 'application/json'}),
     );
 
@@ -21,8 +22,8 @@ Future<void> sendCsrAndSaveCert(File csrFile) async {
     print('STC response: ${response.data}');
 
     // Save certificate
-    final certBase64 = response.data['certificate_base64'];
-    await saveCertificateAsPemAndDer(certBase64);
+    final certificateContent = response.data['certificate'];
+    await saveCertificateAsPem(certificateContent);
   } on DioException catch (e) {
     print('Failed to send CSR: ${e.response?.data ?? e.message}');
   }
