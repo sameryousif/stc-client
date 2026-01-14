@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:stc_client/screens/first_page.dart';
+import 'package:stc_client/screens/invoice_page.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -8,7 +9,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'STC Client',
       theme: ThemeData(primarySwatch: Colors.blue),
-      home: const FirstPage(),
+      home: const InvoicePage(),
       debugShowCheckedModeBanner: false,
     );
   }

@@ -1,12 +1,7 @@
-import 'dart:convert';
-import 'dart:io';
-
-import 'package:crypto/crypto.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:stc_client/services/api_service.dart';
+import 'package:provider/provider.dart';
+import 'package:stc_client/providers/InvoiceProvider.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
-import '../utils/ubl_generator.dart';
 import '../widgets/custom_field.dart';
 import '../widgets/section_title.dart';
 import '../widgets/totals_row.dart';
@@ -201,106 +196,24 @@ class _InvoicePageState extends State<InvoicePage> {
             // -------------------------------------------------------------
             ElevatedButton(
               onPressed: () async {
-                final uuid = const Uuid().v4();
-
-                final now = DateTime.now();
-                final issueDate =
-                    now.toIso8601String().split("T")[0]; // YYYY-MM-DD
-                final issueTime =
-                    now
-                        .toIso8601String()
-                        .split("T")[1]
-                        .split(".")[0]; // HH:MM:SS
-                final icv = 1;
-                final previousInvoiceHash = base64.encode(
-                  List.filled(32, 0),
-                ); // 32 bytes zero hash
-
-                //  Generate the XML invoice
-                final xml = generateUBLInvoice(
+                final provider = context.read<InvoiceProvider>();
+                await provider.generateAndSendInvoice(
                   invoiceNumber: invoiceNumber.text,
-                  uuid: uuid,
-                  issueDate: issueDate,
-                  issueTime: issueTime,
-                  icv: icv,
-                  previousInvoiceHash: previousInvoiceHash,
-
-                  supplierName: supplierName.text,
-                  supplierVAT: supplierTIN.text, // VAT = TIN
-                  customerName: customerName.text,
-                  customerVAT: customerTIN.text,
-
                   items: items,
+                  supplierInfo: {
+                    "name": supplierName.text,
+                    "vat": supplierTIN.text,
+                  },
+                  customerInfo: {
+                    "name": customerName.text,
+                    "vat": customerTIN.text,
+                  },
                 );
-
-                //  Save invoice XML locally
-                Directory directory = await getApplicationDocumentsDirectory();
-                final invoicePath =
-                    '${directory.path}/invoice_${invoiceNumber.text}.xml';
-                final invoiceFile = File(invoicePath);
-                await invoiceFile.writeAsString(xml);
-                print('✔ Invoice saved locally at $invoicePath');
-
-                //  Compute SHA-256 hash of invoice
-                final xmlBytes = await invoiceFile.readAsBytes();
-                final invoiceHash = sha256.convert(xmlBytes);
-                print('✔ Invoice SHA-256 hash: $invoiceHash');
-
-                //  Sign the invoice using OpenSSL
-                final signaturePath =
-                    '${directory.path}/invoice_${invoiceNumber.text}.sig';
-                final privateKeyPath = 'C:/openssl_keys/private_key.pem';
-                final opensslPath =
-                    r"C:\Program Files\OpenSSL-Win64\bin\openssl.exe";
-
-                final signResult = Process.runSync(opensslPath, [
-                  'dgst',
-                  '-sha256',
-                  '-sign',
-                  privateKeyPath,
-                  '-out',
-                  signaturePath,
-                  invoicePath,
-                ]);
-
-                if (signResult.exitCode != 0) {
-                  print('Failed to sign invoice: ${signResult.stderr}');
-                  return;
-                }
-                print('✔ Invoice signed at $signaturePath');
-
-                //  Read signature and encode to Base64
-                final signatureBytes = File(signaturePath).readAsBytesSync();
-                final signatureBase64 = base64.encode(signatureBytes);
-
-                //  Read the public certificate and encode to Base64
-                final certificatePath =
-                    'C:/openssl_keys/merchant.pem'; // or your cert path
-                final certificateString =
-                    await File(certificatePath).readAsString();
-
-                //final certificateBase64 = base64.encode(certificateBytes);
-
-                //  Encode invoice XML to Base64
-                final invoiceBase64 = base64.encode(utf8.encode(xml));
-
-                //  Build the DTO
-                final submitInvoiceDto = {
-                  "invoice_base64": invoiceBase64.toString(),
-                  "invoice_hash": invoiceHash.toString(),
-                  "signature_base64": signatureBase64.toString(),
-                  "certificate": certificateString.toString(),
-                };
-
-                print('✔ Prepared SubmitInvoiceDto: $submitInvoiceDto');
-
-                //  Send to server
-                final response = await ApiService.sendToServerDto(
-                  submitInvoiceDto,
-                );
-                print('Server response: $response');
               },
-              child: const Text("Send to Server"),
+              child:
+                  context.watch<InvoiceProvider>().isLoading
+                      ? CircularProgressIndicator(color: Colors.white)
+                      : Text("Send to Server"),
             ),
           ],
         ),
