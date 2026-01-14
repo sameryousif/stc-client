@@ -4,9 +4,6 @@ import 'dart:io';
 import 'package:crypto/crypto.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:stc_client/services/api_service.dart';
-import 'package:stc_client/utils/csr_picker.dart';
-import 'package:stc_client/utils/generate_pkey_csr.dart';
-import 'package:stc_client/utils/send_csr.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import '../utils/ubl_generator.dart';
@@ -204,26 +201,35 @@ class _InvoicePageState extends State<InvoicePage> {
             // -------------------------------------------------------------
             ElevatedButton(
               onPressed: () async {
+                final uuid = const Uuid().v4();
+
+                final now = DateTime.now();
+                final issueDate =
+                    now.toIso8601String().split("T")[0]; // YYYY-MM-DD
+                final issueTime =
+                    now
+                        .toIso8601String()
+                        .split("T")[1]
+                        .split(".")[0]; // HH:MM:SS
+                final icv = 1;
+                final previousInvoiceHash = base64.encode(
+                  List.filled(32, 0),
+                ); // 32 bytes zero hash
+
                 //  Generate the XML invoice
                 final xml = generateUBLInvoice(
                   invoiceNumber: invoiceNumber.text,
-                  invoiceDate: invoiceDate.text,
-                  invoiceType: invoiceType.text,
-                  currencyCode: currencyCode.text,
+                  uuid: uuid,
+                  issueDate: issueDate,
+                  issueTime: issueTime,
+                  icv: icv,
+                  previousInvoiceHash: previousInvoiceHash,
+
                   supplierName: supplierName.text,
-                  supplierTIN: supplierTIN.text,
-                  supplierAddress: supplierAddress.text,
-                  supplierCity: supplierCity.text,
-                  supplierCountry: supplierCountry.text,
-                  supplierPhone: supplierPhone.text,
-                  supplierEmail: supplierEmail.text,
+                  supplierVAT: supplierTIN.text, // VAT = TIN
                   customerName: customerName.text,
-                  customerTIN: customerTIN.text,
-                  customerAddress: customerAddress.text,
-                  customerCity: customerCity.text,
-                  customerCountry: customerCountry.text,
-                  customerPhone: customerPhone.text,
-                  customerEmail: customerEmail.text,
+                  customerVAT: customerTIN.text,
+
                   items: items,
                 );
 
@@ -295,27 +301,6 @@ class _InvoicePageState extends State<InvoicePage> {
                 print('Server response: $response');
               },
               child: const Text("Send to Server"),
-            ),
-
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () async {
-                final csrFile = await pickCsrFile();
-                if (csrFile == null) {
-                  print('No CSR selected');
-                  return;
-                }
-
-                await sendCsrAndSaveCert(csrFile);
-              },
-              child: const Text('Send CSR to STC'),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              child: Text('Generate Key '),
-              onPressed: () {
-                generateKeyandCSR();
-              },
             ),
           ],
         ),

@@ -1,19 +1,30 @@
 import 'package:flutter/material.dart';
-import 'pages/invoice_page.dart';
+import 'package:provider/provider.dart';
+import 'package:stc_client/app.dart';
+import 'package:stc_client/providers/CertificateProvider.dart';
+import 'managers/certificate_manager.dart';
+import 'services/file_service.dart';
+import 'services/network_service.dart';
+import 'services/crypto_service.dart';
 
 void main() {
-  runApp(const STCInvoiceApp());
-}
+  final fileService = FileService();
+  final networkService = NetworkService();
+  final cryptoService = CryptoService();
+  final manager = CertificateManager(
+    fileService: fileService,
+    networkService: networkService,
+    cryptoService: cryptoService,
+  );
 
-class STCInvoiceApp extends StatelessWidget {
-  const STCInvoiceApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: "STC Invoice Generator",
-      home: InvoicePage(),
-    );
-  }
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (_) => CertificateProvider(manager: manager),
+        ),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }

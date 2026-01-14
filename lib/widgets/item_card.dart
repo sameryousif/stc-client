@@ -16,8 +16,11 @@ class ItemCard extends StatelessWidget {
         padding: const EdgeInsets.all(12),
         child: Column(
           children: [
-            CustomField(controller: item.name, label: "Item Name"),
-            CustomField(controller: item.description, label: "Description"),
+            CustomField(controller: item.nameController, label: "Item Name"),
+            CustomField(
+              controller: item.descriptionController,
+              label: "Description",
+            ),
             Row(
               children: [
                 Expanded(
