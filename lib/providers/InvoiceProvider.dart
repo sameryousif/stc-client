@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:stc_client/utils/constants.dart';
 import '../managers/invoice_manager.dart';
 import '../models/invoice_item.dart';
 
@@ -21,21 +20,20 @@ class InvoiceProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final xml = await manager.generateInvoiceXml(
+      // Use the new unified flow that generates, signs, and saves invoice
+      final finalXmlPath = await manager.generateAndSignInvoice(
         invoiceNumber: invoiceNumber,
         items: items,
         supplierInfo: supplierInfo,
         customerInfo: customerInfo,
       );
 
-      final xmlPath = await manager.saveInvoiceXml(xml, invoiceNumber);
-      final signaturePath = await manager.signInvoice(xmlPath);
-      final dto = await manager.prepareInvoiceSubmission(
-        xmlPath: xmlPath,
-        signaturePath: signaturePath,
-        certificatePath: Constants.certPath,
-      );
+      // The signature path for submission (OpenSSL output)
 
+      // Prepare DTO
+      final dto = await manager.prepareInvoiceSubmission(xmlPath: finalXmlPath);
+
+      // Send to server
       final response = await manager.sendInvoice(dto);
       lastInvoiceId = invoiceNumber;
 
