@@ -213,7 +213,7 @@ class _InvoicePageState extends State<InvoicePage> {
               child:
                   context.watch<InvoiceProvider>().isLoading
                       ? CircularProgressIndicator(color: Colors.white)
-                      : Text("Send to Server"),
+                      : Text("Submit Invoice"),
             ),
           ],
         ),

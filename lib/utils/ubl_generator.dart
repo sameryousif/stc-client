@@ -1,67 +1,5 @@
-import 'dart:convert';
-import 'dart:typed_data';
-import 'package:crypto/crypto.dart';
 import 'package:xml/xml.dart';
 import 'package:stc_client/models/invoice_item.dart';
-
-/// ===============================
-/// MAIN INVOICE GENERATOR
-/// ===============================
-
-////////canonicalize XML
-String canonicalizeXml(String xmlString) {
-  final document = XmlDocument.parse(xmlString);
-
-  String normalizeNode(XmlNode node) {
-    // Skip UBLExtensions and Signature
-    if (node is XmlElement &&
-        (node.name.local == 'UBLExtensions' ||
-            node.name.local == 'Signature')) {
-      return '';
-    }
-
-    // Preserve X509Certificate and SignatureValue exactly
-    if (node is XmlElement &&
-        (node.name.local == 'X509Certificate' ||
-            node.name.local == 'SignatureValue')) {
-      return node.toXmlString();
-    }
-
-    if (node is XmlElement) {
-      final sortedAttributes =
-          node.attributes.toList()
-            ..sort((a, b) => a.name.local.compareTo(b.name.local));
-
-      final buffer = StringBuffer();
-      buffer.write('<${node.name.local}');
-      for (var attr in sortedAttributes) {
-        buffer.write(' ${attr.name.local}="${attr.value}"');
-      }
-      buffer.write('>');
-
-      for (var child in node.children) {
-        buffer.write(normalizeNode(child));
-      }
-
-      buffer.write('</${node.name.local}>');
-      return buffer.toString();
-    } else if (node is XmlText) {
-      return node.value; // Do NOT trim text inside the certificate
-    } else {
-      return '';
-    }
-  }
-
-  final normalizedXml = normalizeNode(document.rootElement);
-  return normalizedXml;
-}
-
-////////calculate hash
-String generateInvoiceHash(String normalizedXml) {
-  final bytes = utf8.encode(normalizedXml);
-  final hash = sha256.convert(bytes);
-  return base64.encode(hash.bytes);
-}
 
 //////////////////////construct SignedInfo
 XmlDocument buildSignedInfo({
@@ -104,6 +42,16 @@ XmlDocument buildSignedInfo({
           builder.element(
             'ds:Transforms',
             nest: () {
+              builder.element(
+                'ds:Transform',
+                nest: () {
+                  builder.attribute(
+                    'Algorithm',
+                    'http://www.w3.org/2000/09/xmldsig#enveloped-signature',
+                  );
+                },
+              );
+
               builder.element(
                 'ds:Transform',
                 nest: () {
@@ -267,9 +215,6 @@ String generateUBLInvoice({
   required String customerName,
   required String customerVAT,
   required List<InvoiceItem> items,
-  XmlDocument? signedProperties,
-  String signatureValueBase64 = '',
-  String certificateBase64 = '',
 }) {
   final builder = XmlBuilder();
 
@@ -288,7 +233,7 @@ String generateUBLInvoice({
   builder.element(
     'Invoice',
     nest: () {
-      // ================= NAMESPACES =================
+      //////////////namespaces
       builder.attribute(
         'xmlns',
         'urn:oasis:names:specification:ubl:schema:xsd:Invoice-2',
@@ -308,14 +253,13 @@ String generateUBLInvoice({
       builder.attribute('xmlns:ds', 'http://www.w3.org/2000/09/xmldsig#');
       builder.attribute('xmlns:xades', 'http://uri.etsi.org/01903/v1.3.2#');
 
-      // ===================================================
+      //////////////////////////////////
 
-      //  UBL EXTENSIONS (SIGNATURE GOES HERE)
-      // ===================================================
+      /////////  UBL EXTENSIONS
+      ///////////////////////
 
-      // ===================================================
-      //  BASIC HEADER
-      // ===================================================
+      /////basic invoice info
+
       builder.element(
         'cbc:ProfileID',
         nest: () => builder.text('reporting:1.0'),
@@ -339,9 +283,9 @@ String generateUBLInvoice({
       );
       builder.element('cbc:TaxCurrencyCode', nest: () => builder.text('SAR'));
 
-      // ===================================================
-      //  ADDITIONAL DOCUMENT REFERENCES
-      // ===================================================
+      ///////////////////
+      //  additional document references
+      //////////////////////////
       builder.element(
         'cac:AdditionalDocumentReference',
         nest: () {
@@ -369,9 +313,8 @@ String generateUBLInvoice({
         },
       );
 
-      // ===================================================
-      //  SUPPLIER
-      // ===================================================
+      ////supplier info
+      //////////////////////////////
       builder.element(
         'cac:AccountingSupplierParty',
         nest: () {
@@ -404,9 +347,8 @@ String generateUBLInvoice({
         },
       );
 
-      // ===================================================
-      //  CUSTOMER
-      // ===================================================
+      ////customer info
+      /////////////////////
       builder.element(
         'cac:AccountingCustomerParty',
         nest: () {
@@ -439,9 +381,8 @@ String generateUBLInvoice({
         },
       );
 
-      // ===================================================
-      //  INVOICE LINES
-      // ===================================================
+      /////invoice items
+      //////////////////////////////////
       for (int i = 0; i < items.length; i++) {
         final item = items[i];
         final lineTotal = item.quantity * item.unitPrice;
@@ -502,9 +443,8 @@ String generateUBLInvoice({
         );
       }
 
-      // ===================================================
-      //  TOTALS
-      // ===================================================
+      ////////////totals
+      /////////////////////
       builder.element(
         'cac:TaxTotal',
         nest:
@@ -547,29 +487,5 @@ String generateUBLInvoice({
   );
   final invoiceDoc = builder.buildDocument();
 
-  // ================= CANONICALIZE & HASH =================
-
-  // Ensure signedProperties is available (use an empty SignedProperties fallback if null)
-
-  // Build SignedInfo
-
-  // Build XAdES Signature
-
-  // Inject signature (UBLExtensions) into invoice
-
-  // Return final XML string
   return invoiceDoc.toXmlString(pretty: true);
-}
-
-String pemToBase64(String pem) {
-  return pem
-      .replaceAll('-----BEGIN CERTIFICATE-----', '')
-      .replaceAll('-----END CERTIFICATE-----', '')
-      .replaceAll('\n', '')
-      .trim();
-}
-
-Uint8List pemToDerBytes(String pem) {
-  final base64Str = pemToBase64(pem);
-  return base64.decode(base64Str);
 }

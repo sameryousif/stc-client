@@ -20,26 +20,20 @@ class InvoiceProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      // Use the new unified flow that generates, signs, and saves invoice
-      final finalXmlPath = await manager.generateAndSignInvoice(
+      // ✅ 1️⃣ Generate, sign, canonicalize, and submit invoice in one go
+      final dto = await manager.generateSignAndSubmitInvoice(
         invoiceNumber: invoiceNumber,
         items: items,
         supplierInfo: supplierInfo,
         customerInfo: customerInfo,
       );
 
-      // The signature path for submission (OpenSSL output)
-
-      // Prepare DTO
-      final dto = await manager.prepareInvoiceSubmission(xmlPath: finalXmlPath);
-
-      // Send to server
-      final response = await manager.sendInvoice(dto);
       lastInvoiceId = invoiceNumber;
-
-      print('Server response: $response');
-    } catch (e) {
-      print('Error generating/sending invoice: $e');
+      debugPrint('Invoice submitted successfully!');
+      debugPrint('Submission DTO: $dto');
+    } catch (e, s) {
+      debugPrint('Invoice error: $e');
+      debugPrint('$s');
     } finally {
       isLoading = false;
       notifyListeners();
