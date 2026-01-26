@@ -7,7 +7,7 @@ class ApiService {
         connectTimeout: const Duration(seconds: 20),
         receiveTimeout: const Duration(seconds: 20),
 
-        //  allow Dio to return 4xx / 5xx responses
+        //  allow Dio to return 4xx / 5xx responses **otherwise it throws exceptions
         validateStatus: (status) => status != null && status < 600,
 
         headers: {
@@ -16,7 +16,7 @@ class ApiService {
         },
       ),
     )
-    // 🔍 Interceptor to see EVERYTHING
+    // Interceptor to see everything
     ..interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) {
@@ -45,12 +45,8 @@ class ApiService {
     const url = "https://stc-server.onrender.com/submit_invoice";
 
     try {
-      final response = await _dio.post(
-        url,
-        data: jsonEncode(dto), // explicit JSON encoding
-      );
+      final response = await _dio.post(url, data: jsonEncode(dto));
 
-      // Even if status is 400, we get here now
       return response;
     } on DioException catch (e) {
       // This will only trigger on connection / timeout / TLS errors
