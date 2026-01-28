@@ -197,7 +197,8 @@ class _InvoicePageState extends State<InvoicePage> {
             ElevatedButton(
               onPressed: () async {
                 final provider = context.read<InvoiceProvider>();
-                await provider.generateAndSendInvoice(
+
+                final result = await provider.generateAndSendInvoice(
                   invoiceNumber: invoiceNumber.text,
                   items: items,
                   supplierInfo: {
@@ -209,10 +210,26 @@ class _InvoicePageState extends State<InvoicePage> {
                     "vat": customerTIN.text,
                   },
                 );
+
+                // Show result message in the app
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(result.message),
+                    backgroundColor: result.success ? Colors.green : Colors.red,
+                    duration: Duration(seconds: 5),
+                  ),
+                );
               },
               child:
                   context.watch<InvoiceProvider>().isLoading
-                      ? CircularProgressIndicator(color: Colors.white)
+                      ? SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
+                      )
                       : Text("Submit Invoice"),
             ),
           ],
