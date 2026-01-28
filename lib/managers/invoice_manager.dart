@@ -13,9 +13,9 @@ import 'package:xml/xml.dart';
 import '../utils/app_paths.dart';
 
 class InvoiceManager {
-  static const String workingDir = r"C:\Users\sam\stc_client";
-  static const String inputXmlPath = r"C:\Users\sam\stc_client\input.xml";
-  static const String outputXmlPath = r"C:\Users\sam\stc_client\output.xml";
+  static Future<Directory> get workingDir => AppPaths.workingDir();
+  static Future<String> get inputXmlPath => AppPaths.inputXmlPath();
+  static Future<String> get outputXmlPath => AppPaths.outputXmlPath();
 
   Future<XmlDocument> generateUnsignedInvoice({
     required String invoiceNumber,
@@ -44,7 +44,7 @@ class InvoiceManager {
   }
 
   Future<void> writeXml(String path, String xmlContent) async {
-    final dir = Directory(workingDir);
+    final dir = await workingDir;
     if (!await dir.exists()) await dir.create(recursive: true);
     await File(path).writeAsString(xmlContent);
   }
@@ -53,10 +53,11 @@ class InvoiceManager {
     String inputPath,
     String outputPath,
   ) async {
+    final dir = await workingDir;
     final result = await Process.run(
       ToolPaths.cliToolPath,
       [inputPath, outputPath],
-      workingDirectory: workingDir,
+      workingDirectory: dir.path,
       runInShell: true,
     );
 
@@ -95,14 +96,15 @@ class InvoiceManager {
     required String certificatePath,
   }) async {
     /// hash of the canonicalized unsigned invoice
-    final invoiceHashBase64 = await computeHashBase64(outputXmlPath);
+    final invoiceHashBase64 = await computeHashBase64(await outputXmlPath);
 
     //// SignedProperties
     final signedProperties = XmlDocument.parse(
       '<SignedProperties Id="xadesSignedProperties"/>',
     );
 
-    final tempPropsPath = '$workingDir/signed_props.xml';
+    // final dir = await workingDir;
+    final tempPropsPath = await AppPaths.signedPropsPath();
     await File(
       tempPropsPath,
     ).writeAsString(signedProperties.toXmlString(pretty: false));
@@ -118,7 +120,7 @@ class InvoiceManager {
     );
 
     // save SignedInfo
-    final signedInfoPath = '$workingDir/signedInfo.xml';
+    final signedInfoPath = await AppPaths.signedInfoPath();
     await File(
       signedInfoPath,
     ).writeAsString(signedInfo.toXmlString(pretty: false));
@@ -166,12 +168,11 @@ class InvoiceManager {
     );
 
     /// write invoice to input.xml
-    await writeXml(inputXmlPath, invoice.toXmlString(pretty: false));
+    await writeXml(await inputXmlPath, invoice.toXmlString(pretty: false));
 
     // Canonicalize unsigned XML using cli tool
-    await runCanonicalizationCli(inputXmlPath, outputXmlPath);
-    final unsignedInvoiceHash = await computeHashBase64(outputXmlPath);
-
+    await runCanonicalizationCli(await inputXmlPath, await outputXmlPath);
+    final unsignedInvoiceHash = await computeHashBase64(await outputXmlPath);
     //  Inject XAdES signature
     final signedInvoice = await injectXadesSignature(
       invoice: invoice,
@@ -181,7 +182,7 @@ class InvoiceManager {
     // Save signed invoice
     final signedPath =
         '${await AppPaths.invoicesDir()}/invoice_$invoiceNumber.xml';
-    await writeXml(signedPath, signedInvoice.toXmlString(pretty: false));
+    await writeXml(signedPath, signedInvoice.toXmlString(pretty: true));
 
     final dto = {
       "uuid": const Uuid().v4(),
@@ -190,7 +191,7 @@ class InvoiceManager {
         signedInvoice.toXmlString(pretty: false).codeUnits,
       ),
     };
-    print(signedInvoice.toXmlString(pretty: true));
+    //  await writeXml(signedPath, signedInvoice.toXmlString(pretty: true));
     await ApiService.sendToServerDto(dto);
 
     return dto;

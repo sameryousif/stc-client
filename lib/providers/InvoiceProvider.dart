@@ -20,8 +20,8 @@ class InvoiceProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      // ✅ 1️⃣ Generate, sign, canonicalize, and submit invoice in one go
-      final dto = await manager.generateSignAndSubmitInvoice(
+      // Generate, sign, canonicalize, and submit invoice in one go
+      await manager.generateSignAndSubmitInvoice(
         invoiceNumber: invoiceNumber,
         items: items,
         supplierInfo: supplierInfo,
@@ -29,8 +29,8 @@ class InvoiceProvider extends ChangeNotifier {
       );
 
       lastInvoiceId = invoiceNumber;
-      debugPrint('Invoice submitted successfully!');
-      debugPrint('Submission DTO: $dto');
+      //debugPrint('Invoice submitted successfully!');
+      //debugPrint('Submission DTO: $dto');
     } catch (e, s) {
       debugPrint('Invoice error: $e');
       debugPrint('$s');

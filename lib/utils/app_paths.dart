@@ -43,4 +43,31 @@ class AppPaths {
     if (!await sig.exists()) await sig.create(recursive: true);
     return sig.path;
   }
+
+  static Future<Directory> workingDir() async {
+    final base = await AppPaths.appDir(); // AppData/Support/stc_client
+    final dir = Directory(p.join(base.path, "work"));
+    if (!await dir.exists()) await dir.create(recursive: true);
+    return dir;
+  }
+
+  static Future<String> inputXmlPath() async {
+    final dir = await workingDir();
+    return p.join(dir.path, "input.xml");
+  }
+
+  static Future<String> outputXmlPath() async {
+    final dir = await workingDir();
+    return p.join(dir.path, "output.xml");
+  }
+
+  static Future<String> signedPropsPath() async {
+    final dir = await workingDir();
+    return p.join(dir.path, "signed_props.xml");
+  }
+
+  static Future<String> signedInfoPath() async {
+    final dir = await workingDir();
+    return p.join(dir.path, "signedInfo.xml");
+  }
 }
