@@ -2,10 +2,10 @@ import 'dart:io';
 import 'package:path/path.dart' as p;
 
 class ToolPaths {
-  /// Directory where your app executable lives
+  /// Directory where app executable exists
   static String get exeDir => File(Platform.resolvedExecutable).parent.path;
 
-  /// tools folder shipped with the app
+  /// tools folder bundled with the app
   static String get toolsDir => p.join(exeDir, "tools");
 
   static String get opensslPath => p.join(toolsDir, "openssl.exe");
