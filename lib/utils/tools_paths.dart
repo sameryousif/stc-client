@@ -12,7 +12,7 @@ class ToolPaths {
 
   static String get cliToolPath => p.join(toolsDir, "stc-cli.exe");
 
-  static Future<void> verifyToolsExist() async {
+  static Future<bool> verifyToolsExist() async {
     final cli = File(cliToolPath);
     final openssl = File(opensslPath);
 
@@ -23,5 +23,10 @@ class ToolPaths {
     if (!await openssl.exists()) {
       throw Exception("openssl.exe not found at: ${openssl.path}");
     }
+    if (await cli.exists() && await openssl.exists()) {
+      print("✔ All required tools are present.");
+      return true;
+    }
+    return false;
   }
 }

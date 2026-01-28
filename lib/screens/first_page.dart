@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:stc_client/providers/CertificateProvider.dart';
 import 'package:stc_client/services/crypto_service.dart';
+import 'package:stc_client/utils/tools_paths.dart';
 
 class FirstPage extends StatelessWidget {
-  const FirstPage({Key? key}) : super(key: key);
+  FirstPage({Key? key}) : super(key: key);
+  final CryptoService cryptoService = CryptoService();
 
   @override
   Widget build(BuildContext context) {
@@ -23,17 +25,24 @@ class FirstPage extends StatelessWidget {
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () async {
-                  // final csrFile = await loadCsrFromPath();
                   final provider = Provider.of<CertificateProvider>(
                     context,
                     listen: false,
                   );
+                  final toolsOk = await ToolPaths.verifyToolsExist();
+                  if (!toolsOk) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          "Please make sure all required tools are present in the tools folder.",
+                        ),
+                        backgroundColor: Colors.red,
+                        duration: Duration(seconds: 5),
+                      ),
+                    );
+                    return;
+                  }
                   await provider.enrollCertificate();
-                  //await sendCsrAndSaveCert(csrFile!);
-                  /* Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => InvoicePage()),
-                  );*/
                 },
                 child: const Text('Generate Certificate'),
               ),
@@ -41,13 +50,20 @@ class FirstPage extends StatelessWidget {
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () async {
-                  CryptoService cryptoService = CryptoService();
+                  final toolsOk = await ToolPaths.verifyToolsExist();
+                  if (!toolsOk) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          "Please make sure all required tools are present in the tools folder.",
+                        ),
+                        backgroundColor: Colors.red,
+                        duration: Duration(seconds: 5),
+                      ),
+                    );
+                    return;
+                  }
                   await cryptoService.generateKeyAndCsr();
-                  // Navigate to InvoicePage
-                  /*Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => InvoicePage()),
-                  );*/
                 },
                 child: const Text('Generate private key and CSR'),
               ),
