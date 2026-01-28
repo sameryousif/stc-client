@@ -16,10 +16,6 @@ class InvoicePage extends StatefulWidget {
 }
 
 class _InvoicePageState extends State<InvoicePage> {
-  // -------------------------------------------------------------
-  // ALL CONTROLLERS
-  // -------------------------------------------------------------
-
   // Invoice info
   final invoiceNumber = TextEditingController();
   final invoiceDate = TextEditingController();
@@ -44,8 +40,6 @@ class _InvoicePageState extends State<InvoicePage> {
   final customerPhone = TextEditingController();
   final customerEmail = TextEditingController();
 
-  final String privateKeyPath = r'C:\openssl_keys\merchant_private.key';
-  final String csrPath = r'C:\openssl_keys\merchant_csr.pem';
   // Items list
   List<InvoiceItem> items = [];
 
@@ -89,7 +83,7 @@ class _InvoicePageState extends State<InvoicePage> {
     items.add(firstItem);
   }
 
-  // Add listeners to recalc totals when any field changes
+  // listeners to recalc totals when any field changes
   void _addItemListeners(InvoiceItem item) {
     item.quantityController.addListener(_recalculate);
     item.unitPriceController.addListener(_recalculate);
@@ -97,7 +91,7 @@ class _InvoicePageState extends State<InvoicePage> {
   }
 
   void _recalculate() {
-    setState(() {}); // Rebuild UI to update totals
+    setState(() {});
   }
 
   // Totals
@@ -117,9 +111,7 @@ class _InvoicePageState extends State<InvoicePage> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            // -------------------------------------------------------------
             // INVOICE INFO
-            // -------------------------------------------------------------
             SectionTitle("Invoice Information"),
             CustomField(
               controller: invoiceNumber,
@@ -132,9 +124,7 @@ class _InvoicePageState extends State<InvoicePage> {
 
             const SizedBox(height: 20),
 
-            // -------------------------------------------------------------
             // SUPPLIER
-            // -------------------------------------------------------------
             SectionTitle("Supplier Information"),
             CustomField(controller: supplierName, label: "Supplier Name"),
             CustomField(controller: supplierTIN, label: "Supplier TIN"),
@@ -146,9 +136,7 @@ class _InvoicePageState extends State<InvoicePage> {
 
             const SizedBox(height: 20),
 
-            // -------------------------------------------------------------
             // CUSTOMER
-            // -------------------------------------------------------------
             SectionTitle("Customer Information"),
             CustomField(controller: customerName, label: "Customer Name"),
             CustomField(controller: customerTIN, label: "Customer TIN"),
@@ -160,9 +148,7 @@ class _InvoicePageState extends State<InvoicePage> {
 
             const SizedBox(height: 20),
 
-            // -------------------------------------------------------------
             // ITEMS
-            // -------------------------------------------------------------
             SectionTitle("Invoice Items"),
             ListView.builder(
               shrinkWrap: true,
@@ -181,9 +167,7 @@ class _InvoicePageState extends State<InvoicePage> {
 
             const SizedBox(height: 20),
 
-            // -------------------------------------------------------------
             // TOTALS
-            // -------------------------------------------------------------
             SectionTitle("Totals"),
             TotalsRow(title: "Subtotal", value: subtotal),
             TotalsRow(title: "Tax Total", value: taxTotal),
@@ -191,9 +175,6 @@ class _InvoicePageState extends State<InvoicePage> {
 
             const SizedBox(height: 20),
 
-            // -------------------------------------------------------------
-            // BUTTON
-            // -------------------------------------------------------------
             ElevatedButton(
               onPressed: () async {
                 final provider = context.read<InvoiceProvider>();
@@ -211,7 +192,6 @@ class _InvoicePageState extends State<InvoicePage> {
                   },
                 );
 
-                // Show result message in the app
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(result.message),
