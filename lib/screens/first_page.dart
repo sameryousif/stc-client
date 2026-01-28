@@ -51,6 +51,13 @@ class FirstPage extends StatelessWidget {
                 },
                 child: const Text('Generate private key and CSR'),
               ),
+              const SizedBox(height: 40),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/invoice');
+                },
+                child: const Text('Go to Invoice Page'),
+              ),
             ],
           ),
         ),

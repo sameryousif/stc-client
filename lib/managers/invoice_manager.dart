@@ -5,11 +5,12 @@ import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 import 'package:stc_client/models/invoice_item.dart';
 import 'package:stc_client/services/api_service.dart';
+import 'package:stc_client/utils/tools_paths.dart';
 import 'package:stc_client/utils/ubl_generator.dart';
 import 'package:uuid/uuid.dart';
 import 'package:xml/xml.dart';
 
-import '../utils/constants.dart';
+import '../utils/app_paths.dart';
 
 class InvoiceManager {
   static const String workingDir = r"C:\Users\sam\stc_client";
@@ -53,7 +54,7 @@ class InvoiceManager {
     String outputPath,
   ) async {
     final result = await Process.run(
-      Constants.cliToolPath,
+      ToolPaths.cliToolPath,
       [inputPath, outputPath],
       workingDirectory: workingDir,
       runInShell: true,
@@ -74,11 +75,11 @@ class InvoiceManager {
 
   Future<String> signXml(String xmlPath) async {
     final signaturePath = xmlPath.replaceAll('.xml', '.sig');
-    final result = await Process.run(Constants.opensslPath, [
+    final result = await Process.run(ToolPaths.opensslPath, [
       'dgst',
       '-sha256',
       '-sign',
-      Constants.privateKeyPath,
+      await AppPaths.privateKeyPath(),
       '-out',
       signaturePath,
       xmlPath,
@@ -174,11 +175,12 @@ class InvoiceManager {
     //  Inject XAdES signature
     final signedInvoice = await injectXadesSignature(
       invoice: invoice,
-      certificatePath: Constants.certPath,
+      certificatePath: await AppPaths.certPath(),
     );
 
     // Save signed invoice
-    final signedPath = '${Constants.invoicesDir}/invoice_$invoiceNumber.xml';
+    final signedPath =
+        '${await AppPaths.invoicesDir()}/invoice_$invoiceNumber.xml';
     await writeXml(signedPath, signedInvoice.toXmlString(pretty: false));
 
     final dto = {
@@ -188,7 +190,7 @@ class InvoiceManager {
         signedInvoice.toXmlString(pretty: false).codeUnits,
       ),
     };
-    // print(signedInvoice.toXmlString(pretty: true));
+    print(signedInvoice.toXmlString(pretty: true));
     await ApiService.sendToServerDto(dto);
 
     return dto;

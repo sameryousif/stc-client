@@ -1,12 +1,12 @@
 <Invoice xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2" xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2" xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:ext="urn:oasis:names:specification:ubl:schema:xsd:CommonExtensionComponents-2" xmlns:xades="http://uri.etsi.org/01903/v1.3.2#">
   <cbc:ProfileID>reporting:1.0</cbc:ProfileID>
-  <cbc:ID>3bba5812-ce52-4679-b098-f22b80794b00</cbc:ID>
-  <cbc:UUID>20855ce3-4c4d-4679-acb1-1247decbcfc5</cbc:UUID>
-  <cbc:IssueDate>2026-01-26</cbc:IssueDate>
-  <cbc:IssueTime>14:52:46</cbc:IssueTime>
+  <cbc:ID>040cf641-4f66-499a-9e19-3a385a0de7e1</cbc:ID>
+  <cbc:UUID>b4600c91-52c5-423a-bc12-9cbcaf7973e2</cbc:UUID>
+  <cbc:IssueDate>2026-01-28</cbc:IssueDate>
+  <cbc:IssueTime>12:40:38</cbc:IssueTime>
   <cbc:InvoiceTypeCode name="0100000">388</cbc:InvoiceTypeCode>
-  <cbc:DocumentCurrencyCode>SAR</cbc:DocumentCurrencyCode>
-  <cbc:TaxCurrencyCode>SAR</cbc:TaxCurrencyCode>
+  <cbc:DocumentCurrencyCode>SDG</cbc:DocumentCurrencyCode>
+  <cbc:TaxCurrencyCode>SDG</cbc:TaxCurrencyCode>
   <cac:AdditionalDocumentReference>
     <cbc:ID>ICV</cbc:ID>
     <cbc:UUID>1</cbc:UUID>
@@ -46,23 +46,23 @@
   <cac:InvoiceLine>
     <cbc:ID>1</cbc:ID>
     <cbc:InvoicedQuantity unitCode="PCE">2.000000</cbc:InvoicedQuantity>
-    <cbc:LineExtensionAmount currencyID="SAR">3000.00</cbc:LineExtensionAmount>
+    <cbc:LineExtensionAmount currencyID="SDG">3000.00</cbc:LineExtensionAmount>
     <cac:TaxTotal>
-      <cbc:TaxAmount currencyID="SAR">450.00</cbc:TaxAmount>
+      <cbc:TaxAmount currencyID="SDG">450.00</cbc:TaxAmount>
     </cac:TaxTotal>
     <cac:Item>
       <cbc:Name>Laptop</cbc:Name>
     </cac:Item>
     <cac:Price>
-      <cbc:PriceAmount currencyID="SAR">1500.00</cbc:PriceAmount>
+      <cbc:PriceAmount currencyID="SDG">1500.00</cbc:PriceAmount>
     </cac:Price>
   </cac:InvoiceLine>
   <cac:TaxTotal>
-    <cbc:TaxAmount currencyID="SAR">450.00</cbc:TaxAmount>
+    <cbc:TaxAmount currencyID="SDG">450.00</cbc:TaxAmount>
   </cac:TaxTotal>
   <cac:LegalMonetaryTotal>
-    <cbc:LineExtensionAmount currencyID="SAR">3000.00</cbc:LineExtensionAmount>
-    <cbc:TaxInclusiveAmount currencyID="SAR">3450.00</cbc:TaxInclusiveAmount>
-    <cbc:PayableAmount currencyID="SAR">3450.00</cbc:PayableAmount>
+    <cbc:LineExtensionAmount currencyID="SDG">3000.00</cbc:LineExtensionAmount>
+    <cbc:TaxInclusiveAmount currencyID="SDG">3450.00</cbc:TaxInclusiveAmount>
+    <cbc:PayableAmount currencyID="SDG">3450.00</cbc:PayableAmount>
   </cac:LegalMonetaryTotal>
 </Invoice>

@@ -1,18 +1,18 @@
 import 'dart:io';
-import '../utils/constants.dart';
+import '../utils/app_paths.dart';
 
 class FileService {
-  final String certPath = Constants.certPath;
+  final Future<String> certPath = AppPaths.certPath();
 
   /// Saves certificate to PEM file
   Future<void> saveCertificate(String certificateContent) async {
-    await File(certPath).writeAsString(certificateContent);
+    await File(await certPath).writeAsString(certificateContent);
     print('✔ Certificate saved at: $certPath');
   }
 
   /// Checks if the certificate file exists and is still valid
   Future<bool> isCertificateStillValid({int maxDays = 30}) async {
-    final certFile = File(certPath);
+    final certFile = File(await certPath);
 
     if (!await certFile.exists()) return false;
 

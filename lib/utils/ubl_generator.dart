@@ -279,9 +279,9 @@ String generateUBLInvoice({
 
       builder.element(
         'cbc:DocumentCurrencyCode',
-        nest: () => builder.text('SAR'),
+        nest: () => builder.text('SDG'),
       );
-      builder.element('cbc:TaxCurrencyCode', nest: () => builder.text('SAR'));
+      builder.element('cbc:TaxCurrencyCode', nest: () => builder.text('SDG'));
 
       ///////////////////
       //  additional document references
@@ -404,7 +404,7 @@ String generateUBLInvoice({
             builder.element(
               'cbc:LineExtensionAmount',
               nest: () {
-                builder.attribute('currencyID', 'SAR');
+                builder.attribute('currencyID', 'SDG');
                 builder.text(lineTotal.toStringAsFixed(2));
               },
             );
@@ -415,7 +415,7 @@ String generateUBLInvoice({
                 builder.element(
                   'cbc:TaxAmount',
                   nest: () {
-                    builder.attribute('currencyID', 'SAR');
+                    builder.attribute('currencyID', 'SDG');
                     builder.text(tax.toStringAsFixed(2));
                   },
                 );
@@ -433,7 +433,7 @@ String generateUBLInvoice({
                 builder.element(
                   'cbc:PriceAmount',
                   nest: () {
-                    builder.attribute('currencyID', 'SAR');
+                    builder.attribute('currencyID', 'SDG');
                     builder.text(item.unitPrice.toStringAsFixed(2));
                   },
                 );
@@ -451,7 +451,7 @@ String generateUBLInvoice({
             () => builder.element(
               'cbc:TaxAmount',
               nest: () {
-                builder.attribute('currencyID', 'SAR');
+                builder.attribute('currencyID', 'SDG');
                 builder.text(vatTotal.toStringAsFixed(2));
               },
             ),
@@ -463,21 +463,21 @@ String generateUBLInvoice({
           builder.element(
             'cbc:LineExtensionAmount',
             nest: () {
-              builder.attribute('currencyID', 'SAR');
+              builder.attribute('currencyID', 'SDG');
               builder.text(subtotal.toStringAsFixed(2));
             },
           );
           builder.element(
             'cbc:TaxInclusiveAmount',
             nest: () {
-              builder.attribute('currencyID', 'SAR');
+              builder.attribute('currencyID', 'SDG');
               builder.text(total.toStringAsFixed(2));
             },
           );
           builder.element(
             'cbc:PayableAmount',
             nest: () {
-              builder.attribute('currencyID', 'SAR');
+              builder.attribute('currencyID', 'SDG');
               builder.text(total.toStringAsFixed(2));
             },
           );

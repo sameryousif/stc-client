@@ -1,13 +1,13 @@
 import 'dart:io';
-import '../utils/constants.dart';
+import '../utils/app_paths.dart';
 
 class CryptoService {
-  final String csrPath = Constants.csrPath;
-  final String keyPath = Constants.privateKeyPath;
+  final Future<String> csrPath = AppPaths.csrPath();
+  final Future<String> keyPath = AppPaths.privateKeyPath();
 
   /// Returns the CSR file
   Future<File> getCsrFile() async {
-    final csrFile = File(csrPath);
+    final csrFile = File(await csrPath);
 
     // If CSR doesn't exist, generate key and CSR first
     if (!await csrFile.exists()) {
@@ -30,7 +30,7 @@ class CryptoService {
       '-algorithm',
       'RSA',
       '-out',
-      keyPath,
+      await keyPath,
       '-pkeyopt',
       'rsa_keygen_bits:2048',
     ]);
@@ -47,9 +47,9 @@ class CryptoService {
       'req',
       '-new',
       '-key',
-      keyPath,
+      await keyPath,
       '-out',
-      csrPath,
+      await csrPath,
       '-subj',
       subj,
       '-outform',
