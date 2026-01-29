@@ -1,27 +1,29 @@
 import 'dart:io';
 import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 
 class ToolPaths {
   /// Directory where app executable exists
-  static String get exeDir => File(Platform.resolvedExecutable).parent.path;
+  static Future<String> get exeDir async => await getApplicationSupportDirectory().then((dir) => dir.path);
+
 
   /// tools folder bundled with the app
-  static String get toolsDir => p.join(exeDir, "tools");
+  static Future<String> get toolsDir async => p.join(await exeDir, "tools");
 
-  static String get opensslPath => p.join(toolsDir, "openssl.exe");
+  static Future<String> get opensslPath async => Platform.isWindows ? p.join(await toolsDir, "openssl.exe") : "/usr/bin/openssl";
 
-  static String get cliToolPath => p.join(toolsDir, "stc-cli.exe");
+  static Future<String> get cliToolPath async => Platform.isWindows ? p.join(await toolsDir, "stc-cli.exe") : p.join(await toolsDir, "stc-cli");
 
   static Future<bool> verifyToolsExist() async {
-    final cli = File(cliToolPath);
-    final openssl = File(opensslPath);
-
+    final cli = File(await cliToolPath);
+    final openssl = File(await opensslPath);
     if (!await cli.exists()) {
-      throw Exception("stc-cli.exe not found at: ${cli.path}");
+      
+      throw Exception("stc-cli not found at: ${cli.path}");
     }
 
     if (!await openssl.exists()) {
-      throw Exception("openssl.exe not found at: ${openssl.path}");
+      throw Exception("openssl not found at: ${openssl.path}");
     }
     if (await cli.exists() && await openssl.exists()) {
       print("✔ All required tools are present.");

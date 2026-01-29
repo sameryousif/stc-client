@@ -55,7 +55,7 @@ class InvoiceManager {
   ) async {
     final dir = await workingDir;
     final result = await Process.run(
-      ToolPaths.cliToolPath,
+      await ToolPaths.cliToolPath,
       [inputPath, outputPath],
       workingDirectory: dir.path,
       runInShell: true,
@@ -76,7 +76,7 @@ class InvoiceManager {
 
   Future<String> signXml(String xmlPath) async {
     final signaturePath = xmlPath.replaceAll('.xml', '.sig');
-    final result = await Process.run(ToolPaths.opensslPath, [
+    final result = await Process.run(await ToolPaths.opensslPath, [
       'dgst',
       '-sha256',
       '-sign',
@@ -140,8 +140,8 @@ class InvoiceManager {
 
     // Read certificate and encode in Base64
     final certBytes = await File(certificatePath).readAsBytes();
-    final certificateBase64 = base64.encode(certBytes);
-
+    final certificateBase64 = base64.encode(certBytes );
+    print(certificateBase64);
     //  Build final XAdES signature USING CANONICAL SignedInfo
     final xadesSignature = buildXadesSignature(
       signedInfo: canonicalSignedInfo,

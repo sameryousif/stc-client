@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'package:stc_client/utils/tools_paths.dart';
+
 import '../utils/app_paths.dart';
 
 class CryptoService {
@@ -20,12 +22,12 @@ class CryptoService {
   /// Generates RSA private key and CSR using OpenSSL
   Future<void> generateKeyAndCsr() async {
     // Ensure the folder exists
-    Directory('C:/openssl_keys').createSync(recursive: true);
+    // Directory('../openssl_keys').createSync(recursive: true);
 
-    final opensslPath = r"C:\Program Files\OpenSSL-Win64\bin\openssl.exe";
+    final opensslPath = ToolPaths.opensslPath;
 
     // Generate RSA private key
-    final keyResult = await Process.run(opensslPath, [
+    final keyResult = await Process.run(await opensslPath, [
       'genpkey',
       '-algorithm',
       'RSA',
@@ -43,7 +45,7 @@ class CryptoService {
 
     // Generate CSR in PEM format
     final subj = '/C=SD/O=My Company Ltd/OU=IT/CN=merchant.mycompany.sd';
-    final csrResult = await Process.run(opensslPath, [
+    final csrResult = await Process.run(await opensslPath, [
       'req',
       '-new',
       '-key',
