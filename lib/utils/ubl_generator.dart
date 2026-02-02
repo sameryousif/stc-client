@@ -107,29 +107,107 @@ XmlDocument buildSignedInfo({
   return builder.buildDocument();
 }
 
+/// Build the XAdES SignedProperties block
+XmlElement buildSignedProperties({
+  required String signatureId,
+  required String signingTime,
+  required String certDigestBase64,
+  required String issuerName,
+  required String serialNumber,
+}) {
+  final builder = XmlBuilder();
+
+  builder.element(
+    'xades:QualifyingProperties',
+    nest: () {
+      builder.attribute('Target', '#$signatureId');
+
+      builder.element(
+        'xades:SignedProperties',
+        nest: () {
+          builder.attribute('Id', 'xadesSignedProperties');
+
+          builder.element(
+            'xades:SignedSignatureProperties',
+            nest: () {
+              builder.element('xades:SigningTime', nest: signingTime);
+
+              builder.element(
+                'xades:SigningCertificate',
+                nest: () {
+                  builder.element(
+                    'xades:Cert',
+                    nest: () {
+                      builder.element(
+                        'xades:CertDigest',
+                        nest: () {
+                          builder.element(
+                            'ds:DigestMethod',
+                            nest: () {
+                              builder.attribute(
+                                'Algorithm',
+                                'http://www.w3.org/2001/04/xmlenc#sha256',
+                              );
+                            },
+                          );
+                          builder.element(
+                            'ds:DigestValue',
+                            nest: certDigestBase64,
+                          );
+                        },
+                      );
+
+                      builder.element(
+                        'xades:IssuerSerial',
+                        nest: () {
+                          builder.element(
+                            'ds:X509IssuerName',
+                            nest: issuerName,
+                          );
+                          builder.element(
+                            'ds:X509SerialNumber',
+                            nest: serialNumber,
+                          );
+                        },
+                      );
+                    },
+                  );
+                },
+              );
+            },
+          );
+        },
+      );
+    },
+  );
+
+  // Simply return the first element of the fragment
+  return builder.buildFragment().children.whereType<XmlElement>().first;
+}
+
 ///////////////construct XAdES Signature
+/// Build the full XAdES Signature block
 XmlDocument buildXadesSignature({
   required XmlDocument signedInfo,
   required String signatureValueBase64,
   required String certificateBase64,
-  required XmlDocument signedProperties,
+  required XmlElement signedProperties,
 }) {
   final builder = XmlBuilder();
 
   builder.element(
     'ds:Signature',
-    attributes: {
-      'xmlns:ds': 'http://www.w3.org/2000/09/xmldsig#',
-      'Id': 'signature',
-    },
     nest: () {
+      builder.attribute('xmlns:ds', 'http://www.w3.org/2000/09/xmldsig#');
+      builder.attribute('Id', 'signature');
+
       // Insert SignedInfo
       builder.xml(signedInfo.rootElement.toXmlString());
 
-      // SignatureValue (result of signing SignedInfo)
+      // SignatureValue
       builder.element('ds:SignatureValue', nest: signatureValueBase64);
 
-      // Certificate
+      // KeyInfo with certificate
       builder.element(
         'ds:KeyInfo',
         nest: () {
@@ -142,11 +220,11 @@ XmlDocument buildXadesSignature({
         },
       );
 
-      // XAdES block
+      // XAdES SignedProperties inside ds:Object
       builder.element(
         'ds:Object',
         nest: () {
-          builder.xml(signedProperties.rootElement.toXmlString());
+          builder.xml(signedProperties.toXmlString(pretty: false));
         },
       );
     },
@@ -210,6 +288,7 @@ String generateUBLInvoice({
   required String issueTime,
   required int icv,
   required String previousInvoiceHash,
+  required String qr,
   required String supplierName,
   required String supplierVAT,
   required String customerName,
@@ -306,6 +385,24 @@ String generateUBLInvoice({
                 nest: () {
                   builder.attribute('mimeCode', 'text/plain');
                   builder.text(previousInvoiceHash);
+                },
+              );
+            },
+          );
+        },
+      );
+      builder.element(
+        'cac:AdditionalDocumentReference',
+        nest: () {
+          builder.element('cbc:ID', nest: () => builder.text('QR'));
+          builder.element(
+            'cac:Attachment',
+            nest: () {
+              builder.element(
+                'cbc:EmbeddedDocumentBinaryObject',
+                nest: () {
+                  builder.attribute('mimeCode', 'text/plain');
+                  builder.text(qr);
                 },
               );
             },

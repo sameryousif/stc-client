@@ -29,8 +29,9 @@ class FirstPage extends StatelessWidget {
                     context,
                     listen: false,
                   );
-                  final toolsOk = await ToolPaths.verifyToolsExist();
-                  if (!toolsOk) {
+                  await ToolPaths.ensureToolsReady();
+                  await ToolPaths.verifyToolsExist();
+                  /*if (!toolsOk) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text(
@@ -41,7 +42,7 @@ class FirstPage extends StatelessWidget {
                       ),
                     );
                     return;
-                  }
+                  }*/
                   await provider.enrollCertificate();
                 },
                 child: const Text('Generate Certificate'),
@@ -50,8 +51,9 @@ class FirstPage extends StatelessWidget {
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () async {
-                  final toolsOk = await ToolPaths.verifyToolsExist();
-                  if (!toolsOk) {
+                  await ToolPaths.ensureToolsReady();
+                  await ToolPaths.verifyToolsExist();
+                  /*if (toolsOk) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text(
@@ -62,7 +64,7 @@ class FirstPage extends StatelessWidget {
                       ),
                     );
                     return;
-                  }
+                  }*/
                   await cryptoService.generateKeyAndCsr();
                 },
                 child: const Text('Generate private key and CSR'),

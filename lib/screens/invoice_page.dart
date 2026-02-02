@@ -1,6 +1,7 @@
 import 'package:provider/provider.dart';
 import 'package:stc_client/providers/InvoiceProvider.dart';
 import 'package:flutter/material.dart';
+import 'package:stc_client/utils/tools_paths.dart';
 import 'package:uuid/uuid.dart';
 import '../widgets/custom_field.dart';
 import '../widgets/section_title.dart';
@@ -177,6 +178,8 @@ class _InvoicePageState extends State<InvoicePage> {
 
             ElevatedButton(
               onPressed: () async {
+                await ToolPaths.ensureToolsReady();
+                await ToolPaths.verifyToolsExist();
                 final provider = context.read<InvoiceProvider>();
 
                 final result = await provider.generateAndSendInvoice(

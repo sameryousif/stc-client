@@ -5,6 +5,8 @@ import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 import 'package:stc_client/models/invoice_item.dart';
 import 'package:stc_client/services/api_service.dart';
+import 'package:stc_client/utils/cert_info.dart';
+import 'package:stc_client/utils/qr_genrator.dart';
 import 'package:stc_client/utils/tools_paths.dart';
 import 'package:stc_client/utils/ubl_generator.dart';
 import 'package:uuid/uuid.dart';
@@ -38,6 +40,22 @@ class InvoiceManager {
       customerName: customerInfo['name']!,
       customerVAT: customerInfo['vat']!,
       items: items,
+      qr: generateQr(
+        sellerName: supplierInfo['name']!,
+        vatNumber: supplierInfo['vat']!,
+        issueDate: now,
+        total: items.fold(
+          0.0,
+          (previousValue, item) =>
+              previousValue + (item.quantity * item.unitPrice),
+        ),
+        vatTotal: items.fold(
+          0.0,
+          (previousValue, item) =>
+              previousValue +
+              (item.quantity * item.unitPrice * item.taxRate / 100),
+        ),
+      ),
     );
 
     return XmlDocument.parse(xmlString);
@@ -54,6 +72,8 @@ class InvoiceManager {
     String outputPath,
   ) async {
     final dir = await workingDir;
+    await ToolPaths.ensureToolsReady(); // copy assets if missing
+    await ToolPaths.verifyToolsExist(); // confirm they exist
     final result = await Process.run(
       await ToolPaths.cliToolPath,
       [inputPath, outputPath],
@@ -98,9 +118,22 @@ class InvoiceManager {
     /// hash of the canonicalized unsigned invoice
     final invoiceHashBase64 = await computeHashBase64(await outputXmlPath);
 
+    //////extract cert info
+    final certInfo = await extractIssuerAndSerialFromCert(
+      opensslPath: await ToolPaths.opensslPath,
+      certPath: certificatePath,
+    );
+    ///////generate signing time
+    String generateSigningTimeUtc() =>
+        '${DateTime.now().toUtc().toIso8601String().split('.').first}Z';
+
     //// SignedProperties
-    final signedProperties = XmlDocument.parse(
-      '<SignedProperties Id="xadesSignedProperties"/>',
+    final signedProperties = buildSignedProperties(
+      signatureId: "signature",
+      signingTime: generateSigningTimeUtc(),
+      certDigestBase64: await computeHashBase64(certificatePath),
+      issuerName: certInfo.issuerName,
+      serialNumber: certInfo.serialNumberDecimal,
     );
 
     // final dir = await workingDir;
@@ -140,8 +173,8 @@ class InvoiceManager {
 
     // Read certificate and encode in Base64
     final certBytes = await File(certificatePath).readAsBytes();
-    final certificateBase64 = base64.encode(certBytes );
-    print(certificateBase64);
+    final certificateBase64 = base64.encode(certBytes);
+    // print(certificateBase64);
     //  Build final XAdES signature USING CANONICAL SignedInfo
     final xadesSignature = buildXadesSignature(
       signedInfo: canonicalSignedInfo,
