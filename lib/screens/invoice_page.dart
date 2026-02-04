@@ -14,7 +14,8 @@ import 'package:stc_client/widgets/invoice/totals_info.dart';
 class InvoicePage extends StatefulWidget {
   const InvoicePage({super.key});
   final Color appBarAndButtonColor = const Color(0xFF2C365A);
-  final Color pageBackgroundColor = const Color(0xFFEEE8DF);
+  final Color pageBackgroundColor = const Color(0xFFFFFFFF);
+  // const Color(0xFFEEE8DF);
 
   @override
   State<InvoicePage> createState() => _InvoicePageState();

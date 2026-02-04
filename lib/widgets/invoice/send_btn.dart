@@ -28,6 +28,7 @@ class SendInvoiceButton extends StatelessWidget {
           provider.isSending
               ? null
               : () async {
+                provider.signedXml = xmlController.text;
                 final result = await provider.sendInvoice();
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(

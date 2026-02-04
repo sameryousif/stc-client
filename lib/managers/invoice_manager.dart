@@ -232,7 +232,6 @@ class InvoiceManager {
       "invoice_hash": await computeHashBase64(await outputXmlPath),
       "invoice": base64.encode(xmlContent.codeUnits),
     };
-
     return dto;
   }
 
