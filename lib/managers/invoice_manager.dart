@@ -140,7 +140,7 @@ class InvoiceManager {
     final tempPropsPath = await AppPaths.signedPropsPath();
     await File(
       tempPropsPath,
-    ).writeAsString(signedProperties.toXmlString(pretty: false));
+    ).writeAsString(signedProperties.toXmlString(pretty: true));
     await runCanonicalizationCli(tempPropsPath, tempPropsPath);
 
     //final canonicalSignedPropsXml = await File(tempPropsPath).readAsString();
@@ -156,7 +156,7 @@ class InvoiceManager {
     final signedInfoPath = await AppPaths.signedInfoPath();
     await File(
       signedInfoPath,
-    ).writeAsString(signedInfo.toXmlString(pretty: false));
+    ).writeAsString(signedInfo.toXmlString(pretty: true));
 
     ////  Canonicalize SignedInfo
     await runCanonicalizationCli(signedInfoPath, signedInfoPath);
@@ -177,22 +177,24 @@ class InvoiceManager {
     // print(certificateBase64);
     //  Build final XAdES signature USING CANONICAL SignedInfo
     final xadesSignature = buildXadesSignature(
-      signedInfo: canonicalSignedInfo,
+      signedInfo: XmlDocument.parse(
+        canonicalSignedInfo.toXmlString(pretty: true),
+      ),
       signatureValueBase64: signatureBase64,
       certificateBase64: certificateBase64,
       signedProperties: signedProperties,
     );
 
-    //  Inject into invoice
     return injectSignature(invoice: invoice, signature: xadesSignature);
   }
 
-  Future<Map<String, String>> generateSignAndSubmitInvoice({
+  Future<String> generateAndSignInvoice({
     required String invoiceNumber,
     required List<InvoiceItem> items,
     required Map<String, String> supplierInfo,
     required Map<String, String> customerInfo,
   }) async {
+    /// Generate unsigned invoice
     final invoice = await generateUnsignedInvoice(
       invoiceNumber: invoiceNumber,
       items: items,
@@ -200,32 +202,36 @@ class InvoiceManager {
       customerInfo: customerInfo,
     );
 
-    /// write invoice to input.xml
-    await writeXml(await inputXmlPath, invoice.toXmlString(pretty: false));
+    /// Save invoice to input.xml
+    await writeXml(await inputXmlPath, invoice.toXmlString(pretty: true));
 
-    // Canonicalize unsigned XML using cli tool
+    /// Canonicalize
     await runCanonicalizationCli(await inputXmlPath, await outputXmlPath);
-    final unsignedInvoiceHash = await computeHashBase64(await outputXmlPath);
-    //  Inject XAdES signature
+    //final unsignedInvoiceHash = await computeHashBase64(await outputXmlPath);
+
+    /// Inject signature
     final signedInvoice = await injectXadesSignature(
       invoice: invoice,
       certificatePath: await AppPaths.certPath(),
     );
 
-    // Save signed invoice
+    /// Save signed XML locally
     final signedPath =
         '${await AppPaths.invoicesDir()}/invoice_$invoiceNumber.xml';
-    await writeXml(signedPath, signedInvoice.toXmlString(pretty: true));
+    await writeXml(signedPath, signedInvoice.toXmlString(pretty: false));
 
+    return signedPath;
+  }
+
+  Future<Map<String, String>> sendSignedInvoice({
+    required String xmlContent,
+    required uuid,
+  }) async {
     final dto = {
-      "uuid": const Uuid().v4(),
-      "invoice_hash": unsignedInvoiceHash,
-      "invoice": base64.encode(
-        signedInvoice.toXmlString(pretty: false).codeUnits,
-      ),
+      "uuid": uuid.toString(),
+      "invoice_hash": await computeHashBase64(await outputXmlPath),
+      "invoice": base64.encode(xmlContent.codeUnits),
     };
-    //  await writeXml(signedPath, signedInvoice.toXmlString(pretty: true));
-    await ApiService.sendToServerDto(dto);
 
     return dto;
   }

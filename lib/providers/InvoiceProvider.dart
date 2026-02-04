@@ -1,7 +1,9 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:stc_client/services/api_service.dart';
+
 import '../managers/invoice_manager.dart';
 import '../models/invoice_item.dart';
+import '../services/api_service.dart';
 
 class InvoiceResult {
   final bool success;
@@ -13,66 +15,89 @@ class InvoiceResult {
 class InvoiceProvider extends ChangeNotifier {
   final InvoiceManager manager;
 
-  bool isLoading = false;
-  String? lastInvoiceId;
-
   InvoiceProvider({required this.manager});
 
-  /// Generates, signs, canonicalizes, and sends the invoice
-  /// Returns InvoiceResult for UI
-  Future<InvoiceResult> generateAndSendInvoice({
+  bool isGenerating = false;
+  bool isSending = false;
+
+  String? signedXml;
+
+  String? qrBase64;
+  Map<String, String>? decodedQrFields;
+  String? currentInvoiceNumber;
+
+  /// generate and sign invoice
+  Future<InvoiceResult> generateAndSign({
     required String invoiceNumber,
     required List<InvoiceItem> items,
     required Map<String, String> supplierInfo,
     required Map<String, String> customerInfo,
   }) async {
-    isLoading = true;
+    isGenerating = true;
     notifyListeners();
 
     try {
-      // Generate, sign, canonicalize, submit invoice
-      final submissionDto = await manager.generateSignAndSubmitInvoice(
+      currentInvoiceNumber = invoiceNumber;
+      final signedPath = await manager.generateAndSignInvoice(
         invoiceNumber: invoiceNumber,
         items: items,
         supplierInfo: supplierInfo,
         customerInfo: customerInfo,
       );
 
-      // Send to server
-      final response = await ApiService.sendToServerDto(submissionDto);
+      final file = File(signedPath);
+      signedXml = await file.readAsString();
 
-      if (response == null) {
-        return InvoiceResult(
-          success: false,
-          message: "No response from server",
-        );
-      }
+      return InvoiceResult(success: true, message: "Invoice ready for preview");
+    } catch (e) {
+      return InvoiceResult(success: false, message: "Failed: $e");
+    } finally {
+      isGenerating = false;
+      notifyListeners();
+    }
+  }
 
-      // Check HTTP status code
-      if (response.statusCode == 200) {
-        lastInvoiceId = invoiceNumber;
+  // Send Invoice to Server API
+  Future<InvoiceResult> sendInvoice() async {
+    if (signedXml == null || signedXml!.isEmpty) {
+      return InvoiceResult(success: false, message: "No invoice to send");
+    }
+
+    isSending = true;
+    notifyListeners();
+
+    try {
+      final dto = await manager.sendSignedInvoice(
+        xmlContent: signedXml!,
+        uuid: currentInvoiceNumber!,
+      );
+      final response = await ApiService.sendToServerDto(dto);
+
+      if (response?.statusCode == 200) {
         return InvoiceResult(
           success: true,
-          message: "Invoice $invoiceNumber submitted successfully!",
+          message: "Invoice sent successfully!",
         );
       } else {
-        // Handle 4xx / 5xx errors
         return InvoiceResult(
           success: false,
           message:
-              "Invoice submission failed (HTTP ${response.statusCode}): ${response.data}",
+              "Send failed (HTTP ${response?.statusCode}): ${response?.data}",
         );
       }
-    } catch (e, s) {
-      debugPrint('Invoice error: $e');
-      debugPrint('$s');
-      return InvoiceResult(
-        success: false,
-        message: "Invoice submission failed: $e",
-      );
+    } catch (e) {
+      return InvoiceResult(success: false, message: "Send failed: $e");
     } finally {
-      isLoading = false;
+      isSending = false;
       notifyListeners();
     }
+  }
+
+  void refreshInvoice() {
+    signedXml = null;
+    qrBase64 = null;
+    decodedQrFields = null;
+    isGenerating = false;
+    notifyListeners();
   }
 }

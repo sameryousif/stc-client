@@ -9,7 +9,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'STC Client',
       theme: ThemeData(primarySwatch: Colors.blue),
-      home: FirstPage(),
+      home: InvoicePage(),
       routes: {'/invoice': (context) => const InvoicePage()},
       debugShowCheckedModeBanner: false,
     );

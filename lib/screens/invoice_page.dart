@@ -1,219 +1,159 @@
-import 'package:provider/provider.dart';
-import 'package:stc_client/providers/InvoiceProvider.dart';
 import 'package:flutter/material.dart';
-import 'package:stc_client/utils/tools_paths.dart';
-import 'package:uuid/uuid.dart';
-import '../widgets/custom_field.dart';
-import '../widgets/section_title.dart';
-import '../widgets/totals_row.dart';
-import '../widgets/item_card.dart';
-import '../models/invoice_item.dart';
+import 'package:provider/provider.dart';
+
+import 'package:stc_client/models/controllers/invoice_controller.dart';
+import 'package:stc_client/providers/InvoiceProvider.dart';
+import 'package:stc_client/widgets/invoice/customer_info.dart';
+import 'package:stc_client/widgets/invoice/invoice_info.dart';
+import 'package:stc_client/widgets/invoice/items_info.dart';
+import 'package:stc_client/widgets/invoice/send_btn.dart';
+import 'package:stc_client/widgets/invoice/sign_btn.dart';
+import 'package:stc_client/widgets/invoice/supplier_info.dart';
+import 'package:stc_client/widgets/invoice/totals_info.dart';
 
 class InvoicePage extends StatefulWidget {
   const InvoicePage({super.key});
+  final Color appBarAndButtonColor = const Color(0xFF2C365A);
+  final Color pageBackgroundColor = const Color(0xFFEEE8DF);
 
   @override
   State<InvoicePage> createState() => _InvoicePageState();
 }
 
 class _InvoicePageState extends State<InvoicePage> {
-  // Invoice info
-  final invoiceNumber = TextEditingController();
-  final invoiceDate = TextEditingController();
-  final invoiceType = TextEditingController();
-  final currencyCode = TextEditingController();
-
-  // Supplier info
-  final supplierName = TextEditingController();
-  final supplierTIN = TextEditingController();
-  final supplierAddress = TextEditingController();
-  final supplierCity = TextEditingController();
-  final supplierCountry = TextEditingController();
-  final supplierPhone = TextEditingController();
-  final supplierEmail = TextEditingController();
-
-  // Customer info
-  final customerName = TextEditingController();
-  final customerTIN = TextEditingController();
-  final customerAddress = TextEditingController();
-  final customerCity = TextEditingController();
-  final customerCountry = TextEditingController();
-  final customerPhone = TextEditingController();
-  final customerEmail = TextEditingController();
-
-  // Items list
-  List<InvoiceItem> items = [];
+  late final InvoiceFormController c;
+  late final ScrollController scrollController;
 
   @override
   void initState() {
     super.initState();
-
-    // Auto-fill basic data
-    invoiceNumber.text = const Uuid().v4();
-    invoiceDate.text = DateTime.now().toString().split(' ').first;
-    invoiceType.text = "380";
-    currencyCode.text = "SDG";
-
-    // Supplier info
-    supplierName.text = "My Supplier";
-    supplierTIN.text = "123456789";
-    supplierAddress.text = "Khartoum Bahri";
-    supplierCity.text = "Khartoum";
-    supplierCountry.text = "SD";
-    supplierPhone.text = "+249912345678";
-    supplierEmail.text = "supplier@example.com";
-
-    // Customer info
-    customerName.text = "Default Customer";
-    customerTIN.text = "5566778899";
-    customerAddress.text = "Omdurman";
-    customerCity.text = "Omdurman";
-    customerCountry.text = "SD";
-    customerPhone.text = "+249911111111";
-    customerEmail.text = "customer@example.com";
-
-    // Add first item
-    final firstItem = InvoiceItem(
-      name: "Laptop",
-      description: "Dell",
-      quantity: 2,
-      unitPrice: 1500,
-      taxRate: 15,
-    );
-    _addItemListeners(firstItem);
-    items.add(firstItem);
+    c = InvoiceFormController();
+    c.initDefaults(() => setState(() {}));
+    scrollController = ScrollController();
   }
 
-  // listeners to recalc totals when any field changes
-  void _addItemListeners(InvoiceItem item) {
-    item.quantityController.addListener(_recalculate);
-    item.unitPriceController.addListener(_recalculate);
-    item.taxRateController.addListener(_recalculate);
+  @override
+  void dispose() {
+    c.dispose();
+    scrollController.dispose();
+    super.dispose();
   }
-
-  void _recalculate() {
-    setState(() {});
-  }
-
-  // Totals
-  double get subtotal =>
-      items.fold(0, (sum, item) => sum + item.quantity * item.unitPrice);
-
-  double get taxTotal =>
-      items.fold(0, (sum, item) => sum + item.total * (item.taxRate / 100));
-
-  double get grandTotal => subtotal + taxTotal;
 
   @override
   Widget build(BuildContext context) {
+    final provider = context.watch<InvoiceProvider>();
+
     return Scaffold(
-      appBar: AppBar(title: const Text("STC Invoice Generator")),
-      body: SingleChildScrollView(
+      appBar: AppBar(
+        title: const Text(
+          "STC Invoice Generator",
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: widget.appBarAndButtonColor,
+        actions: [
+          IconButton(
+            tooltip: "Refresh Invoice",
+            icon: const Icon(Icons.refresh, color: Colors.white),
+            onPressed: () {
+              final provider = context.read<InvoiceProvider>();
+              provider.refreshInvoice();
+              // optionally, clear your form controller as well
+              c.clearAll();
+
+              c.initDefaults(() => setState(() {}));
+              scrollController.animateTo(
+                0,
+                duration: const Duration(milliseconds: 350),
+                curve: Curves.easeOut,
+              );
+            },
+          ),
+        ],
+      ),
+      body: Container(
+        color: widget.pageBackgroundColor,
         padding: const EdgeInsets.all(16),
-        child: Column(
+        child: Row(
           children: [
-            // INVOICE INFO
-            SectionTitle("Invoice Information"),
-            CustomField(
-              controller: invoiceNumber,
-              label: "Invoice Number",
-              readOnly: true,
-            ),
-            CustomField(controller: invoiceDate, label: "Invoice Date"),
-            CustomField(controller: invoiceType, label: "Invoice Type"),
-            CustomField(controller: currencyCode, label: "Currency Code"),
+            ////form left side
+            Expanded(
+              flex: 1,
+              child: SingleChildScrollView(
+                controller: scrollController,
+                child: Column(
+                  children: [
+                    InvoiceInfoSection(c: c),
+                    const SizedBox(height: 20),
+                    SupplierSection(c: c),
+                    const SizedBox(height: 20),
+                    CustomerSection(c: c),
+                    const SizedBox(height: 20),
+                    InvoiceItemsSection(
+                      items: c.items,
+                      onDelete: (index) => setState(() => c.removeItem(index)),
+                    ),
+                    const SizedBox(height: 20),
+                    InvoiceTotalsSection(
+                      subtotal: c.subtotal,
+                      taxTotal: c.taxTotal,
+                      grandTotal: c.grandTotal,
+                    ),
+                    const SizedBox(height: 20),
 
-            const SizedBox(height: 20),
-
-            // SUPPLIER
-            SectionTitle("Supplier Information"),
-            CustomField(controller: supplierName, label: "Supplier Name"),
-            CustomField(controller: supplierTIN, label: "Supplier TIN"),
-            CustomField(controller: supplierAddress, label: "Supplier Address"),
-            CustomField(controller: supplierCity, label: "Supplier City"),
-            CustomField(controller: supplierCountry, label: "Supplier Country"),
-            CustomField(controller: supplierPhone, label: "Supplier Phone"),
-            CustomField(controller: supplierEmail, label: "Supplier Email"),
-
-            const SizedBox(height: 20),
-
-            // CUSTOMER
-            SectionTitle("Customer Information"),
-            CustomField(controller: customerName, label: "Customer Name"),
-            CustomField(controller: customerTIN, label: "Customer TIN"),
-            CustomField(controller: customerAddress, label: "Customer Address"),
-            CustomField(controller: customerCity, label: "Customer City"),
-            CustomField(controller: customerCountry, label: "Customer Country"),
-            CustomField(controller: customerPhone, label: "Customer Phone"),
-            CustomField(controller: customerEmail, label: "Customer Email"),
-
-            const SizedBox(height: 20),
-
-            // ITEMS
-            SectionTitle("Invoice Items"),
-            ListView.builder(
-              shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
-              itemCount: items.length,
-              itemBuilder:
-                  (context, index) => ItemCard(
-                    item: items[index],
-                    onDelete: () {
-                      setState(() {
-                        items.removeAt(index);
-                      });
-                    },
-                  ),
+                    // Generate & Sign Button
+                    SizedBox(height: 20),
+                    SignInvoiceButton(
+                      c: c,
+                      color: widget.appBarAndButtonColor,
+                      xmlController: c.xmlController,
+                    ),
+                  ],
+                ),
+              ),
             ),
 
-            const SizedBox(height: 20),
+            const VerticalDivider(width: 20),
 
-            // TOTALS
-            SectionTitle("Totals"),
-            TotalsRow(title: "Subtotal", value: subtotal),
-            TotalsRow(title: "Tax Total", value: taxTotal),
-            TotalsRow(title: "Grand Total", value: grandTotal, bold: true),
-
-            const SizedBox(height: 20),
-
-            ElevatedButton(
-              onPressed: () async {
-                await ToolPaths.ensureToolsReady();
-                await ToolPaths.verifyToolsExist();
-                final provider = context.read<InvoiceProvider>();
-
-                final result = await provider.generateAndSendInvoice(
-                  invoiceNumber: invoiceNumber.text,
-                  items: items,
-                  supplierInfo: {
-                    "name": supplierName.text,
-                    "vat": supplierTIN.text,
-                  },
-                  customerInfo: {
-                    "name": customerName.text,
-                    "vat": customerTIN.text,
-                  },
-                );
-
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(result.message),
-                    backgroundColor: result.success ? Colors.green : Colors.red,
-                    duration: Duration(seconds: 5),
+            ///right side preview and send
+            Expanded(
+              flex: 1,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Center(
+                    child: const Text(
+                      "Signed XML Preview",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
-                );
-              },
-              child:
-                  context.watch<InvoiceProvider>().isLoading
-                      ? SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          color: Colors.white,
-                          strokeWidth: 2,
-                        ),
-                      )
-                      : Text("Submit Invoice"),
+                  const SizedBox(height: 8),
+                  Expanded(
+                    child: TextField(
+                      controller: c.xmlController,
+                      maxLines: null,
+                      expands: true,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        hintText: "XML will appear here",
+                      ),
+                      onChanged: (value) {
+                        if (!provider.isGenerating) {
+                          provider.signedXml = value;
+                        }
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+
+                  // Send Button
+                  SizedBox(height: 20),
+                  SendInvoiceButton(
+                    c: c,
+                    color: widget.appBarAndButtonColor,
+                    xmlController: c.xmlController,
+                  ),
+                ],
+              ),
             ),
           ],
         ),

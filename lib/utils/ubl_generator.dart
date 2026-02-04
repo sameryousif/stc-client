@@ -198,11 +198,11 @@ XmlDocument buildXadesSignature({
   builder.element(
     'ds:Signature',
     nest: () {
-      builder.attribute('xmlns:ds', 'http://www.w3.org/2000/09/xmldsig#');
+      //  builder.attribute('xmlns:ds', 'http://www.w3.org/2000/09/xmldsig#');
       builder.attribute('Id', 'signature');
 
       // Insert SignedInfo
-      builder.xml(signedInfo.rootElement.toXmlString());
+      builder.xml(signedInfo.rootElement.toXmlString(pretty: false));
 
       // SignatureValue
       builder.element('ds:SignatureValue', nest: signatureValueBase64);
@@ -246,7 +246,7 @@ XmlElement buildUBLExtensions(XmlDocument signatureDoc) {
           builder.element(
             'ext:ExtensionContent',
             nest: () {
-              builder.xml(signatureDoc.rootElement.toXmlString());
+              builder.xml(signatureDoc.rootElement.toXmlString(pretty: true));
             },
           );
         },
@@ -343,8 +343,8 @@ String generateUBLInvoice({
         'cbc:ProfileID',
         nest: () => builder.text('reporting:1.0'),
       );
-      builder.element('cbc:ID', nest: () => builder.text(invoiceNumber));
-      builder.element('cbc:UUID', nest: () => builder.text(uuid));
+      builder.element('cbc:ID', nest: () => builder.text("S003"));
+      builder.element('cbc:UUID', nest: () => builder.text(invoiceNumber));
       builder.element('cbc:IssueDate', nest: () => builder.text(issueDate));
       builder.element('cbc:IssueTime', nest: () => builder.text(issueTime));
 
