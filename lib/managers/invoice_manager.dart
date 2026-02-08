@@ -40,7 +40,7 @@ class InvoiceManager {
       customerName: customerInfo['name']!,
       customerVAT: customerInfo['vat']!,
       items: items,
-      qr: generateQr(
+      /* qr: generateQr(
         sellerName: supplierInfo['name']!,
         vatNumber: supplierInfo['vat']!,
         issueDate: now,
@@ -55,7 +55,7 @@ class InvoiceManager {
               previousValue +
               (item.quantity * item.unitPrice * item.taxRate / 100),
         ),
-      ),
+      ),*/
     );
 
     return XmlDocument.parse(xmlString);
@@ -220,6 +220,27 @@ class InvoiceManager {
         '${await AppPaths.invoicesDir()}/invoice_$invoiceNumber.xml';
     await writeXml(signedPath, signedInvoice.toXmlString(pretty: false));
 
+    // Add QR code to the signed XML
+    await addQrToInvoice(
+      signedInvoicePath: signedPath,
+      qrBase64: generateQr(
+        sellerName: supplierInfo['name']!,
+        vatNumber: supplierInfo['vat']!,
+        issueDate: DateTime.now(),
+        total: items.fold(
+          0.0,
+          (previousValue, item) =>
+              previousValue + (item.quantity * item.unitPrice),
+        ),
+        vatTotal: items.fold(
+          0.0,
+          (previousValue, item) =>
+              previousValue +
+              (item.quantity * item.unitPrice * item.taxRate / 100),
+        ),
+      ),
+    );
+
     return signedPath;
   }
 
@@ -230,7 +251,7 @@ class InvoiceManager {
     final dto = {
       "uuid": uuid.toString(),
       "invoice_hash": await computeHashBase64(await outputXmlPath),
-      "invoice": base64.encode(xmlContent.codeUnits),
+      "invoice": base64.encode(utf8.encode(xmlContent)),
     };
     return dto;
   }

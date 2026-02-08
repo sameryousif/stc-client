@@ -46,6 +46,7 @@ class SignInvoiceButton extends StatelessWidget {
                     duration: const Duration(seconds: 1),
                   ),
                 );
+                print(result.message);
               },
       child:
           provider.isGenerating

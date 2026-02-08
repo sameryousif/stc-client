@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:xml/xml.dart';
 import 'package:stc_client/models/invoice_item.dart';
 
@@ -181,7 +183,7 @@ XmlElement buildSignedProperties({
     },
   );
 
-  // Simply return the first element of the fragment
+  // return the first element of the fragment
   return builder.buildFragment().children.whereType<XmlElement>().first;
 }
 
@@ -288,7 +290,6 @@ String generateUBLInvoice({
   required String issueTime,
   required int icv,
   required String previousInvoiceHash,
-  required String qr,
   required String supplierName,
   required String supplierVAT,
   required String customerName,
@@ -385,24 +386,6 @@ String generateUBLInvoice({
                 nest: () {
                   builder.attribute('mimeCode', 'text/plain');
                   builder.text(previousInvoiceHash);
-                },
-              );
-            },
-          );
-        },
-      );
-      builder.element(
-        'cac:AdditionalDocumentReference',
-        nest: () {
-          builder.element('cbc:ID', nest: () => builder.text('QR'));
-          builder.element(
-            'cac:Attachment',
-            nest: () {
-              builder.element(
-                'cbc:EmbeddedDocumentBinaryObject',
-                nest: () {
-                  builder.attribute('mimeCode', 'text/plain');
-                  builder.text(qr);
                 },
               );
             },
@@ -585,4 +568,68 @@ String generateUBLInvoice({
   final invoiceDoc = builder.buildDocument();
 
   return invoiceDoc.toXmlString(pretty: true);
+}
+
+Future<void> addQrToInvoice({
+  required String signedInvoicePath,
+  required String qrBase64,
+}) async {
+  final xmlString = await File(signedInvoicePath).readAsString();
+  final document = XmlDocument.parse(xmlString);
+
+  final invoice = document.rootElement;
+
+  // Build QR element using XmlBuilder
+  final builder = XmlBuilder();
+  builder.element(
+    'cac:AdditionalDocumentReference',
+    nest: () {
+      builder.element('cbc:ID', nest: 'QR');
+      builder.element(
+        'cac:Attachment',
+        nest: () {
+          builder.element(
+            'cbc:EmbeddedDocumentBinaryObject',
+            nest: () {
+              builder.attribute('mimeCode', 'text/plain');
+              builder.text(qrBase64);
+            },
+          );
+        },
+      );
+    },
+  );
+
+  // Convert builder to XmlDocument and extract the element
+  final qrDocument = XmlDocument.parse(
+    builder.buildDocument().toXmlString(pretty: true),
+  );
+  final qrElement =
+      qrDocument.rootElement.copy(); // make a copy to avoid parent issues
+
+  // Find all existing AdditionalDocumentReference nodes
+  final adrNodes =
+      invoice.findElements('cac:AdditionalDocumentReference').toList();
+
+  if (adrNodes.isNotEmpty) {
+    // Insert QR after the last existing AdditionalDocumentReference
+    final lastAdr = adrNodes.last;
+    final index = invoice.children.indexOf(lastAdr);
+    invoice.children.insert(index + 1, qrElement);
+  } else {
+    // fallback: insert before the first AccountingSupplierParty
+    final supplierIndex = invoice.children.indexWhere(
+      (node) =>
+          node is XmlElement && node.name.local == 'AccountingSupplierParty',
+    );
+    if (supplierIndex != -1) {
+      invoice.children.insert(supplierIndex, qrElement);
+    } else {
+      invoice.children.add(qrElement);
+    }
+  }
+
+  final finalXml = document.toXmlString(pretty: false);
+
+  await File(signedInvoicePath).writeAsString(finalXml);
 }
