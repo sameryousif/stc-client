@@ -1,9 +1,10 @@
 import 'dart:io';
-import 'package:flutter/material.dart';
 
+import 'package:flutter/material.dart';
 import '../managers/invoice_manager.dart';
-import '../models/invoice_item.dart';
 import '../services/api_service.dart';
+import '../services/invoice_processing_service.dart';
+import '../models/invoice_item.dart';
 
 class InvoiceResult {
   final bool success;
@@ -21,12 +22,9 @@ class InvoiceProvider extends ChangeNotifier {
   bool isSending = false;
 
   String? signedXml;
-
-  String? qrBase64;
-  Map<String, String>? decodedQrFields;
   String? currentInvoiceNumber;
 
-  /// generate and sign invoice
+  /// Generate and sign invoice
   Future<InvoiceResult> generateAndSign({
     required String invoiceNumber,
     required List<InvoiceItem> items,
@@ -47,7 +45,6 @@ class InvoiceProvider extends ChangeNotifier {
 
       final file = File(signedPath);
       signedXml = await file.readAsString();
-
       return InvoiceResult(success: true, message: "Invoice ready for preview");
     } catch (e) {
       return InvoiceResult(success: false, message: "Failed: $e");
@@ -57,7 +54,7 @@ class InvoiceProvider extends ChangeNotifier {
     }
   }
 
-  // Send Invoice to Server API
+  /// Send invoice to server and process cleared invoice
   Future<InvoiceResult> sendInvoice() async {
     if (signedXml == null || signedXml!.isEmpty) {
       return InvoiceResult(success: false, message: "No invoice to send");
@@ -71,12 +68,23 @@ class InvoiceProvider extends ChangeNotifier {
         xmlContent: signedXml!,
         uuid: currentInvoiceNumber!,
       );
+
       final response = await ApiService.sendToServerDto(dto);
 
       if (response?.statusCode == 200) {
+        final base64Invoice = response?.data['clearedInvoice'] as String;
+
+        // Delegate processing to separate service
+        await InvoiceProcessingService.processClearedInvoice(
+          base64Invoice,
+          manager,
+        );
+
+        await InvoiceProcessingService().printAllInvoices();
+
         return InvoiceResult(
           success: true,
-          message: "Invoice sent successfully!",
+          message: "Invoice sent and saved successfully!",
         );
       } else {
         return InvoiceResult(
@@ -95,8 +103,6 @@ class InvoiceProvider extends ChangeNotifier {
 
   void refreshInvoice() {
     signedXml = null;
-    qrBase64 = null;
-    decodedQrFields = null;
     isGenerating = false;
     notifyListeners();
   }

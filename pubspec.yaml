@@ -47,6 +47,8 @@ dependencies:
   path: ^1.9.1
   qr_flutter: ^4.1.0
   mobile_scanner: ^5.2.3
+  sqflite: ^2.2.8+4
+  sqflite_common_ffi:
 dev_dependencies:
   flutter_test:
     sdk: flutter
