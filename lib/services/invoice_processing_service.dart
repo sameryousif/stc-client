@@ -35,7 +35,7 @@ class InvoiceProcessingService {
     final xmlDoc = XmlDocument.parse(decodedXml);
 
     // Remove unwanted sections
-    _discardUnwantedSections(xmlDoc);
+    removeSections(xmlDoc);
 
     // Canonicalize & compute hash
     final File tempFile = File('${Directory.systemTemp.path}/temp_invoice.xml');
@@ -48,7 +48,7 @@ class InvoiceProcessingService {
     await _saveInvoice(base64Invoice, invoiceHash);
   }
 
-  static void _discardUnwantedSections(XmlDocument doc) {
+  static void removeSections(XmlDocument doc) {
     doc
         .findAllElements('UBLExtensions', namespace: '*')
         .toList()
