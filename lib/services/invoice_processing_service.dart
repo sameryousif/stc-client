@@ -5,7 +5,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import '../managers/invoice_manager.dart';
 
-class InvoiceProcessingService {
+class DBService {
   static Database? _db;
 
   static Future<Database> get database async {
@@ -83,7 +83,7 @@ class InvoiceProcessingService {
   }
 
   Future<void> printAllInvoices() async {
-    final invoices = await InvoiceProcessingService.getAllInvoices();
+    final invoices = await DBService.getAllInvoices();
 
     if (invoices.isEmpty) {
       print("No invoices found in the database.");

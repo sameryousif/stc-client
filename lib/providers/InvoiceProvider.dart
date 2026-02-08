@@ -75,12 +75,9 @@ class InvoiceProvider extends ChangeNotifier {
         final base64Invoice = response?.data['clearedInvoice'] as String;
 
         // Delegate processing to separate service
-        await InvoiceProcessingService.processClearedInvoice(
-          base64Invoice,
-          manager,
-        );
+        await DBService.processClearedInvoice(base64Invoice, manager);
 
-        await InvoiceProcessingService().printAllInvoices();
+        await DBService().printAllInvoices();
 
         return InvoiceResult(
           success: true,
