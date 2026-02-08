@@ -19,7 +19,7 @@ XmlDocument buildSignedInfo({
         nest: () {
           builder.attribute(
             'Algorithm',
-            'http://www.w3.org/2001/10/xml-exc-c14n#',
+            'http://www.w3.org/2006/12/xml-c14n11#',
           );
         },
       );
@@ -42,26 +42,54 @@ XmlDocument buildSignedInfo({
           builder.attribute('URI', '');
 
           builder.element(
-            'ds:Transforms',
+            'ds:Transform',
             nest: () {
-              builder.element(
-                'ds:Transform',
-                nest: () {
-                  builder.attribute(
-                    'Algorithm',
-                    'http://www.w3.org/2000/09/xmldsig#enveloped-signature',
-                  );
-                },
+              builder.attribute(
+                'Algorithm',
+                'http://www.w3.org/TR/1999/REC-xpath-19991116',
               );
-
               builder.element(
-                'ds:Transform',
-                nest: () {
-                  builder.attribute(
-                    'Algorithm',
-                    'http://www.w3.org/2001/10/xml-exc-c14n#',
-                  );
-                },
+                'ds:XPath',
+                nest: 'not(//ancestor-or-self::ext:UBLExtensions)',
+              );
+            },
+          );
+
+          builder.element(
+            'ds:Transform',
+            nest: () {
+              builder.attribute(
+                'Algorithm',
+                'http://www.w3.org/TR/1999/REC-xpath-19991116',
+              );
+              builder.element(
+                'ds:XPath',
+                nest: 'not(//ancestor-or-self::cac:Signature)',
+              );
+            },
+          );
+
+          builder.element(
+            'ds:Transform',
+            nest: () {
+              builder.attribute(
+                'Algorithm',
+                'http://www.w3.org/TR/1999/REC-xpath-19991116',
+              );
+              builder.element(
+                'ds:XPath',
+                nest:
+                    'not(//ancestor-or-self::cac:AdditionalDocumentReference[cbc:ID="QR"])',
+              );
+            },
+          );
+
+          builder.element(
+            'ds:Transform',
+            nest: () {
+              builder.attribute(
+                'Algorithm',
+                'http://www.w3.org/2006/12/xml-c14n11#',
               );
             },
           );
@@ -246,9 +274,26 @@ XmlElement buildUBLExtensions(XmlDocument signatureDoc) {
         'ext:UBLExtension',
         nest: () {
           builder.element(
+            'ext:ExtensionURI',
+            nest: 'urn:oasis:names:specification:ubl:dsig:enveloped:xades',
+          );
+
+          builder.element(
             'ext:ExtensionContent',
             nest: () {
-              builder.xml(signatureDoc.rootElement.toXmlString(pretty: true));
+              builder.element(
+                'sig:UBLDocumentSignatures',
+                nest: () {
+                  builder.element(
+                    'sac:SignatureInformation',
+                    nest: () {
+                      builder.xml(
+                        signatureDoc.rootElement.toXmlString(pretty: true),
+                      );
+                    },
+                  );
+                },
+              );
             },
           );
         },
@@ -256,8 +301,7 @@ XmlElement buildUBLExtensions(XmlDocument signatureDoc) {
     },
   );
 
-  final doc = builder.buildDocument();
-  return doc.rootElement;
+  return builder.buildDocument().rootElement;
 }
 
 ////////inject signature into invoice
@@ -332,6 +376,14 @@ String generateUBLInvoice({
       );
       builder.attribute('xmlns:ds', 'http://www.w3.org/2000/09/xmldsig#');
       builder.attribute('xmlns:xades', 'http://uri.etsi.org/01903/v1.3.2#');
+      builder.attribute(
+        'xmlns:sig',
+        'urn:oasis:names:specification:ubl:schema:xsd:CommonSignatureComponents-2',
+      );
+      builder.attribute(
+        'xmlns:sac',
+        'urn:oasis:names:specification:ubl:schema:xsd:SignatureAggregateComponents-2',
+      );
 
       //////////////////////////////////
 
