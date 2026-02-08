@@ -5,6 +5,7 @@ import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 import 'package:stc_client/models/invoice_item.dart';
 import 'package:stc_client/services/api_service.dart';
+import 'package:stc_client/services/invoice_processing_service.dart';
 import 'package:stc_client/utils/cert_info.dart';
 import 'package:stc_client/utils/qr_genrator.dart';
 import 'package:stc_client/utils/tools_paths.dart';
@@ -33,29 +34,13 @@ class InvoiceManager {
       uuid: uuid,
       issueDate: now.toIso8601String().split('T')[0],
       issueTime: now.toIso8601String().split('T')[1].split('.').first,
-      icv: 1,
-      previousInvoiceHash: base64.encode(List.filled(32, 0)),
+      icv: (await DBService().getLastInvoiceID() ?? 0) + 1,
+      previousInvoiceHash: await DBService().getLastInvoiceHash() ?? '',
       supplierName: supplierInfo['name']!,
       supplierVAT: supplierInfo['vat']!,
       customerName: customerInfo['name']!,
       customerVAT: customerInfo['vat']!,
       items: items,
-      /* qr: generateQr(
-        sellerName: supplierInfo['name']!,
-        vatNumber: supplierInfo['vat']!,
-        issueDate: now,
-        total: items.fold(
-          0.0,
-          (previousValue, item) =>
-              previousValue + (item.quantity * item.unitPrice),
-        ),
-        vatTotal: items.fold(
-          0.0,
-          (previousValue, item) =>
-              previousValue +
-              (item.quantity * item.unitPrice * item.taxRate / 100),
-        ),
-      ),*/
     );
 
     return XmlDocument.parse(xmlString);

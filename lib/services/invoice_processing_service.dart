@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:stc_client/utils/app_paths.dart';
 import 'package:xml/xml.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
@@ -36,13 +37,19 @@ class DBService {
 
     // Remove unwanted sections
     removeSections(xmlDoc);
+    String xmlString = xmlDoc.toXmlString(pretty: true);
+    if (xmlString.startsWith('<?xml')) {
+      xmlString = xmlString.substring(xmlString.indexOf('?>') + 2).trim();
+    }
 
     // Canonicalize & compute hash
-    final File tempFile = File('${Directory.systemTemp.path}/temp_invoice.xml');
-    await tempFile.writeAsString(xmlDoc.toString());
-    await manager.runCanonicalizationCli(tempFile.path, tempFile.path);
+    final tempFilePath = await AppPaths.tempInvoicePath();
+    final tempFile = File(tempFilePath);
+    await tempFile.writeAsString(xmlString);
+    await manager.runCanonicalizationCli(tempFilePath, tempFilePath);
+    print(xmlString);
 
-    final invoiceHash = await manager.computeHashBase64(tempFile.path);
+    final invoiceHash = await manager.computeHashBase64(tempFilePath);
 
     // Save to SQLite
     await _saveInvoice(base64Invoice, invoiceHash);
@@ -99,5 +106,17 @@ class DBService {
       print('Created At: ${inv['createdAt']}');
       print('---------------------------');
     }
+  }
+
+  Future<String?> getLastInvoiceHash() async {
+    final invoices = await getAllInvoices();
+    if (invoices.isEmpty) return null;
+    return invoices.first['hash'] as String;
+  }
+
+  Future<int?> getLastInvoiceID() async {
+    final invoices = await getAllInvoices();
+    if (invoices.isEmpty) return null;
+    return invoices.first['id'] as int?;
   }
 }

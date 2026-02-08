@@ -70,4 +70,9 @@ class AppPaths {
     final dir = await workingDir();
     return p.join(dir.path, "signedInfo.xml");
   }
+
+  static Future<String> tempInvoicePath() async {
+    final dir = await workingDir();
+    return p.join(dir.path, "temp_invoice.xml");
+  }
 }
