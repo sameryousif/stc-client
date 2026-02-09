@@ -396,7 +396,7 @@ String generateUBLInvoice({
         'cbc:ProfileID',
         nest: () => builder.text('reporting:1.0'),
       );
-      builder.element('cbc:ID', nest: () => builder.text("S003"));
+      builder.element('cbc:ID', nest: () => builder.text("5003"));
       builder.element('cbc:UUID', nest: () => builder.text(invoiceNumber));
       builder.element('cbc:IssueDate', nest: () => builder.text(issueDate));
       builder.element('cbc:IssueTime', nest: () => builder.text(issueTime));
