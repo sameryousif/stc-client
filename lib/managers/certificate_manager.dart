@@ -1,18 +1,14 @@
+import 'package:stc_client/services/api_service.dart';
 import '../services/file_service.dart';
-import '../services/network_service.dart';
 import '../services/crypto_service.dart';
 import 'dart:io';
 
 class CertificateManager {
   final FileService fileService;
-  final NetworkService networkService;
+
   final CryptoService cryptoService;
 
-  CertificateManager({
-    required this.fileService,
-    required this.networkService,
-    required this.cryptoService,
-  });
+  CertificateManager({required this.fileService, required this.cryptoService});
 
   /// Checks certificate validity
   Future<bool> isCertificateValid() async {
@@ -28,12 +24,16 @@ class CertificateManager {
     }
 
     //  Get CSR file
-    final File csrFile = await cryptoService.getCsrFile();
+    final File? csrFile = await cryptoService.getCsrFile();
+
+    if (csrFile == null) {
+      throw Exception('CSR file could not be generated.');
+    }
 
     //  Send CSR to server and get new certificate
-    final String certificateContent = await networkService.sendCsr(
-      csrFile,
-      tokenCtrl,
+    final String certificateContent = await ApiService.sendCsr(
+      csrFile: csrFile,
+      token: tokenCtrl,
     );
 
     //  Save the certificate as PEM

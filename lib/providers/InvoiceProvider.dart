@@ -69,7 +69,7 @@ class InvoiceProvider extends ChangeNotifier {
         uuid: currentInvoiceNumber!,
       );
 
-      final response = await ApiService.sendToServerDto(dto);
+      final response = await ApiService.sendInvoiceDto(dto);
 
       if (response?.statusCode == 200) {
         final base64Invoice = response?.data['clearedInvoice'] as String;

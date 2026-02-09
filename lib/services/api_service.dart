@@ -1,63 +1,95 @@
-import 'package:dio/dio.dart';
 import 'dart:convert';
+import 'dart:io';
+import 'package:dio/dio.dart';
 
 class ApiService {
+  ApiService._();
+
   static final Dio _dio = Dio(
       BaseOptions(
         connectTimeout: const Duration(seconds: 20),
         receiveTimeout: const Duration(seconds: 20),
-
-        //  allow Dio to return 4xx / 5xx responses **otherwise it throws exceptions
         validateStatus: (status) => status != null && status < 600,
-
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
       ),
     )
-    // Interceptor to see everything
     ..interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) {
-          print(' REQUEST ${options.method} ${options.uri}');
-          print(' HEADERS: ${options.headers}');
-          print(' BODY: ${options.data}');
+          print(' REQUEST :${options.method} ${options.uri}');
+          print('HEADERS: ${options.headers}');
+          print('BODY: ${options.data}');
           handler.next(options);
         },
         onResponse: (response, handler) {
-          print(' RESPONSE STATUS: ${response.statusCode}');
-          print(' RESPONSE BODY: ${response.data}');
+          print(' RESPONSE : ${response.statusCode}');
+          print('BODY: ${response.data}');
           handler.next(response);
         },
         onError: (error, handler) {
           print('❌ DIO ERROR');
-          print('❌ STATUS: ${error.response?.statusCode}');
-          print('❌ BODY: ${error.response?.data}');
-          print('❌ MESSAGE: ${error.message}');
+          print('STATUS: ${error.response?.statusCode}');
+          print('BODY: ${error.response?.data}');
+          print('MESSAGE: ${error.message}');
           handler.next(error);
         },
       ),
     );
 
-  /// Sends the invoice DTO to the STC server
-  static Future<Response?> sendToServerDto(Map<String, String> dto) async {
-    const url = "https://stc-server.onrender.com/submit_invoice";
+  ///endpoints
+  static const String _submitInvoiceUrl =
+      'https://stc-server.onrender.com/submit_invoice';
 
+  static const String _enrollCsrUrl = 'https://stc-server.onrender.com/enroll';
+
+  ///send invoice DTO to server and return response
+  static Future<Response?> sendInvoiceDto(Map<String, String> dto) async {
     try {
-      final response = await _dio.post(url, data: jsonEncode(dto));
-
+      final response = await _dio.post(
+        _submitInvoiceUrl,
+        data: jsonEncode(dto),
+      );
       return response;
     } on DioException catch (e) {
-      // This will only trigger on connection / timeout / TLS errors
-      print('❌ NETWORK / DIO EXCEPTION');
-      print('❌ STATUS: ${e.response?.statusCode}');
-      print('❌ BODY: ${e.response?.data}');
-      print('❌ MESSAGE: ${e.message}');
+      print(' NETWORK / DIO EXCEPTION');
       return e.response;
     } catch (e) {
-      print('❌ UNKNOWN ERROR: $e');
+      print(' UNKNOWN ERROR: $e');
       return null;
     }
+  }
+
+  /// send CSR and get certificate
+  static Future<String> sendCsr({
+    required File csrFile,
+    required String token,
+  }) async {
+    final csr = await csrFile.readAsString();
+
+    final response = await _dio.post(
+      _enrollCsrUrl,
+      data: {'csr': csr, 'token': token},
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception(
+        'CSR enrollment failed (${response.statusCode}): ${response.data} ${response.statusMessage}',
+      );
+    }
+
+    if (response.data is! Map) {
+      throw Exception('Invalid response format: ${response.data}');
+    }
+
+    final data = response.data as Map<String, dynamic>;
+
+    if (!data.containsKey('certificate')) {
+      throw Exception('Certificate not found in response');
+    }
+
+    return data['certificate'] as String;
   }
 }

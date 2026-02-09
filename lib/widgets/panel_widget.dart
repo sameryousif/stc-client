@@ -62,7 +62,7 @@ class LeftPanel extends StatelessWidget {
               backgroundColor: Color(0xFF2C365A),
             ),
             label: const Text(
-              'Generate CSR',
+              'Generate New CSR & Key',
               style: TextStyle(color: Colors.white),
             ),
             onPressed: onGenerateCsr,

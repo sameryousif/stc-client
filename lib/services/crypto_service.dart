@@ -6,33 +6,24 @@ class CryptoService {
   final Future<String> csrPath = AppPaths.csrPath();
   final Future<String> keyPath = AppPaths.privateKeyPath();
 
-  Future<File> getCsrFile() async {
-    final csrFile = File(await csrPath);
-    if (!await csrFile.exists()) {
-      await generateKeyAndCsr({});
-    }
-
-    return csrFile;
+  Future<File?> getCsrFile() async {
+    final file = File(await csrPath);
+    return await file.exists() ? file : null;
   }
 
-  Future<File> getPrivateKeyFile() async {
-    final keyFile = File(await keyPath);
-
-    if (!await keyFile.exists()) {
-      await generateKeyAndCsr({});
-    }
-
-    return keyFile;
+  Future<File?> getPrivateKeyFile() async {
+    final file = File(await keyPath);
+    return await file.exists() ? file : null;
   }
 
   Future<String> readPrivateKey() async {
     final file = await getPrivateKeyFile();
-    return file.readAsString();
+    return file == null ? '' : await file.readAsString();
   }
 
   Future<String> readCsr() async {
     final file = await getCsrFile();
-    return file.readAsString();
+    return file == null ? '' : await file.readAsString();
   }
 
   Future<String> readCertificate() async {
@@ -42,9 +33,11 @@ class CryptoService {
   }
 
   Future<void> generateKeyAndCsr(Map<String, String> subject) async {
+    await ToolPaths.ensureToolsReady();
+    await ToolPaths.verifyToolsExist();
+
     final opensslPath = ToolPaths.opensslPath;
 
-    // Generate RSA private key
     final keyResult = await Process.run(await opensslPath, [
       'genpkey',
       '-algorithm',
@@ -56,12 +49,16 @@ class CryptoService {
     ]);
 
     if (keyResult.exitCode != 0) {
-      print('❌ Failed to generate private key: ${keyResult.stderr}');
-      return;
+      throw Exception('Failed to generate private key: ${keyResult.stderr}');
     }
-    print('✔ Private key generated at $keyPath');
 
-    final subj = subject.entries.map((e) => '/${e.key}=${e.value}').join();
+    print('✔ Private key generated');
+
+    final subj =
+        subject.entries
+            .where((e) => e.value.isNotEmpty)
+            .map((e) => '/${e.key}=${e.value}')
+            .join();
 
     final csrResult = await Process.run(await opensslPath, [
       'req',
@@ -79,9 +76,9 @@ class CryptoService {
     ]);
 
     if (csrResult.exitCode != 0) {
-      print('❌ Failed to generate CSR: ${csrResult.stderr}');
-      return;
+      throw Exception('Failed to generate CSR: ${csrResult.stderr}');
     }
-    print('✔ CSR generated at $csrPath');
+
+    print('CSR generated');
   }
 }

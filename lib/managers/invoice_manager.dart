@@ -242,6 +242,6 @@ class InvoiceManager {
   }
 
   Future<Response?> sendInvoice(Map<String, String> dto) async {
-    return await ApiService.sendToServerDto(dto);
+    return await ApiService.sendInvoiceDto(dto);
   }
 }

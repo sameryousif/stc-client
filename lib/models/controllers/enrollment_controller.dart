@@ -39,12 +39,12 @@ class EnrollmentController {
 
   Future<void> loadPrivateKey(Function(String) setPrivateKey) async {
     final key = await cryptoService.readPrivateKey();
-    setPrivateKey(key);
+    setPrivateKey((key as String?) ?? '');
   }
 
   Future<void> loadCsr(Function(String) setCsr) async {
     final value = await cryptoService.readCsr();
-    setCsr(value);
+    setCsr((value as String?) ?? '');
   }
 
   Future<void> loadCertificate(Function(String) setCert) async {
