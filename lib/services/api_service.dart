@@ -67,8 +67,7 @@ class ApiService {
     required File csrFile,
     required String token,
   }) async {
-    final csr = await csrFile.readAsString();
-
+    final csr = (await csrFile.readAsString());
     final response = await _dio.post(
       _enrollCsrUrl,
       data: {'csr': csr, 'token': token},
@@ -76,7 +75,7 @@ class ApiService {
 
     if (response.statusCode != 200) {
       throw Exception(
-        'CSR enrollment failed (${response.statusCode}): ${response.data} ${response.statusMessage}',
+        'CSR enrollment failed (${response.statusCode}): ${response.data}',
       );
     }
 

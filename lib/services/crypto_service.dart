@@ -69,7 +69,7 @@ class CryptoService {
       await csrPath,
       '-subj',
       subj.isEmpty
-          ? '/C=SD/ST=Khartoum/L=Khartoum/O=Organization/CN=My.Company.com/serialNumber=12345'
+          ? '/C=SD/ST=Khartoum/L=Khartoum/O=Organization/CN=My.Company.com/serialNumber=5003'
           : subj,
       '-outform',
       'PEM',
@@ -80,5 +80,9 @@ class CryptoService {
     }
 
     print('CSR generated');
+  }
+
+  static String normalizeCsr(String csr) {
+    return csr.replaceAll('\r\n', '\n').replaceAll('\\n', '\n').trim();
   }
 }
