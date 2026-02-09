@@ -1,16 +1,80 @@
-# stc_client
+STC Client
 
-A new Flutter project.
+STC Client is a Flutter-based application designed for managing and interacting with invoices, customers, and related data in a structured and efficient way. The app integrates modern UI components with backend services and provides tools for invoice creation, signing, and submission.
 
-## Getting Started
+Features
 
-This project is a starting point for a Flutter application.
+Create, view, and manage invoices.
 
-A few resources to get you started if this is your first Flutter project:
+Manage customer information efficiently.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+Add and edit invoice items.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Sign invoices digitally.
+
+Submit invoices to backend services.
+
+User-friendly interface with responsive Flutter design.
+
+Works with local and remote data sources.
+Installation
+
+Clone the repository
+
+git clone https://github.com/yourusername/stc-client.git
+cd stc-client
+
+
+Install dependencies
+
+flutter pub get
+
+
+Run the app
+
+flutter run
+
+Project Structure
+stc-client/
+│
+├─ lib/
+│   ├─ models/              # Data models (Invoice, Customer, InvoiceItem)
+│   ├─ providers/           # State management providers
+│   ├─ widgets/             # Reusable widgets (invoice info, customer info, submit button)
+│   ├─ screens/             # App screens/pages
+│   ├─ utils/               # Utility classes and helper functions
+│   └─ main.dart            # App entry point
+│
+├─ pubspec.yaml             # Flutter dependencies
+└─ README.md                # Project documentation
+
+Usage
+
+Launch the app using flutter run.
+
+Navigate through the dashboard to create, view, or manage invoices.
+
+Use the Sign Invoice button to digitally sign your invoice before submission.
+
+Manage customer and invoice items directly from the provided interfaces.
+
+Dependencies
+
+Flutter
+ - UI framework
+
+Provider
+ - State management
+
+XML
+ - XML handling for invoice data
+
+Additional packages as listed in pubspec.yaml
+
+Contributing
+
+Contributions are welcome! Please open an issue or submit a pull request.
+
+License
+
+MIT License © 2026 [sameryousif]
