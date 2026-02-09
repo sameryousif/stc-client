@@ -34,20 +34,6 @@ Run the app
 
 flutter run
 
-Project Structure
-stc-client/
-│
-├─ lib/
-│   ├─ models/              # Data models (Invoice, Customer, InvoiceItem)
-│   ├─ providers/           # State management providers
-│   ├─ widgets/             # Reusable widgets (invoice info, customer info, submit button)
-│   ├─ screens/             # App screens/pages
-│   ├─ utils/               # Utility classes and helper functions
-│   └─ main.dart            # App entry point
-│
-├─ pubspec.yaml             # Flutter dependencies
-└─ README.md                # Project documentation
-
 Usage
 
 Launch the app using flutter run.
