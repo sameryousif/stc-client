@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:stc_client/screens/first_page.dart';
+import 'package:stc_client/screens/enrollment_page.dart';
 import 'package:stc_client/screens/invoice_page.dart';
 
 class MyApp extends StatelessWidget {
@@ -9,7 +9,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'STC Client',
       theme: ThemeData(primarySwatch: Colors.blue),
-      home: FirstPage(),
+      home: EnrollmentPage(),
       routes: {'/invoice': (context) => const InvoicePage()},
       debugShowCheckedModeBanner: false,
     );

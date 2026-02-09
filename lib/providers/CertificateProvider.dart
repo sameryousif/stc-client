@@ -14,8 +14,8 @@ class CertificateProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> enrollCertificate() async {
-    await manager.enrollCertificate();
+  Future<void> enrollCertificate(String token) async {
+    await manager.enrollCertificate(token);
     await checkCertificate();
   }
 }

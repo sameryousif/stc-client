@@ -20,7 +20,7 @@ class CertificateManager {
   }
 
   /// Main enrollment logic
-  Future<void> enrollCertificate() async {
+  Future<void> enrollCertificate(String tokenCtrl) async {
     //  Check certificate first
     if (await isCertificateValid()) {
       print('✔ Existing certificate still valid. No need to re-enroll.');
@@ -31,7 +31,10 @@ class CertificateManager {
     final File csrFile = await cryptoService.getCsrFile();
 
     //  Send CSR to server and get new certificate
-    final String certificateContent = await networkService.sendCsr(csrFile);
+    final String certificateContent = await networkService.sendCsr(
+      csrFile,
+      tokenCtrl,
+    );
 
     //  Save the certificate as PEM
     await fileService.saveCertificate(certificateContent);

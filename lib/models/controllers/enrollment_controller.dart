@@ -77,9 +77,10 @@ class EnrollmentController {
   // Generate Certificate
   Future<void> generateCertificate(
     CertificateProvider provider,
-    Function(String) setCert,
-  ) async {
-    await provider.enrollCertificate();
+    Function(String) setCert, {
+    required String token,
+  }) async {
+    await provider.enrollCertificate(token);
     await loadCertificate(setCert);
   }
 }

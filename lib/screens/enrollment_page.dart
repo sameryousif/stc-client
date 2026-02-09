@@ -4,14 +4,14 @@ import 'package:stc_client/models/controllers/enrollment_controller.dart';
 import 'package:stc_client/providers/CertificateProvider.dart';
 import 'package:stc_client/widgets/panel_widget.dart';
 
-class FirstPage extends StatefulWidget {
-  const FirstPage({Key? key}) : super(key: key);
+class EnrollmentPage extends StatefulWidget {
+  const EnrollmentPage({Key? key}) : super(key: key);
 
   @override
-  State<FirstPage> createState() => _FirstPageState();
+  State<EnrollmentPage> createState() => _EnrollmentPageState();
 }
 
-class _FirstPageState extends State<FirstPage> {
+class _EnrollmentPageState extends State<EnrollmentPage> {
   final controller = EnrollmentController();
 
   @override
@@ -73,6 +73,7 @@ class _FirstPageState extends State<FirstPage> {
                               provider,
                               (cert) =>
                                   setState(() => controller.certificate = cert),
+                              token: controller.tokenCtrl.text,
                             ),
                       ),
                     ),
@@ -107,6 +108,7 @@ class _FirstPageState extends State<FirstPage> {
                               provider,
                               (cert) =>
                                   setState(() => controller.certificate = cert),
+                              token: controller.tokenCtrl.text,
                             ),
                       ),
                     ],
