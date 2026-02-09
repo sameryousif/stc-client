@@ -1,16 +1,47 @@
-# stc_client
+# STC Client
 
-A new Flutter project.
+STC Client is a Flutter-based application designed for managing and interacting with invoices, customers, and related data in a structured and efficient way. The app integrates modern UI components with backend services and provides tools for invoice creation, signing, and submission.
 
-## Getting Started
+## Features
 
-This project is a starting point for a Flutter application.
+- Create, view, and manage invoices.
+- Manage customer information efficiently.
+- Add and edit invoice items.
+- Sign invoices digitally.
+- Submit invoices to backend services.
+- User-friendly interface with responsive Flutter design.
+- Works with local and remote data sources.
 
-A few resources to get you started if this is your first Flutter project:
+## Installation
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+### Clone the repository
+```bash
+git clone https://github.com/sameryousif/stc-client.git
+cd stc-client
+Install dependencies
+flutter pub get
+Run the app
+flutter run
+Usage
+Launch the app using flutter run.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Navigate through the dashboard to create, view, or manage invoices.
+
+Use the Sign Invoice button to digitally sign your invoice before submission.
+
+Manage customer and invoice items directly from the provided interfaces.
+
+Dependencies
+Flutter - UI framework
+
+Provider - State management
+
+XML - XML handling for invoice data
+
+Additional packages as listed in pubspec.yaml
+
+Contributing
+Contributions are welcome! Please open an issue or submit a pull request.
+
+License
+MIT License © 2026 [sameryousif]
