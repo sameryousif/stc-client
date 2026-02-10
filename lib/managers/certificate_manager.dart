@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:stc_client/services/api_service.dart';
 import '../services/file_service.dart';
 import '../services/crypto_service.dart';
@@ -37,7 +40,17 @@ class CertificateManager {
     );
 
     //  Save the certificate as PEM
-    await fileService.saveCertificate(certificateContent);
+    final Uint8List certBytes = pemToDer(certificateContent);
+    await fileService.saveCertificate(certBytes);
     print('✔ New certificate saved successfully.');
+  }
+
+  Uint8List pemToDer(String pem) {
+    final cleaned = pem
+        .replaceAll('-----BEGIN CERTIFICATE-----', '')
+        .replaceAll('-----END CERTIFICATE-----', '')
+        .replaceAll(RegExp(r'\s+'), '');
+
+    return base64Decode(cleaned);
   }
 }

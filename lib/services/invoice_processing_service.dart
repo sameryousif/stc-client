@@ -7,6 +7,7 @@ import 'package:path/path.dart';
 import '../managers/invoice_manager.dart';
 
 class DBService {
+  static Future<Directory> get clearedDir => AppPaths.clearedDir();
   static Database? _db;
 
   static Future<Database> get database async {
@@ -35,6 +36,12 @@ class DBService {
     final decodedXml = utf8.decode(base64.decode(base64Invoice));
     final xmlDoc = XmlDocument.parse(decodedXml);
 
+    //save cleared invoice to file
+    final dir = await AppPaths.clearedDir();
+    final clearedPath =
+        '${dir.path}\\invoice_${DateTime.now().toIso8601String().replaceAll(':', '-')}.xml';
+    await saveClearedInvoice(clearedPath, xmlDoc.toXmlString(pretty: false));
+
     // Remove unwanted sections
     removeSections(xmlDoc);
     String xmlString = xmlDoc.toXmlString(pretty: true);
@@ -47,7 +54,6 @@ class DBService {
     final tempFile = File(tempFilePath);
     await tempFile.writeAsString(xmlString);
     await manager.runCanonicalizationCli(tempFilePath, tempFilePath);
-    print(xmlString);
 
     final invoiceHash = await manager.computeHashBase64(tempFilePath);
 
@@ -118,5 +124,11 @@ class DBService {
     final invoices = await getAllInvoices();
     if (invoices.isEmpty) return null;
     return invoices.first['id'] as int?;
+  }
+
+  static Future<void> saveClearedInvoice(String path, String xmlContent) async {
+    final dir = await clearedDir;
+    if (!await dir.exists()) await dir.create(recursive: true);
+    await File(path).writeAsString(xmlContent);
   }
 }

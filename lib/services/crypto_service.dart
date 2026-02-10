@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:stc_client/utils/tools_paths.dart';
 import '../utils/app_paths.dart';
 
@@ -21,15 +22,20 @@ class CryptoService {
     return file == null ? '' : await file.readAsString();
   }
 
-  Future<String> readCsr() async {
+  Future<Uint8List> readCsr() async {
     final file = await getCsrFile();
-    return file == null ? '' : await file.readAsString();
+    if (file == null || !await file.exists()) {
+      throw Exception('CSR file not found');
+    }
+    return await file.readAsBytes();
   }
 
-  Future<String> readCertificate() async {
+  Future<Uint8List> readCertificate() async {
     final certFile = File(await AppPaths.certPath());
-    if (!await certFile.exists()) return '';
-    return certFile.readAsString();
+    if (!await certFile.exists()) {
+      throw Exception('Certificate file not found');
+    }
+    return await certFile.readAsBytes();
   }
 
   Future<void> generateKeyAndCsr(Map<String, String> subject) async {
@@ -72,7 +78,7 @@ class CryptoService {
           ? '/C=SD/ST=Khartoum/L=Khartoum/O=Organization/CN=My.Company.com/serialNumber=5003'
           : subj,
       '-outform',
-      'PEM',
+      'DER',
     ]);
 
     if (csrResult.exitCode != 0) {

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:stc_client/models/controllers/enrollment_controller.dart';
 import 'package:xml/xml.dart';
 import 'package:stc_client/models/invoice_item.dart';
 
@@ -396,7 +397,10 @@ String generateUBLInvoice({
         'cbc:ProfileID',
         nest: () => builder.text('reporting:1.0'),
       );
-      builder.element('cbc:ID', nest: () => builder.text("5003"));
+      builder.element(
+        'cbc:ID',
+        nest: () => builder.text(EnrollmentController().serialCtrl.text),
+      );
       builder.element('cbc:UUID', nest: () => builder.text(invoiceNumber));
       builder.element('cbc:IssueDate', nest: () => builder.text(issueDate));
       builder.element('cbc:IssueTime', nest: () => builder.text(issueTime));

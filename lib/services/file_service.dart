@@ -1,12 +1,13 @@
 import 'dart:io';
+import 'dart:typed_data';
 import '../utils/app_paths.dart';
 
 class FileService {
   final Future<String> certPath = AppPaths.certPath();
 
   /// Saves certificate to PEM file
-  Future<void> saveCertificate(String certificateContent) async {
-    await File(await certPath).writeAsString(certificateContent);
+  Future<void> saveCertificate(Uint8List certificateContent) async {
+    await File(await certPath).writeAsBytes(certificateContent);
     print('✔ Certificate saved at: $certPath');
   }
 

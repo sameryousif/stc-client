@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:stc_client/services/crypto_service.dart';
 import 'package:stc_client/utils/tools_paths.dart';
@@ -17,7 +20,7 @@ class EnrollmentController {
   final TextEditingController cCtrl = TextEditingController(text: "SD");
   final TextEditingController stCtrl = TextEditingController(text: "Khartoum");
   final TextEditingController lCtrl = TextEditingController(text: "Khartoum");
-  final TextEditingController serialCtrl = TextEditingController(text: "5003");
+  final TextEditingController serialCtrl = TextEditingController(text: "5004");
 
   final TextEditingController tokenCtrl = TextEditingController();
 
@@ -43,13 +46,15 @@ class EnrollmentController {
   }
 
   Future<void> loadCsr(Function(String) setCsr) async {
-    final value = await cryptoService.readCsr();
-    setCsr((value as String?) ?? '');
+    final Uint8List bytes = await cryptoService.readCsr();
+    final String base64Csr = base64Encode(bytes);
+    setCsr(base64Csr);
   }
 
   Future<void> loadCertificate(Function(String) setCert) async {
-    final cert = await cryptoService.readCertificate();
-    setCert(cert);
+    final Uint8List certBytes = await cryptoService.readCertificate();
+    final String base64Cert = base64Encode(certBytes);
+    setCert(base64Cert);
   }
 
   // Generate CSR

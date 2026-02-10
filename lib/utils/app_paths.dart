@@ -24,12 +24,12 @@ class AppPaths {
 
   static Future<String> certPath() async {
     final dir = await appDir();
-    return p.join(dir.path, "merchant.pem");
+    return p.join(dir.path, "merchant.der");
   }
 
   static Future<String> csrPath() async {
     final dir = await appDir();
-    return p.join(dir.path, "csr.pem");
+    return p.join(dir.path, "csr.der");
   }
 
   static Future<String> privateKeyPath() async {
@@ -45,8 +45,15 @@ class AppPaths {
   }
 
   static Future<Directory> workingDir() async {
-    final base = await AppPaths.appDir(); // AppData/Support/stc_client
+    final base = await AppPaths.appDir();
     final dir = Directory(p.join(base.path, "work"));
+    if (!await dir.exists()) await dir.create(recursive: true);
+    return dir;
+  }
+
+  static Future<Directory> clearedDir() async {
+    final base = await AppPaths.appDir();
+    final dir = Directory(p.join(base.path, "cleared"));
     if (!await dir.exists()) await dir.create(recursive: true);
     return dir;
   }
