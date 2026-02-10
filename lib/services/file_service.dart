@@ -7,8 +7,9 @@ class FileService {
 
   /// Saves certificate to PEM file
   Future<void> saveCertificate(Uint8List certificateContent) async {
-    await File(await certPath).writeAsBytes(certificateContent);
-    print('✔ Certificate saved at: $certPath');
+    final path = await certPath;
+    await File(path).writeAsBytes(certificateContent);
+    print('Certificate saved at: $path');
   }
 
   /// Checks if the certificate file exists and is still valid

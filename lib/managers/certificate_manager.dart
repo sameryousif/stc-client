@@ -22,7 +22,7 @@ class CertificateManager {
   Future<void> enrollCertificate(String tokenCtrl) async {
     //  Check certificate first
     if (await isCertificateValid()) {
-      print('✔ Existing certificate still valid. No need to re-enroll.');
+      print(' Existing certificate still valid. No need to re-enroll.');
       return;
     }
 
@@ -42,7 +42,7 @@ class CertificateManager {
     //  Save the certificate as PEM
     final Uint8List certBytes = pemToDer(certificateContent);
     await fileService.saveCertificate(certBytes);
-    print('✔ New certificate saved successfully.');
+    print(' New certificate saved successfully.');
   }
 
   Uint8List pemToDer(String pem) {

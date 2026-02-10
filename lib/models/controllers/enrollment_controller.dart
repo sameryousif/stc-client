@@ -20,7 +20,7 @@ class EnrollmentController {
   final TextEditingController cCtrl = TextEditingController(text: "SD");
   final TextEditingController stCtrl = TextEditingController(text: "Khartoum");
   final TextEditingController lCtrl = TextEditingController(text: "Khartoum");
-  final TextEditingController serialCtrl = TextEditingController(text: "5004");
+  final TextEditingController serialCtrl = TextEditingController(text: "5001");
 
   final TextEditingController tokenCtrl = TextEditingController();
 

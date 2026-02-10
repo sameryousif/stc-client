@@ -58,7 +58,7 @@ class CryptoService {
       throw Exception('Failed to generate private key: ${keyResult.stderr}');
     }
 
-    print('✔ Private key generated');
+    print('Private key generated');
 
     final subj =
         subject.entries

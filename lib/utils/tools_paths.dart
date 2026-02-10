@@ -81,6 +81,6 @@ class ToolPaths {
       throw Exception("openssl not found at: ${openssl.path}");
     }
 
-    print("✔ All required tools are present.");
+    print("All required tools are present.");
   }
 }
