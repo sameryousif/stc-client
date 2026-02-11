@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
-import 'package:stc_client/utils/tools_paths.dart';
-import '../utils/app_paths.dart';
+import 'package:stc_client/utils/paths/tools_paths.dart';
+import '../utils/paths/app_paths.dart';
 
 class CryptoService {
   final Future<String> csrPath = AppPaths.csrPath();

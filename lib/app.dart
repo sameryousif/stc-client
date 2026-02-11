@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:stc_client/screens/enrollment_page.dart';
-import 'package:stc_client/screens/invoice_page.dart';
+import 'package:stc_client/presentation/screens/enrollment_page.dart';
+import 'package:stc_client/presentation/screens/invoice_page.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

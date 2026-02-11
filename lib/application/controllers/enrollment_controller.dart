@@ -3,8 +3,8 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:stc_client/services/crypto_service.dart';
-import 'package:stc_client/utils/tools_paths.dart';
-import 'package:stc_client/providers/CertificateProvider.dart';
+import 'package:stc_client/utils/paths/tools_paths.dart';
+import 'package:stc_client/state/providers/CertificateProvider.dart';
 
 class EnrollmentController {
   final CryptoService cryptoService = CryptoService();

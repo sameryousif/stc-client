@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'package:stc_client/models/controllers/invoice_controller.dart';
-import 'package:stc_client/providers/InvoiceProvider.dart';
-import 'package:stc_client/widgets/invoice/customer_info.dart';
-import 'package:stc_client/widgets/invoice/invoice_info.dart';
-import 'package:stc_client/widgets/invoice/items_info.dart';
-import 'package:stc_client/widgets/invoice/send_btn.dart';
-import 'package:stc_client/widgets/invoice/sign_btn.dart';
-import 'package:stc_client/widgets/invoice/supplier_info.dart';
-import 'package:stc_client/widgets/invoice/totals_info.dart';
+import 'package:stc_client/application/controllers/invoice_controller.dart';
+import 'package:stc_client/state/providers/InvoiceProvider.dart';
+import 'package:stc_client/presentation/widgets/invoice/customer_info.dart';
+import 'package:stc_client/presentation/widgets/invoice/invoice_info.dart';
+import 'package:stc_client/presentation/widgets/invoice/items_info.dart';
+import 'package:stc_client/presentation/widgets/invoice/send_btn.dart';
+import 'package:stc_client/presentation/widgets/invoice/sign_btn.dart';
+import 'package:stc_client/presentation/widgets/invoice/supplier_info.dart';
+import 'package:stc_client/presentation/widgets/invoice/totals_info.dart';
 
 class InvoicePage extends StatefulWidget {
   const InvoicePage({super.key});

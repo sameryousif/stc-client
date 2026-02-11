@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:stc_client/models/invoice_item.dart';
+import 'package:stc_client/domain/invoice/invoice_item.dart';
 import 'package:uuid/uuid.dart';
 
 class InvoiceFormController {

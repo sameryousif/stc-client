@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:stc_client/models/controllers/enrollment_controller.dart';
-import 'package:stc_client/providers/CertificateProvider.dart';
-import 'package:stc_client/widgets/panel_widget.dart';
+import 'package:stc_client/application/controllers/enrollment_controller.dart';
+import 'package:stc_client/state/providers/CertificateProvider.dart';
+import 'package:stc_client/presentation/widgets/panel_widget.dart';
 
 class EnrollmentPage extends StatefulWidget {
   const EnrollmentPage({Key? key}) : super(key: key);

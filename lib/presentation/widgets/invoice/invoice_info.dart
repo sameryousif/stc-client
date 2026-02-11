@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:stc_client/models/controllers/invoice_controller.dart';
-import '../../widgets/custom_field.dart';
-import '../../widgets/section_title.dart';
+import 'package:stc_client/application/controllers/invoice_controller.dart';
+import '../custom_field.dart';
+import '../section_title.dart';
 
 class InvoiceInfoSection extends StatelessWidget {
   final InvoiceFormController c;

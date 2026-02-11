@@ -1,35 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:stc_client/app.dart';
-import 'package:stc_client/managers/invoice_manager.dart';
-import 'package:stc_client/providers/CertificateProvider.dart';
-import 'package:stc_client/providers/InvoiceProvider.dart';
-import 'package:stc_client/utils/tools_paths.dart';
-import 'managers/certificate_manager.dart';
+import 'package:stc_client/services/invoicePrepService.dart';
+import 'package:stc_client/state/providers/CertificateProvider.dart';
+import 'package:stc_client/state/providers/InvoiceProvider.dart';
+import 'package:stc_client/utils/paths/tools_paths.dart';
+import 'services/certificateEnrollService.dart';
 import 'services/file_service.dart';
-
 import 'services/crypto_service.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   sqfliteFfiInit();
   databaseFactory = databaseFactoryFfi;
+  await ToolPaths.ensureToolsReady();
   final fileService = FileService();
   final cryptoService = CryptoService();
-  final manager = CertificateManager(
+  final certEnrollService = CertEnrollservice(
     fileService: fileService,
     cryptoService: cryptoService,
   );
-  WidgetsFlutterBinding.ensureInitialized();
-  await ToolPaths.ensureToolsReady();
+  final invoicePrepService = InvoicePrepService();
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(
-          create: (_) => CertificateProvider(manager: manager),
+          create:
+              (_) => CertificateProvider(certEnrollService: certEnrollService),
         ),
         ChangeNotifierProvider(
-          create: (_) => InvoiceProvider(manager: InvoiceManager()),
+          create: (_) => InvoiceProvider(prepService: invoicePrepService),
         ),
       ],
       child: const MyApp(),

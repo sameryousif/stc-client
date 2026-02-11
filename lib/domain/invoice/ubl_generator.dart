@@ -1,8 +1,8 @@
 import 'dart:io';
 
-import 'package:stc_client/models/controllers/enrollment_controller.dart';
+import 'package:stc_client/application/controllers/enrollment_controller.dart';
 import 'package:xml/xml.dart';
-import 'package:stc_client/models/invoice_item.dart';
+import 'package:stc_client/domain/invoice/invoice_item.dart';
 
 //////////////////////construct SignedInfo
 XmlDocument buildSignedInfo({

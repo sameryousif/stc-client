@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:stc_client/widgets/preview.dart';
-import 'package:stc_client/widgets/subject_fields.dart';
+import 'package:stc_client/presentation/widgets/preview.dart';
+import 'package:stc_client/presentation/widgets/subject_fields.dart';
 
 class LeftPanel extends StatelessWidget {
   final String privateKey;

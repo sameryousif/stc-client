@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../models/invoice_item.dart';
-import '../../widgets/item_card.dart';
-import '../../widgets/section_title.dart';
+import '../../../domain/invoice/invoice_item.dart';
+import '../item_card.dart';
+import '../section_title.dart';
 
 class InvoiceItemsSection extends StatelessWidget {
   final List<InvoiceItem> items;

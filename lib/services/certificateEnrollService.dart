@@ -2,16 +2,17 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:stc_client/services/api_service.dart';
-import '../services/file_service.dart';
-import '../services/crypto_service.dart';
+import 'file_service.dart';
+import 'crypto_service.dart';
 import 'dart:io';
 
-class CertificateManager {
+///  This manager handles certificate enrollment and validation logic
+class CertEnrollservice {
   final FileService fileService;
 
   final CryptoService cryptoService;
 
-  CertificateManager({required this.fileService, required this.cryptoService});
+  CertEnrollservice({required this.fileService, required this.cryptoService});
 
   /// Checks certificate validity
   Future<bool> isCertificateValid() async {

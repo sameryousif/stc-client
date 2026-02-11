@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:stc_client/utils/app_paths.dart';
+import 'package:stc_client/utils/paths/app_paths.dart';
 import 'package:xml/xml.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
-import '../managers/invoice_manager.dart';
+import 'invoicePrepService.dart';
 
 class DBService {
   static Future<Directory> get clearedDir => AppPaths.clearedDir();
@@ -31,7 +31,7 @@ class DBService {
 
   static Future<void> processClearedInvoice(
     String base64Invoice,
-    InvoiceManager manager,
+    InvoicePrepService prepService,
   ) async {
     final decodedXml = utf8.decode(base64.decode(base64Invoice));
     final xmlDoc = XmlDocument.parse(decodedXml);
@@ -53,9 +53,9 @@ class DBService {
     final tempFilePath = await AppPaths.tempInvoicePath();
     final tempFile = File(tempFilePath);
     await tempFile.writeAsString(xmlString);
-    await manager.runCanonicalizationCli(tempFilePath, tempFilePath);
+    await prepService.runCanonicalizationCli(tempFilePath, tempFilePath);
 
-    final invoiceHash = await manager.computeHashBase64(tempFilePath);
+    final invoiceHash = await prepService.computeHashBase64(tempFilePath);
 
     // Save to SQLite
     await _saveInvoice(base64Invoice, invoiceHash);

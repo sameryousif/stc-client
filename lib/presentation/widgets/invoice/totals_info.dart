@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../widgets/section_title.dart';
-import '../../widgets/totals_row.dart';
+import '../section_title.dart';
+import '../totals_row.dart';
 
 class InvoiceTotalsSection extends StatelessWidget {
   final double subtotal;

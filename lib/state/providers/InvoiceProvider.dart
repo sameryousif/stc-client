@@ -1,10 +1,10 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import '../managers/invoice_manager.dart';
-import '../services/api_service.dart';
-import '../services/invoice_processing_service.dart';
-import '../models/invoice_item.dart';
+import '../../services/invoicePrepService.dart';
+import '../../services/api_service.dart';
+import '../../services/invoice_processing_service.dart';
+import '../../domain/invoice/invoice_item.dart';
 
 class InvoiceResult {
   final bool success;
@@ -14,9 +14,9 @@ class InvoiceResult {
 }
 
 class InvoiceProvider extends ChangeNotifier {
-  final InvoiceManager manager;
+  final InvoicePrepService prepService;
 
-  InvoiceProvider({required this.manager});
+  InvoiceProvider({required this.prepService});
 
   bool isGenerating = false;
   bool isSending = false;
@@ -36,7 +36,7 @@ class InvoiceProvider extends ChangeNotifier {
 
     try {
       currentInvoiceNumber = invoiceNumber;
-      final signedPath = await manager.generateAndSignInvoice(
+      final signedPath = await prepService.generateAndSignInvoice(
         invoiceNumber: invoiceNumber,
         items: items,
         supplierInfo: supplierInfo,
@@ -64,7 +64,7 @@ class InvoiceProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final dto = await manager.sendSignedInvoice(
+      final dto = await prepService.sendSignedInvoice(
         xmlContent: signedXml!,
         uuid: currentInvoiceNumber!,
       );
@@ -75,7 +75,7 @@ class InvoiceProvider extends ChangeNotifier {
         final base64Invoice = response?.data['clearedInvoice'] as String;
 
         // Delegate processing to separate service
-        await DBService.processClearedInvoice(base64Invoice, manager);
+        await DBService.processClearedInvoice(base64Invoice, prepService);
 
         await DBService().printAllInvoices();
 

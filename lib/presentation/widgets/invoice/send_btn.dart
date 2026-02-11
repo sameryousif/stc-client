@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:stc_client/models/controllers/invoice_controller.dart';
-import 'package:stc_client/providers/InvoiceProvider.dart';
+import 'package:stc_client/application/controllers/invoice_controller.dart';
+import 'package:stc_client/state/providers/InvoiceProvider.dart';
 
 class SendInvoiceButton extends StatelessWidget {
   final InvoiceFormController c;

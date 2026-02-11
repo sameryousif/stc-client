@@ -3,19 +3,19 @@ import 'dart:io';
 
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
-import 'package:stc_client/models/invoice_item.dart';
+import 'package:stc_client/domain/invoice/invoice_item.dart';
 import 'package:stc_client/services/api_service.dart';
 import 'package:stc_client/services/invoice_processing_service.dart';
-import 'package:stc_client/utils/cert_info.dart';
-import 'package:stc_client/utils/qr_genrator.dart';
-import 'package:stc_client/utils/tools_paths.dart';
-import 'package:stc_client/utils/ubl_generator.dart';
+import 'package:stc_client/domain/certificate/cert_info.dart';
+import 'package:stc_client/domain/qr/qr_genrator.dart';
+import 'package:stc_client/utils/paths/tools_paths.dart';
+import 'package:stc_client/domain/invoice/ubl_generator.dart';
 import 'package:uuid/uuid.dart';
 import 'package:xml/xml.dart';
 
-import '../utils/app_paths.dart';
+import '../utils/paths/app_paths.dart';
 
-class InvoiceManager {
+class InvoicePrepService {
   static Future<Directory> get workingDir => AppPaths.workingDir();
   static Future<String> get inputXmlPath => AppPaths.inputXmlPath();
   static Future<String> get outputXmlPath => AppPaths.outputXmlPath();
@@ -35,7 +35,7 @@ class InvoiceManager {
       issueDate: now.toIso8601String().split('T')[0],
       issueTime: now.toIso8601String().split('T')[1].split('.').first,
       icv: (await DBService().getLastInvoiceID() ?? 0) + 1,
-      previousInvoiceHash: await DBService().getLastInvoiceHash() ?? '',
+      previousInvoiceHash: await DBService().getLastInvoiceHash() ?? 'first',
       supplierName: supplierInfo['name']!,
       supplierVAT: supplierInfo['vat']!,
       customerName: customerInfo['name']!,

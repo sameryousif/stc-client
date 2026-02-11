@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/invoice_item.dart';
+import '../../domain/invoice/invoice_item.dart';
 import 'custom_field.dart';
 
 class ItemCard extends StatelessWidget {

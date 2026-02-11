@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
-import '../managers/certificate_manager.dart';
+import '../../services/certificateEnrollService.dart';
 
 class CertificateProvider extends ChangeNotifier {
-  final CertificateManager manager;
+  final CertEnrollservice certEnrollService;
 
   bool _isCertificateValid = false;
   bool get isCertificateValid => _isCertificateValid;
 
-  CertificateProvider({required this.manager});
+  CertificateProvider({required this.certEnrollService});
 
   Future<void> checkCertificate() async {
-    _isCertificateValid = await manager.isCertificateValid();
+    _isCertificateValid = await certEnrollService.isCertificateValid();
     notifyListeners();
   }
 
   Future<void> enrollCertificate(String token) async {
-    await manager.enrollCertificate(token);
+    await certEnrollService.enrollCertificate(token);
     await checkCertificate();
   }
 }

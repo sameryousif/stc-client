@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'dart:typed_data';
-import '../utils/app_paths.dart';
+import '../utils/paths/app_paths.dart';
 
 class FileService {
   final Future<String> certPath = AppPaths.certPath();
