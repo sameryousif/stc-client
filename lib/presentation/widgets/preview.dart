@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+// Widget that displays a preview of content, used in various parts of the app to show a scrollable preview of text content such as CSRs or invoice data
 class Preview extends StatelessWidget {
   final String content;
   final double height;

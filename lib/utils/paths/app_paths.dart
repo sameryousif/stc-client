@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
+//// Utility class that defines all file paths used in the app, ensuring a consistent structure for storing certificates, invoices, and working files
 class AppPaths {
   static const appName = "stc_client";
 

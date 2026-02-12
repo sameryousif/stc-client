@@ -3,18 +3,19 @@ import 'dart:io';
 
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
-import 'package:stc_client/domain/invoice/invoice_item.dart';
+import 'package:stc_client/core/invoice/invoice_item.dart';
 import 'package:stc_client/services/api_service.dart';
 import 'package:stc_client/services/invoice_processing_service.dart';
-import 'package:stc_client/domain/certificate/cert_info.dart';
-import 'package:stc_client/domain/qr/qr_genrator.dart';
+import 'package:stc_client/core/certificate/cert_info.dart';
+import 'package:stc_client/core/qr/qr_genrator.dart';
 import 'package:stc_client/utils/paths/tools_paths.dart';
-import 'package:stc_client/domain/invoice/ubl_generator.dart';
+import 'package:stc_client/core/invoice/xml_generator.dart';
 import 'package:uuid/uuid.dart';
 import 'package:xml/xml.dart';
 
 import '../utils/paths/app_paths.dart';
 
+/// Service responsible for preparing invoices, including generating unsigned invoices, canonicalization, signing, and XAdES signature injection
 class InvoicePrepService {
   static Future<Directory> get workingDir => AppPaths.workingDir();
   static Future<String> get inputXmlPath => AppPaths.inputXmlPath();
@@ -104,7 +105,7 @@ class InvoicePrepService {
     final invoiceHashBase64 = await computeHashBase64(await outputXmlPath);
 
     //////extract cert info
-    final certInfo = await extractIssuerAndSerialFromCert(
+    final certInfo = await extractCertDetails(
       opensslPath: await ToolPaths.opensslPath,
       certPath: certificatePath,
     );

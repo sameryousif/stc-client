@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import 'package:stc_client/application/controllers/invoice_controller.dart';
 import 'package:stc_client/state/providers/InvoiceProvider.dart';
 import 'package:stc_client/presentation/widgets/invoice/customer_info.dart';
@@ -11,11 +10,12 @@ import 'package:stc_client/presentation/widgets/invoice/sign_btn.dart';
 import 'package:stc_client/presentation/widgets/invoice/supplier_info.dart';
 import 'package:stc_client/presentation/widgets/invoice/totals_info.dart';
 
+// Widget that displays the main invoice page, containing a form on the left side for users to input invoice information, supplier information, customer information, and invoice items, and a preview section on the right side to display the signed XML of the invoice, along with buttons to generate/sign the invoice and send it
 class InvoicePage extends StatefulWidget {
   const InvoicePage({super.key});
+
   final Color appBarAndButtonColor = const Color(0xFF2C365A);
   final Color pageBackgroundColor = const Color(0xFFFFFFFF);
-  // const Color(0xFFEEE8DF);
 
   @override
   State<InvoicePage> createState() => _InvoicePageState();
@@ -24,18 +24,17 @@ class InvoicePage extends StatefulWidget {
 class _InvoicePageState extends State<InvoicePage> {
   late final InvoiceFormController c;
   late final ScrollController scrollController;
+  final xmlController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     c = InvoiceFormController();
-    c.initDefaults(() => setState(() {}));
     scrollController = ScrollController();
   }
 
   @override
   void dispose() {
-    c.dispose();
     scrollController.dispose();
     super.dispose();
   }
@@ -58,10 +57,7 @@ class _InvoicePageState extends State<InvoicePage> {
             onPressed: () {
               final provider = context.read<InvoiceProvider>();
               provider.refreshInvoice();
-              // optionally, clear your form controller as well
               c.clearAll();
-
-              c.initDefaults(() => setState(() {}));
               scrollController.animateTo(
                 0,
                 duration: const Duration(milliseconds: 350),
@@ -76,7 +72,7 @@ class _InvoicePageState extends State<InvoicePage> {
         padding: const EdgeInsets.all(16),
         child: Row(
           children: [
-            ////form left side
+            /// Left side form
             Expanded(
               flex: 1,
               child: SingleChildScrollView(
@@ -94,19 +90,33 @@ class _InvoicePageState extends State<InvoicePage> {
                       onDelete: (index) => setState(() => c.removeItem(index)),
                     ),
                     const SizedBox(height: 20),
-                    InvoiceTotalsSection(
-                      subtotal: c.subtotal,
-                      taxTotal: c.taxTotal,
-                      grandTotal: c.grandTotal,
+
+                    /// Totals section using ValueListenableBuilder
+                    ValueListenableBuilder<double>(
+                      valueListenable: c.subtotal,
+                      builder: (_, subtotal, __) {
+                        return ValueListenableBuilder<double>(
+                          valueListenable: c.taxTotal,
+                          builder: (_, taxTotal, __) {
+                            return ValueListenableBuilder<double>(
+                              valueListenable: c.grandTotal,
+                              builder: (_, grandTotal, __) {
+                                return InvoiceTotalsSection(
+                                  subtotal: subtotal,
+                                  taxTotal: taxTotal,
+                                  grandTotal: grandTotal,
+                                );
+                              },
+                            );
+                          },
+                        );
+                      },
                     ),
                     const SizedBox(height: 20),
-
-                    // Generate & Sign Button
-                    SizedBox(height: 20),
                     SignInvoiceButton(
                       c: c,
                       color: widget.appBarAndButtonColor,
-                      xmlController: c.xmlController,
+                      xmlController: xmlController,
                     ),
                   ],
                 ),
@@ -115,14 +125,14 @@ class _InvoicePageState extends State<InvoicePage> {
 
             const VerticalDivider(width: 20),
 
-            ///right side preview and send
+            /// Right side preview & send
             Expanded(
               flex: 1,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Center(
-                    child: const Text(
+                  const Center(
+                    child: Text(
                       "Signed XML Preview",
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
@@ -130,7 +140,7 @@ class _InvoicePageState extends State<InvoicePage> {
                   const SizedBox(height: 8),
                   Expanded(
                     child: TextField(
-                      controller: c.xmlController,
+                      controller: xmlController,
                       maxLines: null,
                       expands: true,
                       decoration: const InputDecoration(
@@ -144,14 +154,11 @@ class _InvoicePageState extends State<InvoicePage> {
                       },
                     ),
                   ),
-                  const SizedBox(height: 8),
-
-                  // Send Button
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   SendInvoiceButton(
                     c: c,
                     color: widget.appBarAndButtonColor,
-                    xmlController: c.xmlController,
+                    xmlController: xmlController,
                   ),
                 ],
               ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+// Model class representing an invoice item, containing TextEditingControllers for the item's name, description, quantity, unit price, and tax rate, as well as getter methods to retrieve the current values of these fields and calculate the total price for the item based on the quantity and unit price
 class InvoiceItem {
   final TextEditingController nameController;
   final TextEditingController descriptionController;
@@ -8,24 +9,19 @@ class InvoiceItem {
   final TextEditingController taxRateController;
 
   InvoiceItem({
-    String name = "Sample Item",
-    String description = "Description here",
-    double quantity = 1,
-    double unitPrice = 0,
-    double taxRate = 0,
+    required String name,
+    required String description,
+    required int quantity,
+    required double unitPrice,
+    required double taxRate,
   }) : nameController = TextEditingController(text: name),
        descriptionController = TextEditingController(text: description),
        quantityController = TextEditingController(text: quantity.toString()),
        unitPriceController = TextEditingController(text: unitPrice.toString()),
        taxRateController = TextEditingController(text: taxRate.toString());
 
-  // Numeric getters
-  double get quantity => double.tryParse(quantityController.text) ?? 0;
+  int get quantity => int.tryParse(quantityController.text) ?? 0;
   double get unitPrice => double.tryParse(unitPriceController.text) ?? 0;
   double get taxRate => double.tryParse(taxRateController.text) ?? 0;
   double get total => quantity * unitPrice;
-
-  // Text getters (THIS FIXES YOUR XML)
-  String get name => nameController.text;
-  String get description => descriptionController.text;
 }

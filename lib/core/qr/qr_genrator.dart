@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+// Function to generate the QR code string based on the provided invoice information, encoding the data in a TLV format and then Base64 encoding it to produce the final QR code string that can be used for display or scanning
 String generateQr({
   required String sellerName,
   required String vatNumber,

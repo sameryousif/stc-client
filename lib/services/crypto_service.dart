@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:stc_client/utils/paths/tools_paths.dart';
 import '../utils/paths/app_paths.dart';
 
+/// Service responsible for cryptographic operations like key and CSR generation, and file management
 class CryptoService {
   final Future<String> csrPath = AppPaths.csrPath();
   final Future<String> keyPath = AppPaths.privateKeyPath();

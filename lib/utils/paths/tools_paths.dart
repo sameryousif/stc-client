@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
+// Utility class that defines paths to external tools like OpenSSL and the CLI, and ensures they are available for use in the app
 class ToolPaths {
   /// Directory where app data exists
   static Future<String> get exeDir async =>

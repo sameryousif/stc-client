@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../section_title.dart';
 import '../totals_row.dart';
 
+// Widget that displays the totals information for an invoice, including the subtotal, tax total, and grand total, using the TotalsRow widget to display each row of information and the SectionTitle widget to label the section
 class InvoiceTotalsSection extends StatelessWidget {
   final double subtotal;
   final double taxTotal;

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+// Widget that displays a section title, used in various parts of the app to label different sections of the UI, such as invoice items and totals
 class SectionTitle extends StatelessWidget {
   final String text;
 

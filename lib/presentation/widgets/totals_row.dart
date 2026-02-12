@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+//// Widget that displays a single row of totals information, used in the invoice totals section to show subtotal, tax total, and grand total
 class TotalsRow extends StatelessWidget {
   final String title;
   final double value;

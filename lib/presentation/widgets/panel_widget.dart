@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:stc_client/presentation/widgets/preview.dart';
 import 'package:stc_client/presentation/widgets/subject_fields.dart';
 
+// Widget that contains the left and right panels for the enrollment page, displaying the private key, CSR subject fields, generated CSR, enrollment token input, and received certificate
 class LeftPanel extends StatelessWidget {
   final String privateKey;
   final TextEditingController cnCtrl;

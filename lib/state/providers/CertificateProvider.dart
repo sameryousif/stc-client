@@ -1,8 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import '../../services/certificateEnrollService.dart';
 
 class CertificateProvider extends ChangeNotifier {
-  final CertEnrollservice certEnrollService;
+  final CertEnrollService certEnrollService;
 
   bool _isCertificateValid = false;
   bool get isCertificateValid => _isCertificateValid;
@@ -14,8 +16,8 @@ class CertificateProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> enrollCertificate(String token) async {
-    await certEnrollService.enrollCertificate(token);
+  Future<void> enrollCertificate(String token, File csrFile) async {
+    await certEnrollService.enrollCertificate(csrFile: csrFile, token: token);
     await checkCertificate();
   }
 }

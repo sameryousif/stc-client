@@ -7,7 +7,6 @@ import 'package:stc_client/state/providers/InvoiceProvider.dart';
 import 'package:stc_client/utils/paths/tools_paths.dart';
 import 'services/certificateEnrollService.dart';
 import 'services/file_service.dart';
-import 'services/crypto_service.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 void main() async {
@@ -16,11 +15,7 @@ void main() async {
   databaseFactory = databaseFactoryFfi;
   await ToolPaths.ensureToolsReady();
   final fileService = FileService();
-  final cryptoService = CryptoService();
-  final certEnrollService = CertEnrollservice(
-    fileService: fileService,
-    cryptoService: cryptoService,
-  );
+  final certEnrollService = CertEnrollService(fileService: fileService);
   final invoicePrepService = InvoicePrepService();
   runApp(
     MultiProvider(

@@ -1,49 +1,35 @@
 import 'dart:convert';
 import 'dart:typed_data';
+import 'dart:io';
 
 import 'package:stc_client/services/api_service.dart';
 import 'file_service.dart';
-import 'crypto_service.dart';
-import 'dart:io';
 
-///  This manager handles certificate enrollment and validation logic
-class CertEnrollservice {
+/// Service responsible for managing certificate enrollment and validation
+class CertEnrollService {
   final FileService fileService;
 
-  final CryptoService cryptoService;
+  CertEnrollService({required this.fileService});
 
-  CertEnrollservice({required this.fileService, required this.cryptoService});
-
-  /// Checks certificate validity
   Future<bool> isCertificateValid() async {
     return fileService.isCertificateStillValid();
   }
 
-  /// Main enrollment logic
-  Future<void> enrollCertificate(String tokenCtrl) async {
-    //  Check certificate first
+  Future<void> enrollCertificate({
+    required File csrFile,
+    required String token,
+  }) async {
     if (await isCertificateValid()) {
-      print(' Existing certificate still valid. No need to re-enroll.');
       return;
     }
 
-    //  Get CSR file
-    final File? csrFile = await cryptoService.getCsrFile();
-
-    if (csrFile == null) {
-      throw Exception('CSR file could not be generated.');
-    }
-
-    //  Send CSR to server and get new certificate
-    final String certificateContent = await ApiService.sendCsr(
+    final String certificatePem = await ApiService.sendCsr(
       csrFile: csrFile,
-      token: tokenCtrl,
+      token: token,
     );
 
-    //  Save the certificate as PEM
-    final Uint8List certBytes = pemToDer(certificateContent);
+    final Uint8List certBytes = pemToDer(certificatePem);
     await fileService.saveCertificate(certBytes);
-    print(' New certificate saved successfully.');
   }
 
   Uint8List pemToDer(String pem) {

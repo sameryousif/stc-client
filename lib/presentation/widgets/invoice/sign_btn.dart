@@ -4,6 +4,7 @@ import 'package:stc_client/application/controllers/invoice_controller.dart';
 import 'package:stc_client/state/providers/InvoiceProvider.dart';
 import 'package:stc_client/utils/paths/tools_paths.dart';
 
+// Widget that displays a button to generate and sign the invoice, using the InvoiceProvider to handle the generation and signing process, and providing feedback to the user through a SnackBar with the result of the operation
 class SignInvoiceButton extends StatelessWidget {
   final InvoiceFormController c;
   final TextEditingController xmlController;
@@ -32,7 +33,7 @@ class SignInvoiceButton extends StatelessWidget {
                 await ToolPaths.ensureToolsReady();
                 await ToolPaths.verifyToolsExist();
                 final result = await provider.generateAndSign(
-                  invoiceNumber: c.invoiceNumber.text,
+                  invoiceNumber: c.invoiceNumber,
                   items: c.items,
                   supplierInfo: c.supplierInfo,
                   customerInfo: c.customerInfo,

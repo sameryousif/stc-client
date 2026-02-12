@@ -1,11 +1,12 @@
 import 'dart:io';
 import 'dart:typed_data';
-import '../utils/paths/app_paths.dart';
+import 'package:stc_client/utils/paths/app_paths.dart';
 
+/// Service responsible for managing certificate files, including saving and validating certificates
 class FileService {
   final Future<String> certPath = AppPaths.certPath();
 
-  /// Saves certificate to PEM file
+  /// Saves certificate content to the file system
   Future<void> saveCertificate(Uint8List certificateContent) async {
     final path = await certPath;
     await File(path).writeAsBytes(certificateContent);

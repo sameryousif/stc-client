@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:dio/dio.dart';
 
+//// Service responsible for handling all API interactions, including invoice submission and certificate enrollment
 class ApiService {
   ApiService._();
 
@@ -30,7 +31,7 @@ class ApiService {
           handler.next(response);
         },
         onError: (error, handler) {
-          print('❌ DIO ERROR');
+          print('DIO ERROR');
           print('STATUS: ${error.response?.statusCode}');
           print('BODY: ${error.response?.data}');
           print('MESSAGE: ${error.message}');

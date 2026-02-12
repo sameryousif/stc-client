@@ -6,6 +6,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'invoicePrepService.dart';
 
+/// Service responsible for managing the SQLite database that stores cleared invoices, including saving and retrieving invoice data
 class DBService {
   static Future<Directory> get clearedDir => AppPaths.clearedDir();
   static Database? _db;

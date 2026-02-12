@@ -1,5 +1,6 @@
 import 'dart:io';
 
+// Model class representing the certificate information extracted from the certificate file, containing the issuer name and the serial number in decimal format, and providing a constructor to initialize these fields when creating an instance of the CertInfo class
 class CertInfo {
   final String issuerName;
   final String serialNumberDecimal;
@@ -8,7 +9,7 @@ class CertInfo {
 }
 
 //extract issuer name and serial number (decimal) from cert
-Future<CertInfo> extractIssuerAndSerialFromCert({
+Future<CertInfo> extractCertDetails({
   required String opensslPath,
   required String certPath,
 }) async {

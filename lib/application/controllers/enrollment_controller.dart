@@ -1,91 +1,48 @@
 import 'dart:convert';
-import 'dart:typed_data';
+import 'package:flutter/foundation.dart';
+import 'package:stc_client/core/enrollment_result.dart';
+import 'package:stc_client/core/enrollment_subject.dart';
+import 'package:stc_client/services/certificateEnrollService.dart';
+import 'package:stc_client/services/enrollment_service.dart';
 
-import 'package:flutter/material.dart';
-import 'package:stc_client/services/crypto_service.dart';
-import 'package:stc_client/utils/paths/tools_paths.dart';
-import 'package:stc_client/state/providers/CertificateProvider.dart';
-
+/// Controller responsible for managing the enrollment process, including generating the CSR, enrolling for the certificate, and loading initial data such as the existing certificate, private key, and CSR if they exist, while also providing ValueNotifiers to update the UI with the current state of the enrollment data
 class EnrollmentController {
-  final CryptoService cryptoService = CryptoService();
+  final EnrollmentService enrollmentService;
+  final CertEnrollService certEnrollService;
 
-  // Subject Fields with defaults
-  final TextEditingController cnCtrl = TextEditingController(
-    text: "My.Company.com",
-  );
-  final TextEditingController oCtrl = TextEditingController(
-    text: "Organization",
-  );
-  final TextEditingController ouCtrl = TextEditingController(text: "IT");
-  final TextEditingController cCtrl = TextEditingController(text: "SD");
-  final TextEditingController stCtrl = TextEditingController(text: "Khartoum");
-  final TextEditingController lCtrl = TextEditingController(text: "Khartoum");
-  final TextEditingController serialCtrl = TextEditingController(text: "5001");
+  final ValueNotifier<String> privateKey = ValueNotifier('');
+  final ValueNotifier<String> csr = ValueNotifier('');
+  final ValueNotifier<String> certificate = ValueNotifier('');
 
-  final TextEditingController tokenCtrl = TextEditingController();
+  EnrollmentController(this.enrollmentService, this.certEnrollService);
 
-  // State Variables
-  String privateKey = '';
-  String csr = '';
-  String certificate = '';
+  /// Generate private key + CSR
+  Future<EnrollmentResult> generateCsr(EnrollmentSubject subject) async {
+    final csrBase64 = await enrollmentService.generateCsr(subject);
+    final privateKey = await enrollmentService.loadPrivateKey();
 
-  // Load all files
-  Future<void> loadAllFiles(
-    Function(String) setPrivateKey,
-    Function(String) setCsr,
-    Function(String) setCert,
-  ) async {
-    await loadPrivateKey(setPrivateKey);
-    await loadCsr(setCsr);
-    await loadCertificate(setCert);
+    return EnrollmentResult(csrBase64: csrBase64, privateKey: privateKey);
   }
 
-  Future<void> loadPrivateKey(Function(String) setPrivateKey) async {
-    final key = await cryptoService.readPrivateKey();
-    setPrivateKey((key as String?) ?? '');
+  /// Enroll certificate using existing CSR
+  Future<String> enrollCertificate(String token) async {
+    final csrFile = await enrollmentService.getCsrFile();
+
+    await certEnrollService.enrollCertificate(csrFile: csrFile, token: token);
+
+    return await enrollmentService.loadCertificate();
   }
 
-  Future<void> loadCsr(Function(String) setCsr) async {
-    final Uint8List bytes = await cryptoService.readCsr();
-    final String base64Csr = base64Encode(bytes);
-    setCsr(base64Csr);
-  }
+  Future<void> loadInitialData() async {
+    final cert = await enrollmentService.loadCertificate();
+    final key = await enrollmentService.loadPrivateKey();
+    final csrBytes = await enrollmentService.getCsrFile().then(
+      (f) => f.readAsBytes(),
+    );
+    final csrBase64 = base64Encode(csrBytes);
 
-  Future<void> loadCertificate(Function(String) setCert) async {
-    final Uint8List certBytes = await cryptoService.readCertificate();
-    final String base64Cert = base64Encode(certBytes);
-    setCert(base64Cert);
-  }
-
-  // Generate CSR
-  Future<void> generateCsr(
-    Function(String) setPrivateKey,
-    Function(String) setCsr,
-  ) async {
-    await ToolPaths.ensureToolsReady();
-    await ToolPaths.verifyToolsExist();
-
-    await cryptoService.generateKeyAndCsr({
-      'CN': cnCtrl.text,
-      'O': oCtrl.text,
-      'OU': ouCtrl.text,
-      'C': cCtrl.text,
-      'ST': stCtrl.text,
-      'L': lCtrl.text,
-      'serialNumber': serialCtrl.text,
-    });
-
-    await loadCsr(setCsr);
-    await loadPrivateKey(setPrivateKey);
-  }
-
-  // Generate Certificate
-  Future<void> generateCertificate(
-    CertificateProvider provider,
-    Function(String) setCert, {
-    required String token,
-  }) async {
-    await provider.enrollCertificate(token);
-    await loadCertificate(setCert);
+    certificate.value = cert;
+    privateKey.value = key;
+    csr.value = csrBase64;
   }
 }

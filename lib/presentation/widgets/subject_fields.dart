@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+// Widget that displays the subject fields for certificate enrollment, allowing users to input values for CN, O, OU, C, ST, L, and Serial Number
 class SubjectFields extends StatelessWidget {
   final TextEditingController cnCtrl;
   final TextEditingController oCtrl;

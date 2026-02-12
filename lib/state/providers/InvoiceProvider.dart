@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import '../../services/invoicePrepService.dart';
 import '../../services/api_service.dart';
 import '../../services/invoice_processing_service.dart';
-import '../../domain/invoice/invoice_item.dart';
+import '../../core/invoice/invoice_item.dart';
 
 class InvoiceResult {
   final bool success;

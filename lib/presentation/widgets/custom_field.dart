@@ -1,29 +1,27 @@
 import 'package:flutter/material.dart';
 
+// Widget that displays a customizable text field, used in various parts of the app to allow users to input values for different fields such as invoice item details or certificate subject fields
 class CustomField extends StatelessWidget {
-  final TextEditingController controller;
+  final String value;
   final String label;
-  final bool readOnly;
+  final ValueChanged<String> onChanged;
 
   const CustomField({
     super.key,
-    required this.controller,
+    required this.value,
     required this.label,
-    this.readOnly = false,
+    required this.onChanged,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: TextField(
-        controller: controller,
-        readOnly: readOnly,
-        decoration: InputDecoration(
-          labelText: label,
-          border: const OutlineInputBorder(),
-        ),
+    return TextField(
+      decoration: InputDecoration(
+        labelText: label,
+        border: const OutlineInputBorder(),
       ),
+      controller: TextEditingController(text: value),
+      onChanged: onChanged,
     );
   }
 }
