@@ -71,8 +71,8 @@ Future<String?> extractSerial({
 
   final subject = res.stdout.toString();
 
-  // Match serialNumber=XXXX
+  // Match serialNumber
   final match = RegExp(r'serialNumber\s*=\s*([^,\/]+)').firstMatch(subject);
 
-  return match?.group(1);
+  return match?.group(1) ?? '';
 }

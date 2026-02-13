@@ -403,7 +403,7 @@ Future<String> generateUBLInvoice({
         nest: () => builder.text('reporting:1.0'),
       );
 
-      builder.element('cbc:ID', nest: () => builder.text(subjectSerial ?? ''));
+      builder.element('cbc:ID', nest: () => builder.text(subjectSerial!));
       builder.element('cbc:UUID', nest: () => builder.text(invoiceNumber));
       builder.element('cbc:IssueDate', nest: () => builder.text(issueDate));
       builder.element('cbc:IssueTime', nest: () => builder.text(issueTime));
