@@ -1,4 +1,7 @@
 import 'dart:io';
+import 'package:stc_client/core/certificate/cert_info.dart';
+import 'package:stc_client/utils/paths/app_paths.dart';
+import 'package:stc_client/utils/paths/tools_paths.dart';
 import 'package:xml/xml.dart';
 import 'package:stc_client/core/invoice/invoice_item.dart';
 // Core functions for generating UBL invoices, constructing the necessary XML structures for the invoice, the XAdES signature, and the UBLExtensions, as well as injecting the signature into the invoice and adding a QR code reference to the invoice
@@ -327,7 +330,7 @@ XmlDocument injectSignature({
   return invoice;
 }
 
-String generateUBLInvoice({
+Future<String> generateUBLInvoice({
   required String invoiceNumber,
   required String uuid,
   required String issueDate,
@@ -339,7 +342,7 @@ String generateUBLInvoice({
   required String customerName,
   required String customerVAT,
   required List<InvoiceItem> items,
-}) {
+}) async {
   final builder = XmlBuilder();
 
   double subtotal = 0;
@@ -351,6 +354,10 @@ String generateUBLInvoice({
   }
 
   final total = subtotal + vatTotal;
+  final subjectSerial = await extractSerial(
+    opensslPath: await ToolPaths.opensslPath,
+    certPath: await AppPaths.certPath(),
+  );
   builder.processing('xml', 'version="1.0" encoding="UTF-8"');
 
   builder.element(
@@ -396,7 +403,7 @@ String generateUBLInvoice({
         nest: () => builder.text('reporting:1.0'),
       );
 
-      builder.element('cbc:ID', nest: () => builder.text("5555"));
+      builder.element('cbc:ID', nest: () => builder.text(subjectSerial ?? ''));
       builder.element('cbc:UUID', nest: () => builder.text(invoiceNumber));
       builder.element('cbc:IssueDate', nest: () => builder.text(issueDate));
       builder.element('cbc:IssueTime', nest: () => builder.text(issueTime));

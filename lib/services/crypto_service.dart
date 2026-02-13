@@ -7,6 +7,7 @@ import '../utils/paths/app_paths.dart';
 class CryptoService {
   final Future<String> csrPath = AppPaths.csrPath();
   final Future<String> keyPath = AppPaths.privateKeyPath();
+  final Future<String> certPath = AppPaths.certPath();
 
   Future<File?> getCsrFile() async {
     final file = File(await csrPath);
@@ -15,6 +16,11 @@ class CryptoService {
 
   Future<File?> getPrivateKeyFile() async {
     final file = File(await keyPath);
+    return await file.exists() ? file : null;
+  }
+
+  Future<File?> getCertFile() async {
+    final file = File(await certPath);
     return await file.exists() ? file : null;
   }
 
@@ -32,11 +38,11 @@ class CryptoService {
   }
 
   Future<Uint8List> readCertificate() async {
-    final certFile = File(await AppPaths.certPath());
-    if (!await certFile.exists()) {
+    final file = await getCertFile();
+    if (file == null || !await file.exists()) {
       throw Exception('Certificate file not found');
     }
-    return await certFile.readAsBytes();
+    return await file.readAsBytes();
   }
 
   Future<void> generateKeyAndCsr(Map<String, String> subject) async {

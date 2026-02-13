@@ -52,3 +52,27 @@ Future<CertInfo> extractCertDetails({
 
   return CertInfo(issuerName: issuer, serialNumberDecimal: serialDecimal);
 }
+
+Future<String?> extractSerial({
+  required String opensslPath,
+  required String certPath,
+}) async {
+  final res = await Process.run(opensslPath, [
+    "x509",
+    "-in",
+    certPath,
+    "-noout",
+    "-subject",
+  ]);
+
+  if (res.exitCode != 0) {
+    throw Exception("OpenSSL subject failed: ${res.stderr}");
+  }
+
+  final subject = res.stdout.toString();
+
+  // Match serialNumber=XXXX
+  final match = RegExp(r'serialNumber\s*=\s*([^,\/]+)').firstMatch(subject);
+
+  return match?.group(1);
+}

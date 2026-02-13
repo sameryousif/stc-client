@@ -29,14 +29,16 @@ class InvoicePrepService {
   }) async {
     final uuid = const Uuid().v4();
     final now = DateTime.now();
-
+    final pihZero = sha256.convert(utf8.encode('0')).toString();
     final xmlString = generateUBLInvoice(
       invoiceNumber: invoiceNumber,
       uuid: uuid,
       issueDate: now.toIso8601String().split('T')[0],
       issueTime: now.toIso8601String().split('T')[1].split('.').first,
       icv: (await DBService().getLastInvoiceID() ?? 0) + 1,
-      previousInvoiceHash: await DBService().getLastInvoiceHash() ?? 'first',
+      previousInvoiceHash:
+          await DBService().getLastInvoiceHash() ??
+          base64.encode(utf8.encode(pihZero)),
       supplierName: supplierInfo['name']!,
       supplierVAT: supplierInfo['vat']!,
       customerName: customerInfo['name']!,
@@ -44,7 +46,7 @@ class InvoicePrepService {
       items: items,
     );
 
-    return XmlDocument.parse(xmlString);
+    return XmlDocument.parse(await xmlString);
   }
 
   Future<void> writeXml(String path, String xmlContent) async {

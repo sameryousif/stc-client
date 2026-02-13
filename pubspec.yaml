@@ -49,6 +49,7 @@ dependencies:
   mobile_scanner: ^5.2.3
   sqflite: ^2.2.8+4
   sqflite_common_ffi:
+  x509: ^0.2.4+3
 dev_dependencies:
   flutter_test:
     sdk: flutter
