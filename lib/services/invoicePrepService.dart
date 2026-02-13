@@ -29,7 +29,8 @@ class InvoicePrepService {
   }) async {
     final uuid = const Uuid().v4();
     final now = DateTime.now();
-    final pihZero = sha256.convert(utf8.encode('0')).toString();
+    final pihZero = sha256.convert("0".codeUnits);
+
     final xmlString = generateUBLInvoice(
       invoiceNumber: invoiceNumber,
       uuid: uuid,
@@ -38,7 +39,7 @@ class InvoicePrepService {
       icv: (await DBService().getLastInvoiceID() ?? 0) + 1,
       previousInvoiceHash:
           await DBService().getLastInvoiceHash() ??
-          base64.encode(utf8.encode(pihZero)),
+          base64.encode((pihZero.bytes)),
       supplierName: supplierInfo['name']!,
       supplierVAT: supplierInfo['vat']!,
       customerName: customerInfo['name']!,
