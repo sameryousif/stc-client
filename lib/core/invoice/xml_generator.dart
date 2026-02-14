@@ -376,21 +376,22 @@ Future<String> generateUBLInvoice({
         'xmlns:cbc',
         'urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2',
       );
+
       builder.attribute(
         'xmlns:ext',
         'urn:oasis:names:specification:ubl:schema:xsd:CommonExtensionComponents-2',
       );
-      builder.attribute('xmlns:ds', 'http://www.w3.org/2000/09/xmldsig#');
-      builder.attribute('xmlns:xades', 'http://uri.etsi.org/01903/v1.3.2#');
+      /* builder.attribute(
+        'xmlns:sac',
+        'urn:oasis:names:specification:ubl:schema:xsd:SignatureAggregateComponents-2',
+      );
+ builder.attribute('xmlns:ds', 'http://www.w3.org/2000/09/xmldsig#');
       builder.attribute(
         'xmlns:sig',
         'urn:oasis:names:specification:ubl:schema:xsd:CommonSignatureComponents-2',
       );
-      builder.attribute(
-        'xmlns:sac',
-        'urn:oasis:names:specification:ubl:schema:xsd:SignatureAggregateComponents-2',
-      );
-
+      builder.attribute('xmlns:xades', 'http://uri.etsi.org/01903/v1.3.2#');
+*/
       //////////////////////////////////
 
       /////////  UBL EXTENSIONS
