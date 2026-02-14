@@ -30,16 +30,23 @@ class InvoicePrepService {
     final uuid = const Uuid().v4();
     final now = DateTime.now();
     final pihZero = sha256.convert("0".codeUnits);
-
+    final entityId = await extractSerial(
+      opensslPath: await ToolPaths.opensslPath,
+      certPath: await AppPaths.certPath(),
+    );
+    final lastInvoice = await DBService().getLastInvoiceForEntity(entityId!);
+    final icv = lastInvoice != null ? (lastInvoice['id'] as int) + 1 : 1;
+    final previousInvoiceHash =
+        lastInvoice != null
+            ? lastInvoice['hash'] as String
+            : base64.encode(pihZero.bytes);
     final xmlString = generateUBLInvoice(
       invoiceNumber: invoiceNumber,
       uuid: uuid,
       issueDate: now.toIso8601String().split('T')[0],
       issueTime: now.toIso8601String().split('T')[1].split('.').first,
-      icv: (await DBService().getLastInvoiceID() ?? 0) + 1,
-      previousInvoiceHash:
-          await DBService().getLastInvoiceHash() ??
-          base64.encode((pihZero.bytes)),
+      icv: icv,
+      previousInvoiceHash: previousInvoiceHash,
       supplierName: supplierInfo['name']!,
       supplierVAT: supplierInfo['vat']!,
       customerName: customerInfo['name']!,

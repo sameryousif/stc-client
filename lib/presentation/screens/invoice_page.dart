@@ -24,13 +24,14 @@ class InvoicePage extends StatefulWidget {
 class _InvoicePageState extends State<InvoicePage> {
   late final InvoiceFormController c;
   late final ScrollController scrollController;
-  final xmlController = TextEditingController();
+  late TextEditingController xmlController;
 
   @override
   void initState() {
     super.initState();
     c = InvoiceFormController();
     scrollController = ScrollController();
+    xmlController = TextEditingController();
   }
 
   @override
@@ -55,8 +56,8 @@ class _InvoicePageState extends State<InvoicePage> {
             tooltip: "Refresh Invoice",
             icon: const Icon(Icons.refresh, color: Colors.white),
             onPressed: () {
-              final provider = context.read<InvoiceProvider>();
               provider.refreshInvoice();
+              xmlController.clear();
               c.clearAll();
               scrollController.animateTo(
                 0,
@@ -148,9 +149,7 @@ class _InvoicePageState extends State<InvoicePage> {
                         hintText: "XML will appear here",
                       ),
                       onChanged: (value) {
-                        if (!provider.isGenerating) {
-                          provider.signedXml = value;
-                        }
+                        provider.signedXml = value;
                       },
                     ),
                   ),

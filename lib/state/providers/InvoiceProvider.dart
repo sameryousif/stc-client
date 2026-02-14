@@ -1,6 +1,9 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:stc_client/core/certificate/cert_info.dart';
+import 'package:stc_client/utils/paths/app_paths.dart';
+import 'package:stc_client/utils/paths/tools_paths.dart';
 import '../../services/invoicePrepService.dart';
 import '../../services/api_service.dart';
 import '../../services/invoice_processing_service.dart';
@@ -73,9 +76,17 @@ class InvoiceProvider extends ChangeNotifier {
 
       if (response?.statusCode == 200) {
         final base64Invoice = response?.data['clearedInvoice'] as String;
+        final entityId = await extractSerial(
+          opensslPath: await ToolPaths.opensslPath,
+          certPath: await AppPaths.certPath(),
+        );
 
         // Delegate processing to separate service
-        await DBService.processClearedInvoice(base64Invoice, prepService);
+        await DBService.processClearedInvoice(
+          base64Invoice,
+          prepService,
+          entityId!,
+        );
 
         await DBService().printAllInvoices();
 

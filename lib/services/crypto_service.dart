@@ -29,18 +29,18 @@ class CryptoService {
     return file == null ? '' : await file.readAsString();
   }
 
-  Future<Uint8List> readCsr() async {
+  Future<Uint8List?> readCsr() async {
     final file = await getCsrFile();
     if (file == null || !await file.exists()) {
-      throw Exception('CSR file not found');
+      return null;
     }
     return await file.readAsBytes();
   }
 
-  Future<Uint8List> readCertificate() async {
+  Future<Uint8List?> readCertificate() async {
     final file = await getCertFile();
     if (file == null || !await file.exists()) {
-      throw Exception('Certificate file not found');
+      return null;
     }
     return await file.readAsBytes();
   }

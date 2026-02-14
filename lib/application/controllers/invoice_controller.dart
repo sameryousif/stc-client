@@ -115,7 +115,7 @@ class InvoiceFormController {
   }
 
   void clearAll() {
-    items.clear();
+    //items.clear();
     recalculateTotals();
     invoiceNumber = const Uuid().v4();
     invoiceDate = DateTime.now();

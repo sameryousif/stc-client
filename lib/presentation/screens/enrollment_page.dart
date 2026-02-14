@@ -77,9 +77,7 @@ class _EnrollmentPageState extends State<EnrollmentPage> {
   }
 
   Future<void> generateCertificate() async {
-    final cert = await controller.enrollCertificate(tokenCtrl.text);
-
-    controller.certificate.value = cert;
+    await controller.enrollCertificate(tokenCtrl.text);
   }
 
   @override
@@ -96,33 +94,46 @@ class _EnrollmentPageState extends State<EnrollmentPage> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
-        child: ValueListenableBuilder(
-          valueListenable: controller.privateKey,
-          builder: (_, __, ___) {
-            return screenWidth > 800
+        child:
+            screenWidth > 800
                 ? Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(
-                      child: LeftPanel(
-                        privateKey: controller.privateKey.value,
-                        cnCtrl: cnCtrl,
-                        oCtrl: oCtrl,
-                        ouCtrl: ouCtrl,
-                        cCtrl: cCtrl,
-                        stCtrl: stCtrl,
-                        lCtrl: lCtrl,
-                        serialCtrl: serialCtrl,
-                        onGenerateCsr: generateCsr,
+                      child: ValueListenableBuilder<String>(
+                        valueListenable: controller.privateKey,
+                        builder: (_, privateKeyValue, __) {
+                          return LeftPanel(
+                            privateKey: privateKeyValue,
+                            cnCtrl: cnCtrl,
+                            oCtrl: oCtrl,
+                            ouCtrl: ouCtrl,
+                            cCtrl: cCtrl,
+                            stCtrl: stCtrl,
+                            lCtrl: lCtrl,
+                            serialCtrl: serialCtrl,
+                            onGenerateCsr: generateCsr,
+                          );
+                        },
                       ),
                     ),
                     const SizedBox(width: 20),
                     Expanded(
-                      child: RightPanel(
-                        csr: controller.csr.value,
-                        certificate: controller.certificate.value,
-                        tokenCtrl: tokenCtrl,
-                        onGenerateCert: generateCertificate,
+                      child: ValueListenableBuilder<String>(
+                        valueListenable: controller.csr,
+                        builder: (_, csrValue, __) {
+                          return ValueListenableBuilder<String>(
+                            valueListenable: controller.certificate,
+                            builder: (_, certValue, __) {
+                              return RightPanel(
+                                csr: csrValue,
+                                certificate: certValue,
+                                tokenCtrl: tokenCtrl,
+                                onGenerateCert: generateCertificate,
+                              );
+                            },
+                          );
+                        },
                       ),
                     ),
                   ],
@@ -130,29 +141,42 @@ class _EnrollmentPageState extends State<EnrollmentPage> {
                 : SingleChildScrollView(
                   child: Column(
                     children: [
-                      LeftPanel(
-                        privateKey: controller.privateKey.value,
-                        cnCtrl: cnCtrl,
-                        oCtrl: oCtrl,
-                        ouCtrl: ouCtrl,
-                        cCtrl: cCtrl,
-                        stCtrl: stCtrl,
-                        lCtrl: lCtrl,
-                        serialCtrl: serialCtrl,
-                        onGenerateCsr: generateCsr,
+                      ValueListenableBuilder<String>(
+                        valueListenable: controller.privateKey,
+                        builder: (_, privateKeyValue, __) {
+                          return LeftPanel(
+                            privateKey: privateKeyValue,
+                            cnCtrl: cnCtrl,
+                            oCtrl: oCtrl,
+                            ouCtrl: ouCtrl,
+                            cCtrl: cCtrl,
+                            stCtrl: stCtrl,
+                            lCtrl: lCtrl,
+                            serialCtrl: serialCtrl,
+                            onGenerateCsr: generateCsr,
+                          );
+                        },
                       ),
                       const SizedBox(height: 20),
-                      RightPanel(
-                        csr: controller.csr.value,
-                        certificate: controller.certificate.value,
-                        tokenCtrl: tokenCtrl,
-                        onGenerateCert: generateCertificate,
+                      ValueListenableBuilder<String>(
+                        valueListenable: controller.csr,
+                        builder: (_, csrValue, __) {
+                          return ValueListenableBuilder<String>(
+                            valueListenable: controller.certificate,
+                            builder: (_, certValue, __) {
+                              return RightPanel(
+                                csr: csrValue,
+                                certificate: certValue,
+                                tokenCtrl: tokenCtrl,
+                                onGenerateCert: generateCertificate,
+                              );
+                            },
+                          );
+                        },
                       ),
                     ],
                   ),
-                );
-          },
-        ),
+                ),
       ),
     );
   }

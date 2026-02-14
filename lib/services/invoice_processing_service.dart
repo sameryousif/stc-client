@@ -18,12 +18,14 @@ class DBService {
       version: 1,
       onCreate: (db, version) async {
         await db.execute('''
-          CREATE TABLE invoices(
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            base64Invoice TEXT,
-            hash TEXT,
-            createdAt TEXT
-          )
+         CREATE TABLE invoices(
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  entityId TEXT, 
+  base64Invoice TEXT,
+  hash TEXT,
+  createdAt TEXT
+)
+
         ''');
       },
     );
@@ -33,6 +35,7 @@ class DBService {
   static Future<void> processClearedInvoice(
     String base64Invoice,
     InvoicePrepService prepService,
+    String entityId,
   ) async {
     final decodedXml = utf8.decode(base64.decode(base64Invoice));
     final xmlDoc = XmlDocument.parse(decodedXml);
@@ -58,8 +61,7 @@ class DBService {
 
     final invoiceHash = await prepService.computeHashBase64(tempFilePath);
 
-    // Save to SQLite
-    await _saveInvoice(base64Invoice, invoiceHash);
+    await _saveInvoice(base64Invoice, invoiceHash, entityId);
   }
 
   static void removeSections(XmlDocument doc) {
@@ -82,9 +84,14 @@ class DBService {
         .forEach((e) => e.remove());
   }
 
-  static Future<void> _saveInvoice(String base64Invoice, String hash) async {
+  static Future<void> _saveInvoice(
+    String base64Invoice,
+    String hash,
+    String entityId,
+  ) async {
     final db = await database;
     await db.insert('invoices', {
+      'entityId': entityId,
       'base64Invoice': base64Invoice,
       'hash': hash,
       'createdAt': DateTime.now().toIso8601String(),
@@ -115,21 +122,22 @@ class DBService {
     }
   }
 
-  Future<String?> getLastInvoiceHash() async {
-    final invoices = await getAllInvoices();
-    if (invoices.isEmpty) return null;
-    return invoices.first['hash'] as String;
-  }
-
-  Future<int?> getLastInvoiceID() async {
-    final invoices = await getAllInvoices();
-    if (invoices.isEmpty) return null;
-    return invoices.first['id'] as int?;
-  }
-
   static Future<void> saveClearedInvoice(String path, String xmlContent) async {
     final dir = await clearedDir;
     if (!await dir.exists()) await dir.create(recursive: true);
     await File(path).writeAsString(xmlContent);
+  }
+
+  Future<Map<String, dynamic>?> getLastInvoiceForEntity(String entityId) async {
+    final db = await database;
+    final invoices = await db.query(
+      'invoices',
+      where: 'entityId = ?',
+      whereArgs: [entityId],
+      orderBy: 'id DESC',
+      limit: 1,
+    );
+    if (invoices.isEmpty) return null;
+    return invoices.first;
   }
 }

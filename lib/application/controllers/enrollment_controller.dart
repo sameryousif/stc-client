@@ -25,24 +25,36 @@ class EnrollmentController {
   }
 
   /// Enroll certificate using existing CSR
-  Future<String> enrollCertificate(String token) async {
+  Future<void> enrollCertificate(String token) async {
     final csrFile = await enrollmentService.getCsrFile();
+    if (csrFile == null) return;
 
     await certEnrollService.enrollCertificate(csrFile: csrFile, token: token);
 
-    return await enrollmentService.loadCertificate();
+    final cert = await enrollmentService.loadCertificate();
+    certificate.value = cert ?? '';
   }
 
   Future<void> loadInitialData() async {
-    final cert = await enrollmentService.loadCertificate();
-    final key = await enrollmentService.loadPrivateKey();
-    final csrBytes = await enrollmentService.getCsrFile().then(
-      (f) => f.readAsBytes(),
-    );
-    final csrBase64 = base64Encode(csrBytes);
+    try {
+      final cert = await enrollmentService.loadCertificate();
+      final key = await enrollmentService.loadPrivateKey();
+      final csrFile = await enrollmentService.getCsrFile();
 
-    certificate.value = cert;
-    privateKey.value = key;
-    csr.value = csrBase64;
+      String csrBase64 = '';
+
+      if (csrFile != null) {
+        final csrBytes = await csrFile.readAsBytes();
+        csrBase64 = base64Encode(csrBytes);
+      }
+
+      certificate.value = cert ?? '';
+      privateKey.value = key;
+      csr.value = csrBase64;
+    } catch (e) {
+      certificate.value = '';
+      privateKey.value = '';
+      csr.value = '';
+    }
   }
 }

@@ -26,23 +26,26 @@ class EnrollmentService {
       'serialNumber': subject.serialNumber,
     });
 
-    final Uint8List csrBytes = await cryptoService.readCsr();
-    return base64Encode(csrBytes);
+    final Uint8List? csrBytes = await cryptoService.readCsr();
+    return base64Encode(csrBytes!);
   }
 
   Future<String> loadPrivateKey() async {
     return await cryptoService.readPrivateKey();
   }
 
-  Future<String> loadCertificate() async {
-    final Uint8List certBytes = await cryptoService.readCertificate();
+  Future<String?> loadCertificate() async {
+    final Uint8List? certBytes = await cryptoService.readCertificate();
+    if (certBytes == null) {
+      return null;
+    }
     return base64Encode(certBytes);
   }
 
-  Future<File> getCsrFile() async {
+  Future<File?> getCsrFile() async {
     final file = await cryptoService.getCsrFile();
     if (file == null) {
-      throw Exception('CSR file not found');
+      return null;
     }
     return file;
   }
