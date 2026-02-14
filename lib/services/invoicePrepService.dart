@@ -30,10 +30,7 @@ class InvoicePrepService {
     final uuid = const Uuid().v4();
     final now = DateTime.now();
     final pihZero = sha256.convert("0".codeUnits);
-    final entityId = await extractSerial(
-      opensslPath: await ToolPaths.opensslPath,
-      certPath: await AppPaths.certPath(),
-    );
+    final entityId = await extractSerial();
     final lastInvoice = await DBService().getLastInvoiceForEntity(entityId!);
     final icv = lastInvoice != null ? (lastInvoice['id'] as int) + 1 : 1;
     final previousInvoiceHash =

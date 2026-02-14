@@ -1,7 +1,5 @@
 import 'dart:io';
 import 'package:stc_client/core/certificate/cert_info.dart';
-import 'package:stc_client/utils/paths/app_paths.dart';
-import 'package:stc_client/utils/paths/tools_paths.dart';
 import 'package:xml/xml.dart';
 import 'package:stc_client/core/invoice/invoice_item.dart';
 // Core functions for generating UBL invoices, constructing the necessary XML structures for the invoice, the XAdES signature, and the UBLExtensions, as well as injecting the signature into the invoice and adding a QR code reference to the invoice
@@ -354,10 +352,7 @@ Future<String> generateUBLInvoice({
   }
 
   final total = subtotal + vatTotal;
-  final subjectSerial = await extractSerial(
-    opensslPath: await ToolPaths.opensslPath,
-    certPath: await AppPaths.certPath(),
-  );
+  final subjectSerial = await extractSerial();
   builder.processing('xml', 'version="1.0" encoding="UTF-8"');
 
   builder.element(

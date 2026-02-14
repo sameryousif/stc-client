@@ -1,5 +1,8 @@
 import 'dart:io';
 
+import 'package:stc_client/utils/paths/app_paths.dart';
+import 'package:stc_client/utils/paths/tools_paths.dart';
+
 // Model class representing the certificate information extracted from the certificate file, containing the issuer name and the serial number in decimal format, and providing a constructor to initialize these fields when creating an instance of the CertInfo class
 class CertInfo {
   final String issuerName;
@@ -53,10 +56,9 @@ Future<CertInfo> extractCertDetails({
   return CertInfo(issuerName: issuer, serialNumberDecimal: serialDecimal);
 }
 
-Future<String?> extractSerial({
-  required String opensslPath,
-  required String certPath,
-}) async {
+Future<String?> extractSerial({String? opensslPath, String? certPath}) async {
+  opensslPath ??= await ToolPaths.opensslPath;
+  certPath ??= await AppPaths.certPath();
   final res = await Process.run(opensslPath, [
     "x509",
     "-in",

@@ -10,7 +10,6 @@ import 'package:stc_client/presentation/widgets/invoice/sign_btn.dart';
 import 'package:stc_client/presentation/widgets/invoice/supplier_info.dart';
 import 'package:stc_client/presentation/widgets/invoice/totals_info.dart';
 
-// Widget that displays the main invoice page, containing a form on the left side for users to input invoice information, supplier information, customer information, and invoice items, and a preview section on the right side to display the signed XML of the invoice, along with buttons to generate/sign the invoice and send it
 class InvoicePage extends StatefulWidget {
   const InvoicePage({super.key});
 
@@ -22,27 +21,44 @@ class InvoicePage extends StatefulWidget {
 }
 
 class _InvoicePageState extends State<InvoicePage> {
-  late final InvoiceFormController c;
+  InvoiceFormController? c;
   late final ScrollController scrollController;
-  late TextEditingController xmlController;
+  late final TextEditingController xmlController;
 
   @override
   void initState() {
     super.initState();
-    c = InvoiceFormController();
     scrollController = ScrollController();
     xmlController = TextEditingController();
+    _initializeController();
+  }
+
+  Future<void> _initializeController() async {
+    final controller = await InvoiceFormController.create();
+
+    if (!mounted) return;
+
+    setState(() {
+      c = controller;
+    });
   }
 
   @override
   void dispose() {
     scrollController.dispose();
+    xmlController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<InvoiceProvider>();
+
+    if (c == null) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
+    final controller = c!;
 
     return Scaffold(
       appBar: AppBar(
@@ -58,7 +74,8 @@ class _InvoicePageState extends State<InvoicePage> {
             onPressed: () {
               provider.refreshInvoice();
               xmlController.clear();
-              c.clearAll();
+              controller.clearAll();
+
               scrollController.animateTo(
                 0,
                 duration: const Duration(milliseconds: 350),
@@ -73,34 +90,36 @@ class _InvoicePageState extends State<InvoicePage> {
         padding: const EdgeInsets.all(16),
         child: Row(
           children: [
-            /// Left side form
+            /// LEFT SIDE FORM
             Expanded(
               flex: 1,
               child: SingleChildScrollView(
                 controller: scrollController,
                 child: Column(
                   children: [
-                    InvoiceInfoSection(c: c),
+                    InvoiceInfoSection(c: controller),
                     const SizedBox(height: 20),
-                    SupplierSection(c: c),
+                    SupplierSection(c: controller),
                     const SizedBox(height: 20),
-                    CustomerSection(c: c),
+                    CustomerSection(c: controller),
                     const SizedBox(height: 20),
                     InvoiceItemsSection(
-                      items: c.items,
-                      onDelete: (index) => setState(() => c.removeItem(index)),
+                      items: controller.items,
+                      onDelete:
+                          (index) =>
+                              setState(() => controller.removeItem(index)),
                     ),
                     const SizedBox(height: 20),
 
-                    /// Totals section using ValueListenableBuilder
+                    /// Totals
                     ValueListenableBuilder<double>(
-                      valueListenable: c.subtotal,
+                      valueListenable: controller.subtotal,
                       builder: (_, subtotal, __) {
                         return ValueListenableBuilder<double>(
-                          valueListenable: c.taxTotal,
+                          valueListenable: controller.taxTotal,
                           builder: (_, taxTotal, __) {
                             return ValueListenableBuilder<double>(
-                              valueListenable: c.grandTotal,
+                              valueListenable: controller.grandTotal,
                               builder: (_, grandTotal, __) {
                                 return InvoiceTotalsSection(
                                   subtotal: subtotal,
@@ -113,9 +132,11 @@ class _InvoicePageState extends State<InvoicePage> {
                         );
                       },
                     ),
+
                     const SizedBox(height: 20),
+
                     SignInvoiceButton(
-                      c: c,
+                      c: controller,
                       color: widget.appBarAndButtonColor,
                       xmlController: xmlController,
                     ),
@@ -126,7 +147,7 @@ class _InvoicePageState extends State<InvoicePage> {
 
             const VerticalDivider(width: 20),
 
-            /// Right side preview & send
+            /// RIGHT SIDE PREVIEW
             Expanded(
               flex: 1,
               child: Column(
@@ -155,7 +176,7 @@ class _InvoicePageState extends State<InvoicePage> {
                   ),
                   const SizedBox(height: 20),
                   SendInvoiceButton(
-                    c: c,
+                    c: controller,
                     color: widget.appBarAndButtonColor,
                     xmlController: xmlController,
                   ),
