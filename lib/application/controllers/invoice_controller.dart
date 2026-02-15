@@ -19,7 +19,6 @@ class InvoiceFormController {
   final ValueNotifier<double> taxTotal = ValueNotifier(0);
   final ValueNotifier<double> grandTotal = ValueNotifier(0);
 
-  // 🔒 Private constructor
   InvoiceFormController._({
     required this.invoiceNumber,
     required this.invoiceDate,
@@ -45,6 +44,7 @@ class InvoiceFormController {
           Supplier(
             name: 'My Supplier',
             tin: '123456789',
+            street: 'Baladyia st',
             address: 'Khartoum Bahri',
             city: 'Khartoum',
             country: 'SD',
@@ -55,7 +55,8 @@ class InvoiceFormController {
           customer ??
           Customer(
             name: 'Default Customer',
-            tin: serial, // ✅ Now guaranteed String
+            tin: serial,
+            street: 'Baladyia st',
             address: 'Omdurman',
             city: 'Omdurman',
             country: 'SD',
@@ -81,6 +82,7 @@ class InvoiceFormController {
   Map<String, String> get supplierInfo => {
     "name": supplier.name,
     "vat": supplier.tin,
+    "street": supplier.street,
     "address": supplier.address,
     "city": supplier.city,
     "country": supplier.country,
@@ -91,6 +93,7 @@ class InvoiceFormController {
   Map<String, String> get customerInfo => {
     "name": customer.name,
     "vat": customer.tin,
+    "street": customer.street,
     "address": customer.address,
     "city": customer.city,
     "country": customer.country,

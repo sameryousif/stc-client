@@ -32,7 +32,7 @@ class InvoicePrepService {
     final pihZero = sha256.convert("0".codeUnits);
     final entityId = await extractSerial();
     final lastInvoice = await DBService().getLastInvoiceForEntity(entityId!);
-    final icv = lastInvoice != null ? (lastInvoice['id'] as int) + 1 : 1;
+    final icv = (lastInvoice?['icv'] as int? ?? 0) + 1;
     final previousInvoiceHash =
         lastInvoice != null
             ? lastInvoice['hash'] as String
@@ -49,6 +49,16 @@ class InvoicePrepService {
       customerName: customerInfo['name']!,
       customerVAT: customerInfo['vat']!,
       items: items,
+      supplierStreet: supplierInfo['street']!,
+      supplierCity: supplierInfo['city']!,
+      supplierPhone: supplierInfo['phone']!,
+      supplierEmail: supplierInfo['email']!,
+      supplierCountry: supplierInfo['country']!,
+      customerStreet: customerInfo['street']!,
+      customerCity: customerInfo['city']!,
+      customerPhone: customerInfo['phone']!,
+      customerEmail: customerInfo['email']!,
+      customerCountry: customerInfo['country']!,
     );
 
     return XmlDocument.parse(await xmlString);

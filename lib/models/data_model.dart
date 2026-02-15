@@ -8,6 +8,8 @@ class Supplier {
   String phone;
   String email;
 
+  String street;
+
   Supplier({
     required this.name,
     required this.tin,
@@ -16,6 +18,7 @@ class Supplier {
     required this.country,
     required this.phone,
     required this.email,
+    required this.street,
   });
 }
 
@@ -28,6 +31,8 @@ class Customer {
   String phone;
   String email;
 
+  String street;
+
   Customer({
     required this.name,
     required this.tin,
@@ -36,5 +41,6 @@ class Customer {
     required this.country,
     required this.phone,
     required this.email,
+    required this.street,
   });
 }

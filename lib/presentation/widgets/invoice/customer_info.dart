@@ -29,6 +29,12 @@ class CustomerSection extends StatelessWidget {
         ),
         const SizedBox(height: 10),
         CustomField(
+          value: cust.street,
+          label: "Customer street",
+          onChanged: (v) => cust.street = v,
+        ),
+        const SizedBox(height: 10),
+        CustomField(
           value: cust.address,
           label: "Customer Address",
           onChanged: (v) => cust.address = v,

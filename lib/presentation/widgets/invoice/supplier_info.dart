@@ -29,6 +29,12 @@ class SupplierSection extends StatelessWidget {
         ),
         const SizedBox(height: 10),
         CustomField(
+          value: s.street,
+          label: "Street Name",
+          onChanged: (v) => s.street = v,
+        ),
+        const SizedBox(height: 10),
+        CustomField(
           value: s.address,
           label: "Supplier Address",
           onChanged: (v) => s.address = v,

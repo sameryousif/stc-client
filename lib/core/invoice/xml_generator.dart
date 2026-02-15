@@ -336,9 +336,19 @@ Future<String> generateUBLInvoice({
   required int icv,
   required String previousInvoiceHash,
   required String supplierName,
+  required String supplierStreet,
+  required String supplierCity,
   required String supplierVAT,
+  required String supplierPhone,
+  required String supplierEmail,
+  required String supplierCountry,
   required String customerName,
   required String customerVAT,
+  required String customerStreet,
+  required String customerCity,
+  required String customerPhone,
+  required String customerEmail,
+  required String customerCountry,
   required List<InvoiceItem> items,
 }) async {
   final builder = XmlBuilder();
@@ -448,14 +458,14 @@ Future<String> generateUBLInvoice({
         },
       );
 
-      ////supplier info
-      //////////////////////////////
+      // Supplier Info
       builder.element(
         'cac:AccountingSupplierParty',
         nest: () {
           builder.element(
             'cac:Party',
             nest: () {
+              // Tax
               builder.element(
                 'cac:PartyTaxScheme',
                 nest: () {
@@ -469,6 +479,8 @@ Future<String> generateUBLInvoice({
                   );
                 },
               );
+
+              // Legal Name
               builder.element(
                 'cac:PartyLegalEntity',
                 nest:
@@ -477,13 +489,49 @@ Future<String> generateUBLInvoice({
                       nest: () => builder.text(supplierName),
                     ),
               );
+
+              // Address
+              builder.element(
+                'cac:PostalAddress',
+                nest: () {
+                  builder.element(
+                    'cbc:StreetName',
+                    nest: () => builder.text(supplierStreet),
+                  );
+                  builder.element(
+                    'cbc:CityName',
+                    nest: () => builder.text(supplierCity),
+                  );
+                  builder.element(
+                    'cbc:Country',
+                    nest:
+                        () => builder.element(
+                          'cbc:IdentificationCode',
+                          nest: () => builder.text(supplierCountry),
+                        ),
+                  );
+                },
+              );
+
+              // Contact
+              builder.element(
+                'cac:Contact',
+                nest: () {
+                  builder.element(
+                    'cbc:Telephone',
+                    nest: () => builder.text(supplierPhone),
+                  );
+                  builder.element(
+                    'cbc:ElectronicMail',
+                    nest: () => builder.text(supplierEmail),
+                  );
+                },
+              );
             },
           );
         },
       );
 
-      ////customer info
-      /////////////////////
       builder.element(
         'cac:AccountingCustomerParty',
         nest: () {
@@ -503,6 +551,7 @@ Future<String> generateUBLInvoice({
                   );
                 },
               );
+
               builder.element(
                 'cac:PartyLegalEntity',
                 nest:
@@ -510,6 +559,42 @@ Future<String> generateUBLInvoice({
                       'cbc:RegistrationName',
                       nest: () => builder.text(customerName),
                     ),
+              );
+
+              builder.element(
+                'cac:PostalAddress',
+                nest: () {
+                  builder.element(
+                    'cbc:StreetName',
+                    nest: () => builder.text(customerStreet),
+                  );
+                  builder.element(
+                    'cbc:CityName',
+                    nest: () => builder.text(customerCity),
+                  );
+                  builder.element(
+                    'cbc:Country',
+                    nest:
+                        () => builder.element(
+                          'cbc:IdentificationCode',
+                          nest: () => builder.text(customerCountry),
+                        ),
+                  );
+                },
+              );
+
+              builder.element(
+                'cac:Contact',
+                nest: () {
+                  builder.element(
+                    'cbc:Telephone',
+                    nest: () => builder.text(customerPhone),
+                  );
+                  builder.element(
+                    'cbc:ElectronicMail',
+                    nest: () => builder.text(customerEmail),
+                  );
+                },
               );
             },
           );

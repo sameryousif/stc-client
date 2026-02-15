@@ -18,13 +18,15 @@ class DBService {
       version: 1,
       onCreate: (db, version) async {
         await db.execute('''
-         CREATE TABLE invoices(
+        CREATE TABLE invoices(
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  entityId TEXT, 
+  entityId TEXT,
+  icv INTEGER,
   base64Invoice TEXT,
   hash TEXT,
   createdAt TEXT
 )
+
 
         ''');
       },
@@ -60,8 +62,16 @@ class DBService {
     await prepService.runCanonicalizationCli(tempFilePath, tempFilePath);
 
     final invoiceHash = await prepService.computeHashBase64(tempFilePath);
+    final db = await database;
 
-    await _saveInvoice(base64Invoice, invoiceHash, entityId);
+    final result = await db.rawQuery(
+      'SELECT MAX(icv) as maxIcv FROM invoices WHERE entityId = ?',
+      [entityId],
+    );
+
+    final icv = (result.first['maxIcv'] as int? ?? 0) + 1;
+
+    await _saveInvoice(base64Invoice, invoiceHash, entityId, icv);
   }
 
   static void removeSections(XmlDocument doc) {
@@ -88,19 +98,21 @@ class DBService {
     String base64Invoice,
     String hash,
     String entityId,
+    int icv,
   ) async {
     final db = await database;
     await db.insert('invoices', {
       'entityId': entityId,
       'base64Invoice': base64Invoice,
       'hash': hash,
+      'icv': icv,
       'createdAt': DateTime.now().toIso8601String(),
     }, conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   static Future<List<Map<String, dynamic>>> getAllInvoices() async {
     final db = await database;
-    return await db.query('invoices', orderBy: 'id DESC');
+    return await db.query('invoices', orderBy: 'entityId ASC, icv DESC');
   }
 
   Future<void> printAllInvoices() async {
@@ -112,11 +124,13 @@ class DBService {
     }
 
     for (var inv in invoices) {
-      print('Invoice ID: ${inv['id']}');
+      final base64 = inv['base64Invoice'] as String? ?? '';
+      final preview = base64.length > 50 ? base64.substring(0, 50) : base64;
+
+      print('Entity ID: ${inv['entityId']}');
+      print('ICV: ${inv['icv']}');
       print('Hash: ${inv['hash']}');
-      print(
-        'Base64 (first 50 chars): ${inv['base64Invoice'].substring(0, 50)}',
-      );
+      print('Base64 (first 50 chars): $preview');
       print('Created At: ${inv['createdAt']}');
       print('---------------------------');
     }
@@ -134,7 +148,7 @@ class DBService {
       'invoices',
       where: 'entityId = ?',
       whereArgs: [entityId],
-      orderBy: 'id DESC',
+      orderBy: 'icv DESC',
       limit: 1,
     );
     if (invoices.isEmpty) return null;
