@@ -1,26 +1,40 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
-// Function to generate the QR code string based on the provided invoice information, encoding the data in a TLV format and then Base64 encoding it to produce the final QR code string that can be used for display or scanning
 String generateQr({
   required String sellerName,
   required String vatNumber,
   required DateTime issueDate,
   required double total,
   required double vatTotal,
+  required String xmlHash,
+  required Uint8List signature,
+  required Uint8List certificate,
 }) {
-  // Helper to encode TLV
-  List<int> encodeTLV(int tag, String value) {
-    List<int> bytes = utf8.encode(value);
-    return [tag, bytes.length, ...bytes];
+  List<int> encodeTLVBytes(int tag, Uint8List valueBytes) {
+    final length = valueBytes.length;
+    Uint8List lengthBytes = Uint8List(2);
+    ByteData.view(lengthBytes.buffer).setUint16(0, length, Endian.big);
+
+    return [tag, ...lengthBytes, ...valueBytes];
+  }
+
+  List<int> encodeTLVText(int tag, String value) {
+    final valueBytes = utf8.encode(value);
+    return encodeTLVBytes(tag, Uint8List.fromList(valueBytes));
   }
 
   List<int> tlvBytes = [];
-  tlvBytes.addAll(encodeTLV(1, sellerName));
-  tlvBytes.addAll(encodeTLV(2, vatNumber));
-  tlvBytes.addAll(encodeTLV(3, issueDate.toIso8601String()));
-  tlvBytes.addAll(encodeTLV(4, total.toStringAsFixed(2)));
-  tlvBytes.addAll(encodeTLV(5, vatTotal.toStringAsFixed(2)));
 
-  // Base64 encode
-  return base64.encode(tlvBytes);
+  tlvBytes.addAll(encodeTLVText(1, sellerName));
+  tlvBytes.addAll(encodeTLVText(2, vatNumber));
+  tlvBytes.addAll(encodeTLVText(3, issueDate.toIso8601String()));
+  tlvBytes.addAll(encodeTLVText(4, total.toStringAsFixed(2)));
+  tlvBytes.addAll(encodeTLVText(5, vatTotal.toStringAsFixed(2)));
+  tlvBytes.addAll(encodeTLVText(6, xmlHash));
+
+  tlvBytes.addAll(encodeTLVBytes(7, signature));
+  tlvBytes.addAll(encodeTLVBytes(8, certificate));
+
+  return base64Encode(tlvBytes);
 }

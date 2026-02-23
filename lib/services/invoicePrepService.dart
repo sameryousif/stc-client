@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
@@ -114,7 +115,7 @@ class InvoicePrepService {
     return signaturePath;
   }
 
-  Future<XmlDocument> injectXadesSignature({
+  Future<XadesResult> injectXadesSignature({
     required XmlDocument invoice,
     required String certificatePath,
   }) async {
@@ -188,7 +189,14 @@ class InvoicePrepService {
       signedProperties: signedProperties,
     );
 
-    return injectSignature(invoice: invoice, signature: xadesSignature);
+    return XadesResult(
+      signedInvoice: injectSignature(
+        invoice: invoice,
+        signature: xadesSignature,
+      ),
+      signatureBytes: signatureBytes,
+      certificateBytes: certBytes,
+    );
   }
 
   Future<String> generateAndSignInvoice({
@@ -213,10 +221,12 @@ class InvoicePrepService {
     //final unsignedInvoiceHash = await computeHashBase64(await outputXmlPath);
 
     /// Inject signature
-    final signedInvoice = await injectXadesSignature(
+    final xadesResult = await injectXadesSignature(
       invoice: invoice,
       certificatePath: await AppPaths.certPath(),
     );
+
+    final signedInvoice = xadesResult.signedInvoice;
 
     /// Save signed XML locally
     final signedPath =
@@ -241,6 +251,9 @@ class InvoicePrepService {
               previousValue +
               (item.quantity * item.unitPrice * item.taxRate / 100),
         ),
+        xmlHash: await computeHashBase64(await outputXmlPath),
+        signature: xadesResult.signatureBytes,
+        certificate: xadesResult.certificateBytes,
       ),
     );
 
@@ -262,4 +275,17 @@ class InvoicePrepService {
   Future<Response?> sendInvoice(Map<String, String> dto) async {
     return await ApiService.sendInvoiceDto(dto);
   }
+}
+
+///////////xades class
+class XadesResult {
+  final XmlDocument signedInvoice;
+  final Uint8List signatureBytes;
+  final Uint8List certificateBytes;
+
+  XadesResult({
+    required this.signedInvoice,
+    required this.signatureBytes,
+    required this.certificateBytes,
+  });
 }

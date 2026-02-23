@@ -75,12 +75,6 @@ class _InvoicePageState extends State<InvoicePage> {
               provider.refreshInvoice();
               xmlController.clear();
               controller.clearAll();
-
-              scrollController.animateTo(
-                0,
-                duration: const Duration(milliseconds: 350),
-                curve: Curves.easeOut,
-              );
             },
           ),
         ],
