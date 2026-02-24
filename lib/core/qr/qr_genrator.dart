@@ -38,15 +38,12 @@ String generateQr({
     builder.add(value);
   }
 
-  // Add text fields
   addTLV(1, utf8.encode(sellerName));
   addTLV(2, utf8.encode(vatNumber));
   addTLV(3, utf8.encode(issueDate.toIso8601String()));
   addTLV(4, utf8.encode(total.toStringAsFixed(2)));
   addTLV(5, utf8.encode(vatTotal.toStringAsFixed(2)));
   addTLV(6, utf8.encode(xmlHash));
-
-  // Add signature & certificate
   addTLV(7, signature);
   addTLV(8, certificate);
 
