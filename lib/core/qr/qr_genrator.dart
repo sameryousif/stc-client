@@ -11,30 +11,44 @@ String generateQr({
   required Uint8List signature,
   required Uint8List certificate,
 }) {
-  List<int> encodeTLVBytes(int tag, Uint8List valueBytes) {
-    final length = valueBytes.length;
-    Uint8List lengthBytes = Uint8List(2);
-    ByteData.view(lengthBytes.buffer).setUint16(0, length, Endian.big);
+  BytesBuilder builder = BytesBuilder();
 
-    return [tag, ...lengthBytes, ...valueBytes];
+  // Helper to add TLV field with proper length encoding
+  void addTLV(int tag, List<int> value) {
+    builder.addByte(tag);
+
+    final length = value.length;
+
+    if (length < 128) {
+      // short form: 1 byte
+      builder.addByte(length);
+    } else if (length < 256) {
+      // long form, 1 byte length indicator + 1 byte length
+      builder.addByte(0x81);
+      builder.addByte(length);
+    } else if (length < 65536) {
+      // long form, 1 byte length indicator + 2 byte length
+      builder.addByte(0x82);
+      builder.addByte((length >> 8) & 0xFF);
+      builder.addByte(length & 0xFF);
+    } else {
+      throw Exception("Value too large for TLV encoding");
+    }
+
+    builder.add(value);
   }
 
-  List<int> encodeTLVText(int tag, String value) {
-    final valueBytes = utf8.encode(value);
-    return encodeTLVBytes(tag, Uint8List.fromList(valueBytes));
-  }
+  // Add text fields
+  addTLV(1, utf8.encode(sellerName));
+  addTLV(2, utf8.encode(vatNumber));
+  addTLV(3, utf8.encode(issueDate.toIso8601String()));
+  addTLV(4, utf8.encode(total.toStringAsFixed(2)));
+  addTLV(5, utf8.encode(vatTotal.toStringAsFixed(2)));
+  addTLV(6, utf8.encode(xmlHash));
 
-  List<int> tlvBytes = [];
+  // Add signature & certificate
+  addTLV(7, signature);
+  addTLV(8, certificate);
 
-  tlvBytes.addAll(encodeTLVText(1, sellerName));
-  tlvBytes.addAll(encodeTLVText(2, vatNumber));
-  tlvBytes.addAll(encodeTLVText(3, issueDate.toIso8601String()));
-  tlvBytes.addAll(encodeTLVText(4, total.toStringAsFixed(2)));
-  tlvBytes.addAll(encodeTLVText(5, vatTotal.toStringAsFixed(2)));
-  tlvBytes.addAll(encodeTLVText(6, xmlHash));
-
-  tlvBytes.addAll(encodeTLVBytes(7, signature));
-  tlvBytes.addAll(encodeTLVBytes(8, certificate));
-
-  return base64Encode(tlvBytes);
+  return base64Encode(builder.toBytes());
 }
