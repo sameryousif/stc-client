@@ -8,7 +8,13 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'STC Client',
-      theme: ThemeData(primarySwatch: Colors.blue),
+      theme: ThemeData(
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ButtonStyle(
+            mouseCursor: WidgetStateProperty.all(SystemMouseCursors.click),
+          ),
+        ),
+      ),
       home: EnrollmentPage(),
       routes: {'/invoice': (context) => const InvoicePage()},
       debugShowCheckedModeBanner: false,

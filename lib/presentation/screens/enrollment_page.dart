@@ -5,11 +5,11 @@ import 'package:stc_client/services/certificateEnrollService.dart';
 import 'package:stc_client/services/crypto_service.dart';
 import 'package:stc_client/services/enrollment_service.dart';
 import 'package:stc_client/services/file_service.dart';
-import 'package:stc_client/presentation/widgets/panel_widget.dart';
+import 'package:stc_client/presentation/widgets/enrollment/panel_widget.dart';
 
 // Widget that displays the enrollment page, allowing users to generate a CSR and enroll for a certificate by providing the necessary information and interacting with the EnrollmentController to handle the logic of generating the CSR and enrolling for the certificate, while also providing feedback to the user through the UI
 class EnrollmentPage extends StatefulWidget {
-  const EnrollmentPage({Key? key}) : super(key: key);
+  const EnrollmentPage({super.key});
 
   @override
   State<EnrollmentPage> createState() => _EnrollmentPageState();
@@ -60,7 +60,18 @@ class _EnrollmentPageState extends State<EnrollmentPage> {
 
   /// Generate CSR + private key
   Future<void> generateCsr() async {
-    late final subject = EnrollmentSubject(
+    if (serialCtrl.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Serial Number is required'),
+          backgroundColor: Colors.red,
+          duration: Duration(milliseconds: 300),
+        ),
+      );
+      return;
+    }
+
+    final subject = EnrollmentSubject(
       cn: cnCtrl.text,
       o: oCtrl.text,
       ou: ouCtrl.text,
@@ -77,6 +88,17 @@ class _EnrollmentPageState extends State<EnrollmentPage> {
   }
 
   Future<void> generateCertificate() async {
+    if (tokenCtrl.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Enrollment Token is required'),
+          backgroundColor: Colors.red,
+          duration: Duration(milliseconds: 300),
+        ),
+      );
+      return;
+    }
+
     await controller.enrollCertificate(tokenCtrl.text);
   }
 
