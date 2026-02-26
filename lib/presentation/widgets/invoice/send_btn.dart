@@ -19,6 +19,7 @@ class SendInvoiceButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<InvoiceProvider>();
+    late InvoiceResult result = InvoiceResult(success: false, message: ""); 
 
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
@@ -30,7 +31,7 @@ class SendInvoiceButton extends StatelessWidget {
               ? null
               : () async {
                 provider.signedXml = xmlController.text;
-                final result = await provider.sendInvoice();
+                result = await provider.sendInvoice();
                 print(result.message);
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(

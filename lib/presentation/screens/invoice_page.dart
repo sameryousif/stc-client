@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:stc_client/application/controllers/invoice_controller.dart';
+import 'package:stc_client/presentation/widgets/qr/show_qr.dart';
 import 'package:stc_client/state/providers/InvoiceProvider.dart';
 import 'package:stc_client/presentation/widgets/invoice/customer_info.dart';
 import 'package:stc_client/presentation/widgets/invoice/invoice_info.dart';
@@ -174,6 +175,12 @@ class _InvoicePageState extends State<InvoicePage> {
                     color: widget.appBarAndButtonColor,
                     xmlController: xmlController,
                   ),
+                  provider.qrBase64 != null ?
+                    Center(
+                      child: ShowQr(qrBase64: provider.qrBase64!.substring(1,900))
+                    )
+                    : const SizedBox.shrink()
+                  
                 ],
               ),
             ),
