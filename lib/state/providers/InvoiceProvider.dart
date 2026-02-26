@@ -24,6 +24,7 @@ class InvoiceProvider extends ChangeNotifier {
   bool isGenerating = false;
   bool isSending = false;
   String? qrString;
+  String? qrValue;
   String? signedXml;
   String? currentInvoiceNumber;
   Map<String, String>? invoiceData;
@@ -76,10 +77,10 @@ class InvoiceProvider extends ChangeNotifier {
       final response = await ApiService.sendInvoiceDto(dto);
       if (response?.statusCode == 200) {
         final base64Invoice = response?.data['clearedInvoice'] as String;
-        final qrValue = await extractQr(base64Invoice);
+        qrValue = await extractQr(base64Invoice);
         if (qrValue != null) {
           qrString = qrValue;
-          final parsedInvoice = parseQr(qrValue);
+          final parsedInvoice = parseQr(qrValue!);
           invoiceData = parsedInvoice;
         }
         qrString = invoiceData.toString();
@@ -88,7 +89,7 @@ class InvoiceProvider extends ChangeNotifier {
           certPath: await AppPaths.certPath(),
         );
 
-        // Delegate processing to separate service
+        ///processing service
         await DBService.processClearedInvoice(
           base64Invoice,
           prepService,
@@ -118,7 +119,35 @@ class InvoiceProvider extends ChangeNotifier {
 
   void refreshInvoice() {
     signedXml = null;
+    qrString = null;
+    qrValue = null;
+    invoiceData = null;
     isGenerating = false;
+    isSending = false;
+    isCheckingQr = false;
+
     notifyListeners();
+  }
+
+  bool isCheckingQr = false;
+
+  Future<InvoiceResult> checkQrValidity() async {
+    if (qrValue == null || qrValue!.isEmpty) {
+      return InvoiceResult(success: false, message: "No QR available");
+    }
+
+    isCheckingQr = true;
+    notifyListeners();
+
+    try {
+      await ApiService.sendQr(qrbase64: qrValue!);
+
+      return InvoiceResult(success: true, message: "QR is valid");
+    } catch (e) {
+      return InvoiceResult(success: false, message: "QR validation failed: $e");
+    } finally {
+      isCheckingQr = false;
+      notifyListeners();
+    }
   }
 }

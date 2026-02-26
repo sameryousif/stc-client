@@ -177,9 +177,40 @@ class _InvoicePageState extends State<InvoicePage> {
                   ),
                   provider.qrString != null
                       ? Center(
-                        child: ShowQr(
-                          qrBase64: provider.qrString!,
-                          invoiceData: provider.invoiceData!,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            ShowQr(
+                              qrBase64: provider.qrString!,
+                              invoiceData: provider.invoiceData!,
+                            ),
+                            const SizedBox(height: 12),
+                            ElevatedButton(
+                              onPressed:
+                                  provider.isCheckingQr
+                                      ? null
+                                      : () async {
+                                        final result =
+                                            await provider.checkQrValidity();
+
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          SnackBar(
+                                            content: Text(result.message),
+                                            backgroundColor:
+                                                result.success
+                                                    ? Colors.green
+                                                    : Colors.red,
+                                          ),
+                                        );
+                                      },
+                              child:
+                                  provider.isCheckingQr
+                                      ? const CircularProgressIndicator()
+                                      : const Text('Check QR'),
+                            ),
+                          ],
                         ),
                       )
                       : const SizedBox.shrink(),

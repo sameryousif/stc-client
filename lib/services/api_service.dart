@@ -45,6 +45,7 @@ class ApiService {
   static const String _submitInvoiceUrl = '$_baserUrl/submit_invoice';
 
   static const String _enrollCsrUrl = '$_baserUrl/enroll';
+  static const String _qrUrl = '$_baserUrl/verify_qr';
 
   ///send invoice DTO to server and return response
   static Future<Response?> sendInvoiceDto(Map<String, String> dto) async {
@@ -91,5 +92,17 @@ class ApiService {
     }
 
     return data['certificate'] as String;
+  }
+
+  static Future<void> sendQr({required String qrbase64}) async {
+    final response = await _dio.post(_qrUrl, data: {'qr_b64': qrbase64});
+
+    if (response.statusCode != 200) {
+      throw Exception(
+        'qr not valid (${response.statusCode}): ${response.data}',
+      );
+    } else {
+      print("valid");
+    }
   }
 }
