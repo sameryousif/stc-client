@@ -23,9 +23,10 @@ class InvoiceProvider extends ChangeNotifier {
 
   bool isGenerating = false;
   bool isSending = false;
-  String? qrBase64;
+  String? qrString;
   String? signedXml;
   String? currentInvoiceNumber;
+  Map<String, String>? invoiceData;
 
   /// Generate and sign invoice
   Future<InvoiceResult> generateAndSign({
@@ -73,9 +74,15 @@ class InvoiceProvider extends ChangeNotifier {
       );
 
       final response = await ApiService.sendInvoiceDto(dto);
-      qrBase64 = response?.data['clearedInvoice'] as String?;
       if (response?.statusCode == 200) {
         final base64Invoice = response?.data['clearedInvoice'] as String;
+        final qrValue = await extractQr(base64Invoice);
+        if (qrValue != null) {
+          qrString = qrValue;
+          final parsedInvoice = parseQr(qrValue);
+          invoiceData = parsedInvoice;
+        }
+        qrString = invoiceData.toString();
         final entityId = await extractSerial(
           opensslPath: await ToolPaths.opensslPath,
           certPath: await AppPaths.certPath(),

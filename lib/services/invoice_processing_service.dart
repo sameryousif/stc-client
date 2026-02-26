@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:stc_client/utils/paths/app_paths.dart';
 import 'package:xml/xml.dart';
 import 'package:sqflite/sqflite.dart';
@@ -156,4 +157,103 @@ class DBService {
     if (invoices.isEmpty) return null;
     return invoices.first;
   }
+}
+
+Future<String?> extractQr(String base64Invoice) async {
+  try {
+    final xmlString = utf8.decode(base64.decode(base64Invoice));
+    final document = XmlDocument.parse(xmlString);
+
+    // Search by local name ignoring namespace
+    final refs = document
+        .findAllElements('*')
+        .where(
+          (element) => element.name.local == 'AdditionalDocumentReference',
+        );
+
+    for (final ref in refs) {
+      final idElement = ref.children.whereType<XmlElement>().firstWhere(
+        (e) => e.name.local == 'ID',
+        orElse: () => XmlElement(XmlName('empty')),
+      );
+
+      if (idElement.name.local == 'ID' && idElement.innerText.trim() == 'QR') {
+        final qrElement = ref.descendants.whereType<XmlElement>().firstWhere(
+          (e) => e.name.local == 'EmbeddedDocumentBinaryObject',
+          orElse: () => XmlElement(XmlName('empty')),
+        );
+
+        if (qrElement.name.local == 'EmbeddedDocumentBinaryObject') {
+          return qrElement.innerText.trim();
+        }
+      }
+    }
+
+    print("QR node not found in XML");
+    return null;
+  } catch (e) {
+    print("QR extraction error: $e");
+    return null;
+  }
+}
+
+Map<String, String> parseQr(String base64Qr) {
+  Uint8List tlvBytes = base64Decode(base64Qr);
+  Map<String, String> result = {};
+  int i = 0;
+  int fieldsParsed = 0;
+
+  while (i < tlvBytes.length && fieldsParsed < 5) {
+    int tag = tlvBytes[i];
+    i++;
+
+    // Decode length
+    int length;
+    if (tlvBytes[i] < 0x80) {
+      length = tlvBytes[i];
+      i++;
+    } else if (tlvBytes[i] == 0x81) {
+      length = tlvBytes[i + 1];
+      i += 2;
+    } else if (tlvBytes[i] == 0x82) {
+      length = (tlvBytes[i + 1] << 8) + tlvBytes[i + 2];
+      i += 3;
+    } else {
+      throw Exception("Unsupported TLV length encoding");
+    }
+
+    // Safety check
+    if (i + length > tlvBytes.length) {
+      print(
+        "TLV length exceeds buffer: tag=$tag, length=$length, remaining=${tlvBytes.length - i}",
+      );
+      break;
+    }
+
+    String value = utf8.decode(tlvBytes.sublist(i, i + length));
+    i += length;
+
+    // Map tags to fields
+    switch (tag) {
+      case 1:
+        result['Seller'] = value;
+        break;
+      case 2:
+        result['VAT Number'] = value;
+        break;
+      case 3:
+        result['Invoice Date'] = value;
+        break;
+      case 4:
+        result['Total'] = value;
+        break;
+      case 5:
+        result['VAT Total'] = value;
+        break;
+    }
+
+    fieldsParsed++;
+  }
+
+  return result;
 }

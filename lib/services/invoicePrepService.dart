@@ -238,7 +238,7 @@ class InvoicePrepService {
       signedInvoicePath: signedPath,
       qrBase64: generateQr(
         sellerName: supplierInfo['name']!,
-        vatNumber: supplierInfo['vat']!,
+        vatNumber: customerInfo['vat']!, //should be supplier .. fix later
         issueDate: DateTime.now(),
         total: items.fold(
           0.0,

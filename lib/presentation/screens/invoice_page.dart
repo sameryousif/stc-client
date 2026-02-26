@@ -175,12 +175,14 @@ class _InvoicePageState extends State<InvoicePage> {
                     color: widget.appBarAndButtonColor,
                     xmlController: xmlController,
                   ),
-                  provider.qrBase64 != null ?
-                    Center(
-                      child: ShowQr(qrBase64: provider.qrBase64!.substring(1,900))
-                    )
-                    : const SizedBox.shrink()
-                  
+                  provider.qrString != null
+                      ? Center(
+                        child: ShowQr(
+                          qrBase64: provider.qrString!,
+                          invoiceData: provider.invoiceData!,
+                        ),
+                      )
+                      : const SizedBox.shrink(),
                 ],
               ),
             ),

@@ -41,9 +41,8 @@ class ApiService {
     );
 
   ///endpoints
-  static const String _baserUrl = 'http://localhost:8080';
-  static const String _submitInvoiceUrl =
-      '$_baserUrl/submit_invoice';
+  static const String _baserUrl = 'https://stc-server.onrender.com';
+  static const String _submitInvoiceUrl = '$_baserUrl/submit_invoice';
 
   static const String _enrollCsrUrl = '$_baserUrl/enroll';
 
