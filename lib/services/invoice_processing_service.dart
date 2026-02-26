@@ -45,7 +45,9 @@ class DBService {
     //save cleared invoice to file
     final dir = await AppPaths.clearedDir();
     final clearedPath =
-        '${dir.path}\\invoice_${DateTime.now().toIso8601String().replaceAll(':', '-')}.xml';
+        Platform.isLinux
+            ? '${dir.path}/invoice_${DateTime.now().toIso8601String().replaceAll(':', '-')}.xml'
+            : '${dir.path}\\invoice_${DateTime.now().toIso8601String().replaceAll(':', '-')}.xml';
     await saveClearedInvoice(clearedPath, xmlDoc.toXmlString(pretty: false));
 
     // Remove unwanted sections

@@ -41,10 +41,11 @@ class ApiService {
     );
 
   ///endpoints
+  static const String _baserUrl = 'http://localhost:8080';
   static const String _submitInvoiceUrl =
-      'https://stc-server.onrender.com/submit_invoice';
+      '$_baserUrl/submit_invoice';
 
-  static const String _enrollCsrUrl = 'https://stc-server.onrender.com/enroll';
+  static const String _enrollCsrUrl = '$_baserUrl/enroll';
 
   ///send invoice DTO to server and return response
   static Future<Response?> sendInvoiceDto(Map<String, String> dto) async {

@@ -23,7 +23,7 @@ class InvoiceProvider extends ChangeNotifier {
 
   bool isGenerating = false;
   bool isSending = false;
-
+  String? qrBase64;
   String? signedXml;
   String? currentInvoiceNumber;
 
@@ -73,7 +73,7 @@ class InvoiceProvider extends ChangeNotifier {
       );
 
       final response = await ApiService.sendInvoiceDto(dto);
-
+      qrBase64 = response?.data['clearedInvoice'] as String?;
       if (response?.statusCode == 200) {
         final base64Invoice = response?.data['clearedInvoice'] as String;
         final entityId = await extractSerial(
