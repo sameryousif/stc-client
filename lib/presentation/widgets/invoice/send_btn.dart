@@ -19,7 +19,7 @@ class SendInvoiceButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<InvoiceProvider>();
-    late InvoiceResult result = InvoiceResult(success: false, message: ""); 
+    late InvoiceResult result = InvoiceResult(success: false, message: "");
 
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
@@ -37,7 +37,7 @@ class SendInvoiceButton extends StatelessWidget {
                   SnackBar(
                     content: Text(result.message),
                     backgroundColor: result.success ? Colors.green : Colors.red,
-                    duration: const Duration(seconds: 1),
+                    duration: const Duration(seconds: 5),
                   ),
                 );
               },

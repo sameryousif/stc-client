@@ -14,7 +14,6 @@ XmlDocument buildSignedInfo({
   builder.element(
     'ds:SignedInfo',
     nest: () {
-      // Canonicalization method
       builder.element(
         'ds:CanonicalizationMethod',
         nest: () {
@@ -36,61 +35,66 @@ XmlDocument buildSignedInfo({
         },
       );
 
-      // Reference to INVOICE
+      ///Reference: INVOICE
       builder.element(
         'ds:Reference',
         nest: () {
           builder.attribute('URI', '');
 
           builder.element(
-            'ds:Transform',
+            'ds:Transforms',
             nest: () {
-              builder.attribute(
-                'Algorithm',
-                'http://www.w3.org/TR/1999/REC-xpath-19991116',
-              );
               builder.element(
-                'ds:XPath',
-                nest: 'not(//ancestor-or-self::ext:UBLExtensions)',
+                'ds:Transform',
+                nest: () {
+                  builder.attribute(
+                    'Algorithm',
+                    'http://www.w3.org/TR/1999/REC-xpath-19991116',
+                  );
+                  builder.element(
+                    'ds:XPath',
+                    nest: 'not(//ancestor-or-self::ext:UBLExtensions)',
+                  );
+                },
               );
-            },
-          );
 
-          builder.element(
-            'ds:Transform',
-            nest: () {
-              builder.attribute(
-                'Algorithm',
-                'http://www.w3.org/TR/1999/REC-xpath-19991116',
-              );
               builder.element(
-                'ds:XPath',
-                nest: 'not(//ancestor-or-self::cac:Signature)',
+                'ds:Transform',
+                nest: () {
+                  builder.attribute(
+                    'Algorithm',
+                    'http://www.w3.org/TR/1999/REC-xpath-19991116',
+                  );
+                  builder.element(
+                    'ds:XPath',
+                    nest: 'not(//ancestor-or-self::cac:Signature)',
+                  );
+                },
               );
-            },
-          );
 
-          builder.element(
-            'ds:Transform',
-            nest: () {
-              builder.attribute(
-                'Algorithm',
-                'http://www.w3.org/TR/1999/REC-xpath-19991116',
-              );
               builder.element(
-                'ds:XPath',
-                nest:
-                    'not(//ancestor-or-self::cac:AdditionalDocumentReference[cbc:ID="QR"])',
+                'ds:Transform',
+                nest: () {
+                  builder.attribute(
+                    'Algorithm',
+                    'http://www.w3.org/TR/1999/REC-xpath-19991116',
+                  );
+                  builder.element(
+                    'ds:XPath',
+                    nest:
+                        'not(//ancestor-or-self::cac:AdditionalDocumentReference[cbc:ID="QR"])',
+                  );
+                },
               );
-            },
-          );
 
-          builder.element(
-            'ds:Transform',
-            nest: () {
-              builder.attribute(
-                'Algorithm',
-                'http://www.w3.org/2006/12/xml-c14n11#',
+              builder.element(
+                'ds:Transform',
+                nest: () {
+                  builder.attribute(
+                    'Algorithm',
+                    'http://www.w3.org/2006/12/xml-c14n11#',
+                  );
+                },
               );
             },
           );
@@ -109,7 +113,7 @@ XmlDocument buildSignedInfo({
         },
       );
 
-      // Reference to XAdES SignedProperties
+      /// Reference: SignedProperties
       builder.element(
         'ds:Reference',
         nest: () {
@@ -197,7 +201,7 @@ XmlElement buildSignedProperties({
                           );
                           builder.element(
                             'ds:X509SerialNumber',
-                            nest: serialNumber,
+                            nest: 123.toString(),
                           );
                         },
                       );
@@ -368,7 +372,7 @@ Future<String> generateUBLInvoice({
   builder.element(
     'Invoice',
     nest: () {
-      //////////////namespaces
+      ///namespaces
       builder.attribute(
         'xmlns',
         'urn:oasis:names:specification:ubl:schema:xsd:Invoice-2',
@@ -381,28 +385,20 @@ Future<String> generateUBLInvoice({
         'xmlns:cbc',
         'urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2',
       );
-
+      builder.attribute('xmlns:ds', 'http://www.w3.org/2000/09/xmldsig#');
       builder.attribute(
         'xmlns:ext',
         'urn:oasis:names:specification:ubl:schema:xsd:CommonExtensionComponents-2',
       );
-      /* builder.attribute(
+      builder.attribute(
         'xmlns:sac',
         'urn:oasis:names:specification:ubl:schema:xsd:SignatureAggregateComponents-2',
       );
- builder.attribute('xmlns:ds', 'http://www.w3.org/2000/09/xmldsig#');
       builder.attribute(
         'xmlns:sig',
         'urn:oasis:names:specification:ubl:schema:xsd:CommonSignatureComponents-2',
       );
       builder.attribute('xmlns:xades', 'http://uri.etsi.org/01903/v1.3.2#');
-*/
-      //////////////////////////////////
-
-      /////////  UBL EXTENSIONS
-      ///////////////////////
-
-      /////basic invoice info
 
       builder.element(
         'cbc:ProfileID',
@@ -458,73 +454,52 @@ Future<String> generateUBLInvoice({
         },
       );
 
-      // Supplier Info
+      ///Supplier Info
       builder.element(
         'cac:AccountingSupplierParty',
         nest: () {
           builder.element(
             'cac:Party',
             nest: () {
-              // Tax
-              builder.element(
-                'cac:PartyTaxScheme',
-                nest: () {
-                  builder.element(
-                    'cbc:CompanyID',
-                    nest: () => builder.text(supplierVAT),
-                  );
-                  builder.element(
-                    'cac:TaxScheme',
-                    nest: () => builder.element('cbc:ID', nest: 'VAT'),
-                  );
-                },
-              );
-
-              // Legal Name
-              builder.element(
-                'cac:PartyLegalEntity',
-                nest:
-                    () => builder.element(
-                      'cbc:RegistrationName',
-                      nest: () => builder.text(supplierName),
-                    ),
-              );
-
-              // Address
               builder.element(
                 'cac:PostalAddress',
                 nest: () {
+                  builder.element('cbc:StreetName', nest: supplierStreet);
+                  builder.element('cbc:CityName', nest: supplierCity);
                   builder.element(
-                    'cbc:StreetName',
-                    nest: () => builder.text(supplierStreet),
-                  );
-                  builder.element(
-                    'cbc:CityName',
-                    nest: () => builder.text(supplierCity),
-                  );
-                  builder.element(
-                    'cbc:Country',
-                    nest:
-                        () => builder.element(
-                          'cbc:IdentificationCode',
-                          nest: () => builder.text(supplierCountry),
-                        ),
+                    'cac:Country',
+                    nest: () {
+                      builder.element(
+                        'cbc:IdentificationCode',
+                        nest: supplierCountry,
+                      );
+                    },
                   );
                 },
               );
-
-              // Contact
+              builder.element(
+                'cac:PartyTaxScheme',
+                nest: () {
+                  builder.element('cbc:CompanyID', nest: supplierVAT);
+                  builder.element(
+                    'cac:TaxScheme',
+                    nest: () {
+                      builder.element('cbc:ID', nest: 'VAT');
+                    },
+                  );
+                },
+              );
+              builder.element(
+                'cac:PartyLegalEntity',
+                nest: () {
+                  builder.element('cbc:RegistrationName', nest: supplierName);
+                },
+              );
               builder.element(
                 'cac:Contact',
                 nest: () {
-                  builder.element(
-                    'cbc:Telephone',
-                    nest: () => builder.text(supplierPhone),
-                  );
-                  builder.element(
-                    'cbc:ElectronicMail',
-                    nest: () => builder.text(supplierEmail),
-                  );
+                  builder.element('cbc:Telephone', nest: supplierPhone);
+                  builder.element('cbc:ElectronicMail', nest: supplierEmail);
                 },
               );
             },
@@ -532,6 +507,7 @@ Future<String> generateUBLInvoice({
         },
       );
 
+      ///Customer Info
       builder.element(
         'cac:AccountingCustomerParty',
         nest: () {
@@ -539,61 +515,44 @@ Future<String> generateUBLInvoice({
             'cac:Party',
             nest: () {
               builder.element(
-                'cac:PartyTaxScheme',
-                nest: () {
-                  builder.element(
-                    'cbc:CompanyID',
-                    nest: () => builder.text(subjectSerial!),
-                  );
-                  builder.element(
-                    'cac:TaxScheme',
-                    nest: () => builder.element('cbc:ID', nest: 'VAT'),
-                  );
-                },
-              );
-
-              builder.element(
-                'cac:PartyLegalEntity',
-                nest:
-                    () => builder.element(
-                      'cbc:RegistrationName',
-                      nest: () => builder.text(customerName),
-                    ),
-              );
-
-              builder.element(
                 'cac:PostalAddress',
                 nest: () {
+                  builder.element('cbc:StreetName', nest: customerStreet);
+                  builder.element('cbc:CityName', nest: customerCity);
                   builder.element(
-                    'cbc:StreetName',
-                    nest: () => builder.text(customerStreet),
-                  );
-                  builder.element(
-                    'cbc:CityName',
-                    nest: () => builder.text(customerCity),
-                  );
-                  builder.element(
-                    'cbc:Country',
-                    nest:
-                        () => builder.element(
-                          'cbc:IdentificationCode',
-                          nest: () => builder.text(customerCountry),
-                        ),
+                    'cac:Country',
+                    nest: () {
+                      builder.element(
+                        'cbc:IdentificationCode',
+                        nest: customerCountry,
+                      );
+                    },
                   );
                 },
               );
-
+              builder.element(
+                'cac:PartyTaxScheme',
+                nest: () {
+                  builder.element('cbc:CompanyID', nest: subjectSerial!);
+                  builder.element(
+                    'cac:TaxScheme',
+                    nest: () {
+                      builder.element('cbc:ID', nest: 'VAT');
+                    },
+                  );
+                },
+              );
+              builder.element(
+                'cac:PartyLegalEntity',
+                nest: () {
+                  builder.element('cbc:RegistrationName', nest: customerName);
+                },
+              );
               builder.element(
                 'cac:Contact',
                 nest: () {
-                  builder.element(
-                    'cbc:Telephone',
-                    nest: () => builder.text(customerPhone),
-                  );
-                  builder.element(
-                    'cbc:ElectronicMail',
-                    nest: () => builder.text(customerEmail),
-                  );
+                  builder.element('cbc:Telephone', nest: customerPhone);
+                  builder.element('cbc:ElectronicMail', nest: customerEmail);
                 },
               );
             },
@@ -603,6 +562,47 @@ Future<String> generateUBLInvoice({
 
       /////invoice items
       //////////////////////////////////
+
+      ////////////totals
+      /////////////////////
+      builder.element(
+        'cac:TaxTotal',
+        nest:
+            () => builder.element(
+              'cbc:TaxAmount',
+              nest: () {
+                builder.attribute('currencyID', 'SDG');
+                builder.text(vatTotal.toStringAsFixed(2));
+              },
+            ),
+      );
+
+      builder.element(
+        'cac:LegalMonetaryTotal',
+        nest: () {
+          builder.element(
+            'cbc:LineExtensionAmount',
+            nest: () {
+              builder.attribute('currencyID', 'SDG');
+              builder.text(subtotal.toStringAsFixed(2));
+            },
+          );
+          builder.element(
+            'cbc:TaxInclusiveAmount',
+            nest: () {
+              builder.attribute('currencyID', 'SDG');
+              builder.text(total.toStringAsFixed(2));
+            },
+          );
+          builder.element(
+            'cbc:PayableAmount',
+            nest: () {
+              builder.attribute('currencyID', 'SDG');
+              builder.text(total.toStringAsFixed(2));
+            },
+          );
+        },
+      );
       for (int i = 0; i < items.length; i++) {
         final item = items[i];
         final lineTotal = item.quantity * item.unitPrice;
@@ -666,47 +666,6 @@ Future<String> generateUBLInvoice({
           },
         );
       }
-
-      ////////////totals
-      /////////////////////
-      builder.element(
-        'cac:TaxTotal',
-        nest:
-            () => builder.element(
-              'cbc:TaxAmount',
-              nest: () {
-                builder.attribute('currencyID', 'SDG');
-                builder.text(vatTotal.toStringAsFixed(2));
-              },
-            ),
-      );
-
-      builder.element(
-        'cac:LegalMonetaryTotal',
-        nest: () {
-          builder.element(
-            'cbc:LineExtensionAmount',
-            nest: () {
-              builder.attribute('currencyID', 'SDG');
-              builder.text(subtotal.toStringAsFixed(2));
-            },
-          );
-          builder.element(
-            'cbc:TaxInclusiveAmount',
-            nest: () {
-              builder.attribute('currencyID', 'SDG');
-              builder.text(total.toStringAsFixed(2));
-            },
-          );
-          builder.element(
-            'cbc:PayableAmount',
-            nest: () {
-              builder.attribute('currencyID', 'SDG');
-              builder.text(total.toStringAsFixed(2));
-            },
-          );
-        },
-      );
     },
   );
   final invoiceDoc = builder.buildDocument();

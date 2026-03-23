@@ -42,7 +42,7 @@ class ApiService {
 
   ///endpoints
   static const String _baserUrl = 'https://stc-server.onrender.com';
-  static const String _submitInvoiceUrl = '$_baserUrl/submit_invoice';
+  static const String _submitInvoiceUrl = '$_baserUrl/reporting';
 
   static const String _enrollCsrUrl = '$_baserUrl/enroll';
   static const String _qrUrl = '$_baserUrl/verify_qr';
@@ -70,6 +70,7 @@ class ApiService {
     required String token,
   }) async {
     final csr = await csrFile.readAsBytes();
+
     final response = await _dio.post(
       _enrollCsrUrl,
       data: {'csr': base64.encode(csr), 'token': token},
@@ -85,13 +86,21 @@ class ApiService {
       throw Exception('Invalid response format: ${response.data}');
     }
 
-    final data = response.data as Map<String, dynamic>;
+    final body = Map<String, dynamic>.from(response.data);
 
-    if (!data.containsKey('certificate')) {
+    final innerData = body['data'];
+
+    if (innerData == null || innerData is! Map) {
+      throw Exception('Missing "data" field in response');
+    }
+
+    final certificate = innerData['certificate'];
+
+    if (certificate == null || certificate.toString().isEmpty) {
       throw Exception('Certificate not found in response');
     }
 
-    return data['certificate'] as String;
+    return certificate.toString();
   }
 
   static Future<void> sendQr({required String qrbase64}) async {
