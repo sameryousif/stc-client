@@ -42,18 +42,29 @@ class ApiService {
 
   ///endpoints
   static const String _baserUrl = 'https://stc-server.onrender.com';
-  static const String _submitInvoiceUrl = '$_baserUrl/clear';
+  static const String _clearanceUrl = '$_baserUrl/clear';
+  static const String _reportingUrl = '$_baserUrl/reporting';
 
   static const String _enrollCsrUrl = '$_baserUrl/enroll';
   static const String _qrUrl = '$_baserUrl/verify_qr';
 
   ///send invoice DTO to server and return response
-  static Future<Response?> sendInvoiceDto(Map<String, String> dto) async {
+  static Future<Response?> clearInvoiceDto(Map<String, String> dto) async {
     try {
-      final response = await _dio.post(
-        _submitInvoiceUrl,
-        data: jsonEncode(dto),
-      );
+      final response = await _dio.post(_clearanceUrl, data: jsonEncode(dto));
+      return response;
+    } on DioException catch (e) {
+      print(' NETWORK / DIO EXCEPTION');
+      return e.response;
+    } catch (e) {
+      print(' UNKNOWN ERROR: $e');
+      return null;
+    }
+  }
+
+  static Future<Response?> reportInvoiceDto(Map<String, String> dto) async {
+    try {
+      final response = await _dio.post(_reportingUrl, data: jsonEncode(dto));
       return response;
     } on DioException catch (e) {
       print(' NETWORK / DIO EXCEPTION');

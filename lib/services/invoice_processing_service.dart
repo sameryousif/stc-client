@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:stc_client/utils/paths/app_paths.dart';
 import 'package:xml/xml.dart';
 import 'package:sqflite/sqflite.dart';
@@ -74,9 +73,16 @@ class DBService {
 
     final icv = (result.first['maxIcv'] as int? ?? 0) + 1;
 
-    await _saveInvoice(base64Invoice, invoiceHash, entityId, icv);
+    await _saveIClearednvoice(base64Invoice, invoiceHash, entityId, icv);
   }
 
+  //////////////////////
+  static Future<void> processReportedInvoice(
+    String invoice,
+    InvoicePrepService prepService,
+    String entityId,
+  ) async {}
+  ////////////////////
   static void removeSections(XmlDocument doc) {
     doc
         .findAllElements('UBLExtensions', namespace: '*')
@@ -97,7 +103,7 @@ class DBService {
         .forEach((e) => e.remove());
   }
 
-  static Future<void> _saveInvoice(
+  static Future<void> _saveIClearednvoice(
     String base64Invoice,
     String hash,
     String entityId,
@@ -113,7 +119,7 @@ class DBService {
     }, conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
-  static Future<List<Map<String, dynamic>>> getAllInvoices() async {
+  /* static Future<List<Map<String, dynamic>>> getAllInvoices() async {
     final db = await database;
     return await db.query('invoices', orderBy: 'entityId ASC, icv DESC');
   }
@@ -137,7 +143,7 @@ class DBService {
       print('Created At: ${inv['createdAt']}');
       print('---------------------------');
     }
-  }
+  }*/
 
   static Future<void> saveClearedInvoice(String path, String xmlContent) async {
     final dir = await clearedDir;
@@ -159,7 +165,7 @@ class DBService {
   }
 }
 
-Future<String?> extractQr(String base64Invoice) async {
+/*Future<String?> extractQr(String base64Invoice) async {
   try {
     final xmlString = utf8.decode(base64.decode(base64Invoice));
     final document = XmlDocument.parse(xmlString);
@@ -195,9 +201,9 @@ Future<String?> extractQr(String base64Invoice) async {
     print("QR extraction error: $e");
     return null;
   }
-}
+}*/
 
-Map<String, String> parseQr(String base64Qr) {
+/*Map<String, String> parseQr(String base64Qr) {
   Uint8List tlvBytes = base64Decode(base64Qr);
   Map<String, String> result = {};
   int i = 0;
@@ -256,4 +262,4 @@ Map<String, String> parseQr(String base64Qr) {
   }
 
   return result;
-}
+}*/

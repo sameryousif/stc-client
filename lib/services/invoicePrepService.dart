@@ -273,7 +273,7 @@ class InvoicePrepService {
   }
 
   Future<Response?> sendInvoice(Map<String, String> dto) async {
-    return await ApiService.sendInvoiceDto(dto);
+    return await ApiService.clearInvoiceDto(dto);
   }
 }
 

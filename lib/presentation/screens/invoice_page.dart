@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:stc_client/application/controllers/invoice_controller.dart';
-import 'package:stc_client/presentation/widgets/qr/show_qr.dart';
+import 'package:stc_client/presentation/widgets/invoice/report_btn.dart';
+//import 'package:stc_client/presentation/widgets/qr/show_qr.dart';
 import 'package:stc_client/state/providers/InvoiceProvider.dart';
 import 'package:stc_client/presentation/widgets/invoice/customer_info.dart';
 import 'package:stc_client/presentation/widgets/invoice/invoice_info.dart';
 import 'package:stc_client/presentation/widgets/invoice/items_info.dart';
-import 'package:stc_client/presentation/widgets/invoice/send_btn.dart';
+import 'package:stc_client/presentation/widgets/invoice/clear_btn.dart';
 import 'package:stc_client/presentation/widgets/invoice/sign_btn.dart';
 import 'package:stc_client/presentation/widgets/invoice/supplier_info.dart';
 import 'package:stc_client/presentation/widgets/invoice/totals_info.dart';
+import 'dart:convert';
 
 class InvoicePage extends StatefulWidget {
   const InvoicePage({super.key});
@@ -148,72 +150,47 @@ class _InvoicePageState extends State<InvoicePage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const Center(
-                    child: Text(
-                      "Signed XML Preview",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
+                  // Toggle switch
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        "Preview Mode",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      Switch(
+                        value: provider.showJson,
+                        onChanged: (value) async {
+                          // If switching to JSON and DTO not yet available, generate it
+                          if (value &&
+                              provider.lastDto == null &&
+                              provider.signedXml != null) {
+                            await provider.generateDtoFromXml();
+                          }
+                          provider.showJson = value;
+                          //provider.notifyListeners();
+                        },
+                      ),
+                      Text(
+                        provider.showJson ? "JSON" : "XML",
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 8),
-                  Expanded(
-                    child: TextField(
-                      controller: xmlController,
-                      maxLines: null,
-                      expands: true,
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        hintText: "XML will appear here",
-                      ),
-                      onChanged: (value) {
-                        provider.signedXml = value;
-                      },
-                    ),
-                  ),
+                  Expanded(child: _buildPreviewContent(provider)),
                   const SizedBox(height: 20),
-                  SendInvoiceButton(
+                  ClearInvoiceButton(
                     c: controller,
                     color: widget.appBarAndButtonColor,
                     xmlController: xmlController,
                   ),
-                  provider.qrString != null
-                      ? Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            ShowQr(
-                              qrBase64: provider.qrString!,
-                              invoiceData: provider.invoiceData!,
-                            ),
-                            const SizedBox(height: 12),
-                            ElevatedButton(
-                              onPressed:
-                                  provider.isCheckingQr
-                                      ? null
-                                      : () async {
-                                        final result =
-                                            await provider.checkQrValidity();
-
-                                        ScaffoldMessenger.of(
-                                          context,
-                                        ).showSnackBar(
-                                          SnackBar(
-                                            content: Text(result.message),
-                                            backgroundColor:
-                                                result.success
-                                                    ? Colors.green
-                                                    : Colors.red,
-                                          ),
-                                        );
-                                      },
-                              child:
-                                  provider.isCheckingQr
-                                      ? const CircularProgressIndicator()
-                                      : const Text('Check QR'),
-                            ),
-                          ],
-                        ),
-                      )
-                      : const SizedBox.shrink(),
+                  const SizedBox(height: 20),
+                  ReportInvoiceButton(
+                    c: controller,
+                    color: widget.appBarAndButtonColor,
+                    xmlController: xmlController,
+                  ),
                 ],
               ),
             ),
@@ -221,5 +198,61 @@ class _InvoicePageState extends State<InvoicePage> {
         ),
       ),
     );
+  }
+
+  Widget _buildPreviewContent(InvoiceProvider provider) {
+    if (provider.showJson) {
+      // Show JSON
+      if (provider.isGeneratingDto) {
+        return const Center(child: CircularProgressIndicator());
+      }
+      if (provider.lastDto != null) {
+        // Pretty print the JSON
+        final jsonString = const JsonEncoder.withIndent(
+          '  ',
+        ).convert(provider.lastDto);
+        return SingleChildScrollView(
+          child: Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: SelectableText(
+              jsonString,
+              style: const TextStyle(fontFamily: 'monospace'),
+            ),
+          ),
+        );
+      } else {
+        return Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: const Center(
+            child: Text(
+              "No JSON available. Please sign the invoice first.",
+              textAlign: TextAlign.center,
+            ),
+          ),
+        );
+      }
+    } else {
+      // Show XML
+      return TextField(
+        controller: xmlController,
+        maxLines: null,
+        expands: true,
+        decoration: const InputDecoration(
+          border: OutlineInputBorder(),
+          hintText: "XML will appear here",
+        ),
+        onChanged: (value) {
+          provider.signedXml = value;
+        },
+      );
+    }
   }
 }
