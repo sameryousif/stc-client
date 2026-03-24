@@ -76,27 +76,44 @@ class InvoiceProvider extends ChangeNotifier {
 
       final response = await ApiService.sendInvoiceDto(dto);
       if (response?.statusCode == 200) {
-        final base64Invoice = response?.data['clearedInvoice'] as String;
-        qrValue = await extractQr(base64Invoice);
+        final body = response?.data;
+
+        if (body is! Map) {
+          throw Exception('Invalid response format');
+        }
+
+        final innerData = body['data'];
+
+        if (innerData == null || innerData is! Map) {
+          throw Exception('Missing data field');
+        }
+
+        final base64Invoice = innerData['cleared_invoice'];
+
+        if (base64Invoice == null) {
+          throw Exception('cleared_invoice missing');
+        }
+
+        final base64InvoiceStr = base64Invoice.toString();
+
+        qrValue = await extractQr(base64InvoiceStr);
+
         if (qrValue != null) {
-          qrString = qrValue;
           final parsedInvoice = parseQr(qrValue!);
           invoiceData = parsedInvoice;
+          qrString = parsedInvoice.toString();
         }
-        qrString = invoiceData.toString();
+
         final entityId = await extractSerial(
           opensslPath: await ToolPaths.opensslPath,
           certPath: await AppPaths.certPath(),
         );
 
-        ///processing service
         await DBService.processClearedInvoice(
-          base64Invoice,
+          base64InvoiceStr,
           prepService,
           entityId!,
         );
-
-        await DBService().printAllInvoices();
 
         return InvoiceResult(
           success: true,

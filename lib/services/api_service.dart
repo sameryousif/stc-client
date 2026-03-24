@@ -42,7 +42,7 @@ class ApiService {
 
   ///endpoints
   static const String _baserUrl = 'https://stc-server.onrender.com';
-  static const String _submitInvoiceUrl = '$_baserUrl/reporting';
+  static const String _submitInvoiceUrl = '$_baserUrl/clear';
 
   static const String _enrollCsrUrl = '$_baserUrl/enroll';
   static const String _qrUrl = '$_baserUrl/verify_qr';
