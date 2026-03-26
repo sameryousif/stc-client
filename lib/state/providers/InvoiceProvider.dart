@@ -157,7 +157,11 @@ class InvoiceProvider extends ChangeNotifier {
           entityId!,
         );
 
-        return InvoiceResult(success: true, message: "${response?.data}");
+        return InvoiceResult(
+          success: true,
+          message:
+              "Respose code:${response?.statusCode} \nBody:${response?.data}",
+        );
       } else {
         return InvoiceResult(
           success: false,
@@ -219,7 +223,11 @@ class InvoiceProvider extends ChangeNotifier {
           entityId!,
         );
 
-        return InvoiceResult(success: true, message: "${response?.data}");
+        return InvoiceResult(
+          success: true,
+          message:
+              "Respose code:${response?.statusCode} \nBody:${response?.data}",
+        );
       } else {
         return InvoiceResult(
           success: false,
