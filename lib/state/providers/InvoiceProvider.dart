@@ -261,7 +261,7 @@ class InvoiceProvider extends ChangeNotifier {
 
   bool isCheckingQr = false;
 
-  Future<InvoiceResult> checkQrValidity() async {
+  /* Future<InvoiceResult> checkQrValidity() async {
     if (qrValue == null || qrValue!.isEmpty) {
       return InvoiceResult(success: false, message: "No QR available");
     }
@@ -279,5 +279,5 @@ class InvoiceProvider extends ChangeNotifier {
       isCheckingQr = false;
       notifyListeners();
     }
-  }
+  }*/
 }

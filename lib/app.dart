@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:stc_client/presentation/screens/enrollment_page.dart';
 import 'package:stc_client/presentation/screens/invoice_page.dart';
+import 'package:stc_client/presentation/screens/sandBoxPage.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -15,7 +16,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: EnrollmentPage(),
+      home: SandboxPage(),
       routes: {'/invoice': (context) => const InvoicePage()},
       debugShowCheckedModeBanner: false,
     );

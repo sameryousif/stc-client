@@ -235,8 +235,7 @@ class _InvoicePageState extends State<InvoicePage> {
                           c: controller,
                           color: widget.appBarAndButtonColor,
                           xmlController: xmlController,
-                          responseController:
-                              responseController, // Pass it here
+                          responseController: responseController,
                         ),
                       ),
                     ],

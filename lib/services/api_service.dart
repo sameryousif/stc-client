@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:dio/dio.dart';
+import 'package:stc_client/utils/paths/app_paths.dart';
 
 //// Service responsible for handling all API interactions, including invoice submission and certificate enrollment
 class ApiService {
@@ -46,7 +47,7 @@ class ApiService {
   static const String _reportingUrl = '$_baserUrl/reporting';
 
   static const String _enrollCsrUrl = '$_baserUrl/enroll';
-  static const String _qrUrl = '$_baserUrl/verify_qr';
+  // static const String _qrUrl = '$_baserUrl/verify_qr';
 
   ///send invoice DTO to server and return response
   static Future<Response?> clearInvoiceDto(Map<String, String> dto) async {
@@ -76,29 +77,40 @@ class ApiService {
   }
 
   /// send CSR and get certificate
-  static Future<String> sendCsr({
+  static Future<String?> sendCsr({
     required File csrFile,
     required String token,
+    required bool sandbox,
   }) async {
-    final csr = await csrFile.readAsBytes();
+    // ✅ Declare variable first
+    late String csrBase64;
 
+    // ✅ Detect file type
+    if (csrFile.path.endsWith('.der')) {
+      final bytes = await csrFile.readAsBytes();
+      csrBase64 = base64Encode(bytes);
+    } else {
+      final text = await csrFile.readAsString();
+      csrBase64 = text
+          .replaceAll('-----BEGIN CERTIFICATE REQUEST-----', '')
+          .replaceAll('-----END CERTIFICATE REQUEST-----', '')
+          .replaceAll(RegExp(r'\s+'), '');
+    }
+
+    // ✅ Send request
     final response = await _dio.post(
       _enrollCsrUrl,
-      data: {'csr': base64.encode(csr), 'token': token},
+      data: {'csr': csrBase64, 'token': token},
     );
 
-    if (response.statusCode != 200) {
-      throw Exception(
-        'CSR enrollment failed (${response.statusCode}): ${response.data}',
-      );
+    final statusCode = response.statusCode ?? 0;
+    final data = response.data;
+
+    if (data is! Map) {
+      throw Exception('Invalid response format: $data');
     }
 
-    if (response.data is! Map) {
-      throw Exception('Invalid response format: ${response.data}');
-    }
-
-    final body = Map<String, dynamic>.from(response.data);
-
+    final body = Map<String, dynamic>.from(data);
     final innerData = body['data'];
 
     if (innerData == null || innerData is! Map) {
@@ -111,10 +123,26 @@ class ApiService {
       throw Exception('Certificate not found in response');
     }
 
-    return certificate.toString();
+    // ✅ Save certificate if NOT sandbox
+    if (!sandbox) {
+      final certBytes = base64Decode(
+        certificate
+            .replaceAll('-----BEGIN CERTIFICATE-----', '')
+            .replaceAll('-----END CERTIFICATE-----', '')
+            .replaceAll(RegExp(r'\s+'), ''),
+      );
+
+      final path = await AppPaths.certPath();
+      await File(path).writeAsBytes(certBytes, flush: true);
+
+      return certificate.toString();
+    }
+
+    // ✅ Sandbox → return response for UI
+    return "Response code: $statusCode\nBody:\n${const JsonEncoder.withIndent('  ').convert(body)}";
   }
 
-  static Future<void> sendQr({required String qrbase64}) async {
+  /* static Future<void> sendQr({required String qrbase64}) async {
     final response = await _dio.post(_qrUrl, data: {'qr_b64': qrbase64});
 
     if (response.statusCode != 200) {
@@ -124,5 +152,5 @@ class ApiService {
     } else {
       print("valid");
     }
-  }
+  }*/
 }
