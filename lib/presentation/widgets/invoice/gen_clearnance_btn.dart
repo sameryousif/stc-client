@@ -5,13 +5,13 @@ import 'package:stc_client/state/providers/InvoiceProvider.dart';
 import 'package:stc_client/utils/paths/tools_paths.dart';
 
 // Widget that displays a button to generate and sign the invoice, using the InvoiceProvider to handle the generation and signing process, and providing feedback to the user through a SnackBar with the result of the operation
-class SignInvoiceButton extends StatelessWidget {
+class GenrateClearanceInvoice extends StatelessWidget {
   final InvoiceFormController c;
   final TextEditingController xmlController;
 
   final Color? color;
 
-  const SignInvoiceButton({
+  const GenrateClearanceInvoice({
     super.key,
     required this.c,
     required this.xmlController,
@@ -27,7 +27,7 @@ class SignInvoiceButton extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
       ),
       onPressed:
-          provider.isGenerating
+          provider.isGeneratingB2B
               ? null
               : () async {
                 await ToolPaths.ensureToolsReady();
@@ -37,6 +37,7 @@ class SignInvoiceButton extends StatelessWidget {
                   items: c.items,
                   supplierInfo: c.supplierInfo,
                   customerInfo: c.customerInfo,
+                  clearance: true,
                 );
 
                 xmlController.text = provider.signedXml ?? "";
@@ -50,10 +51,10 @@ class SignInvoiceButton extends StatelessWidget {
                 print(result.message);
               },
       child:
-          provider.isGenerating
+          provider.isGeneratingB2B
               ? const CircularProgressIndicator(color: Colors.white)
               : const Text(
-                "Generate & Sign Invoice",
+                "Generate B2B Invoice",
                 style: TextStyle(color: Colors.white),
               ),
     );

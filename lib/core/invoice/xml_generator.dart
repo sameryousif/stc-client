@@ -354,6 +354,7 @@ Future<String> generateUBLInvoice({
   required String customerEmail,
   required String customerCountry,
   required List<InvoiceItem> items,
+  required String ProfileId,
 }) async {
   final builder = XmlBuilder();
 
@@ -400,10 +401,7 @@ Future<String> generateUBLInvoice({
       );
       builder.attribute('xmlns:xades', 'http://uri.etsi.org/01903/v1.3.2#');
 
-      builder.element(
-        'cbc:ProfileID',
-        nest: () => builder.text('reporting:1.0'),
-      );
+      builder.element('cbc:ProfileID', nest: () => builder.text(ProfileId));
 
       builder.element('cbc:ID', nest: () => builder.text("S003"));
       builder.element('cbc:UUID', nest: () => builder.text(invoiceNumber));

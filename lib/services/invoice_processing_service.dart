@@ -7,7 +7,7 @@ import 'package:path/path.dart';
 import 'invoicePrepService.dart';
 
 /// Service responsible for managing the SQLite database that stores cleared invoices, including saving and retrieving invoice data
-class DBService {
+class InvoiceProcessingService {
   static Future<Directory> get clearedDir => AppPaths.clearedDir();
   static Database? _db;
 
@@ -23,6 +23,7 @@ class DBService {
   entityId TEXT,
   icv INTEGER,
   base64Invoice TEXT,
+  type TEXT,
   hash TEXT,
   createdAt TEXT
 )
@@ -67,21 +68,61 @@ class DBService {
     final db = await database;
 
     final result = await db.rawQuery(
-      'SELECT MAX(icv) as maxIcv FROM invoices WHERE entityId = ?',
-      [entityId],
+      'SELECT MAX(icv) as maxIcv FROM invoices WHERE entityId = ? AND type = ?',
+      [entityId, "CLEARED"],
     );
 
     final icv = (result.first['maxIcv'] as int? ?? 0) + 1;
 
-    await _saveIClearednvoice(base64Invoice, invoiceHash, entityId, icv);
+    await _saveInvoice(base64Invoice, invoiceHash, entityId, icv, "CLEARED");
   }
 
   //////////////////////
   static Future<void> processReportedInvoice(
-    String invoice,
+    String base64Invoice,
     InvoicePrepService prepService,
     String entityId,
-  ) async {}
+  ) async {
+    // Decode base64 → XML
+    final decodedXml = utf8.decode(base64.decode(base64Invoice));
+    final xmlDoc = XmlDocument.parse(decodedXml);
+
+    // Remove unwanted sections
+    removeSections(xmlDoc);
+
+    String xmlString = xmlDoc.toXmlString(pretty: true);
+
+    if (xmlString.startsWith('<?xml')) {
+      xmlString = xmlString.substring(xmlString.indexOf('?>') + 2).trim();
+    }
+
+    // Write temp file for canonicalization
+    final tempFilePath = await AppPaths.tempInvoicePath();
+    final tempFile = File(tempFilePath);
+    await tempFile.writeAsString(xmlString);
+
+    // Canonicalize
+    await prepService.runCanonicalizationCli(tempFilePath, tempFilePath);
+
+    // Compute hash
+    final invoiceHash = await prepService.computeHashBase64(tempFilePath);
+
+    // Get next ICV
+    final db = await database;
+    final result = await db.rawQuery(
+      'SELECT MAX(icv) as maxIcv FROM invoices WHERE entityId = ? AND type = ?',
+      [entityId, "REPORTED"],
+    );
+
+    final icv = (result.first['maxIcv'] as int? ?? 0) + 1;
+
+    // ✅ SAVE BEFORE sending
+    await _saveInvoice(base64Invoice, invoiceHash, entityId, icv, "REPORTED");
+
+    // 👉 Now you can send to server using:
+    // base64Invoice, invoiceHash, icv
+  }
+
   ////////////////////
   static void removeSections(XmlDocument doc) {
     doc
@@ -103,11 +144,12 @@ class DBService {
         .forEach((e) => e.remove());
   }
 
-  static Future<void> _saveIClearednvoice(
+  static Future<void> _saveInvoice(
     String base64Invoice,
     String hash,
     String entityId,
     int icv,
+    String type,
   ) async {
     final db = await database;
     await db.insert('invoices', {
@@ -115,6 +157,7 @@ class DBService {
       'base64Invoice': base64Invoice,
       'hash': hash,
       'icv': icv,
+      'type': type,
       'createdAt': DateTime.now().toIso8601String(),
     }, conflictAlgorithm: ConflictAlgorithm.replace);
   }
@@ -151,15 +194,20 @@ class DBService {
     await File(path).writeAsString(xmlContent);
   }
 
-  Future<Map<String, dynamic>?> getLastInvoiceForEntity(String entityId) async {
+  Future<Map<String, dynamic>?> getLastInvoiceForEntityByType(
+    String entityId,
+    String type,
+  ) async {
     final db = await database;
+
     final invoices = await db.query(
       'invoices',
-      where: 'entityId = ?',
-      whereArgs: [entityId],
+      where: 'entityId = ? AND type = ?',
+      whereArgs: [entityId, type],
       orderBy: 'icv DESC',
       limit: 1,
     );
+
     if (invoices.isEmpty) return null;
     return invoices.first;
   }

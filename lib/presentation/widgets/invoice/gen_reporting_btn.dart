@@ -1,0 +1,62 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:stc_client/application/controllers/invoice_controller.dart';
+import 'package:stc_client/state/providers/InvoiceProvider.dart';
+import 'package:stc_client/utils/paths/tools_paths.dart';
+
+// Widget that displays a button to generate and sign the invoice, using the InvoiceProvider to handle the generation and signing process, and providing feedback to the user through a SnackBar with the result of the operation
+class GenrateReportingInvoice extends StatelessWidget {
+  final InvoiceFormController c;
+  final TextEditingController xmlController;
+
+  final Color? color;
+
+  const GenrateReportingInvoice({
+    super.key,
+    required this.c,
+    required this.xmlController,
+    required this.color,
+  });
+  @override
+  Widget build(BuildContext context) {
+    final provider = context.watch<InvoiceProvider>();
+
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: color ?? Theme.of(context).primaryColor,
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+      ),
+      onPressed:
+          provider.isGeneratingB2C
+              ? null
+              : () async {
+                await ToolPaths.ensureToolsReady();
+                await ToolPaths.verifyToolsExist();
+                final result = await provider.generateAndSign(
+                  invoiceNumber: c.invoiceNumber,
+                  items: c.items,
+                  supplierInfo: c.supplierInfo,
+                  customerInfo: c.customerInfo,
+                  clearance: false,
+                );
+
+                xmlController.text = provider.signedXml ?? "";
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(result.message),
+                    backgroundColor: result.success ? Colors.green : Colors.red,
+                    duration: const Duration(seconds: 1),
+                  ),
+                );
+                print(result.message);
+              },
+      child:
+          provider.isGeneratingB2C
+              ? const CircularProgressIndicator(color: Colors.white)
+              : const Text(
+                "Generate B2C Invoice",
+                style: TextStyle(color: Colors.white),
+              ),
+    );
+  }
+}

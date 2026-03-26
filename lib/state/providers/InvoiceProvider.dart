@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:stc_client/core/certificate/cert_info.dart';
@@ -20,7 +21,8 @@ class InvoiceProvider extends ChangeNotifier {
 
   InvoiceProvider({required this.prepService});
 
-  bool isGenerating = false;
+  bool isGeneratingB2B = false;
+  bool isGeneratingB2C = false;
   bool isSendingClear = false;
   bool isSendingReport = false;
   bool isGeneratingDto = false;
@@ -38,27 +40,41 @@ class InvoiceProvider extends ChangeNotifier {
     required List<InvoiceItem> items,
     required Map<String, String> supplierInfo,
     required Map<String, String> customerInfo,
+    required bool clearance,
   }) async {
-    isGenerating = true;
+    if (clearance) {
+      isGeneratingB2B = true;
+    } else {
+      isGeneratingB2C = true;
+    }
+
     lastDto = null;
     notifyListeners();
 
     try {
       currentInvoiceNumber = invoiceNumber;
+
       final signedPath = await prepService.generateAndSignInvoice(
         invoiceNumber: invoiceNumber,
         items: items,
         supplierInfo: supplierInfo,
         customerInfo: customerInfo,
+        clearance: clearance,
       );
 
       final file = File(signedPath);
       signedXml = await file.readAsString();
+
       return InvoiceResult(success: true, message: "Invoice ready for preview");
     } catch (e) {
       return InvoiceResult(success: false, message: "Failed: $e");
     } finally {
-      isGenerating = false;
+      if (clearance) {
+        isGeneratingB2B = false;
+      } else {
+        isGeneratingB2C = false;
+      }
+
       notifyListeners();
     }
   }
@@ -135,16 +151,13 @@ class InvoiceProvider extends ChangeNotifier {
           certPath: await AppPaths.certPath(),
         );
 
-        await DBService.processClearedInvoice(
+        await InvoiceProcessingService.processClearedInvoice(
           base64InvoiceStr,
           prepService,
           entityId!,
         );
 
-        return InvoiceResult(
-          success: true,
-          message: "Invoice cleared and saved successfully!",
-        );
+        return InvoiceResult(success: true, message: "${response?.data}");
       } else {
         return InvoiceResult(
           success: false,
@@ -174,7 +187,7 @@ class InvoiceProvider extends ChangeNotifier {
         uuid: currentInvoiceNumber!,
       );
       lastDto = dto; // store DTO for later preview
-
+      String invoiceString = signedXml!;
       final response = await ApiService.reportInvoiceDto(dto);
       if (response?.statusCode == 200 || response?.statusCode == 202) {
         final body = response?.data;
@@ -183,7 +196,7 @@ class InvoiceProvider extends ChangeNotifier {
           throw Exception('Invalid response format');
         }
 
-        final invoice = body['data'];
+        final invoice = base64.encode(utf8.encode(invoiceString));
 
         /* if (innerData == null || innerData is! Map) {
           throw Exception('Missing data field');
@@ -200,12 +213,13 @@ class InvoiceProvider extends ChangeNotifier {
           certPath: await AppPaths.certPath(),
         );
 
-        await DBService.processReportedInvoice(invoice, prepService, entityId!);
-
-        return InvoiceResult(
-          success: true,
-          message: "Invoice reported and saved successfully!",
+        await InvoiceProcessingService.processReportedInvoice(
+          invoice,
+          prepService,
+          entityId!,
         );
+
+        return InvoiceResult(success: true, message: "${response?.data}");
       } else {
         return InvoiceResult(
           success: false,
@@ -227,7 +241,8 @@ class InvoiceProvider extends ChangeNotifier {
     qrValue = null;
     invoiceData = null;
     lastDto = null;
-    isGenerating = false;
+    isGeneratingB2B = false;
+    isGeneratingB2C = false;
     isSendingReport = false;
     isSendingClear = false;
     isCheckingQr = false;

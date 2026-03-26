@@ -27,12 +27,15 @@ class InvoicePrepService {
     required List<InvoiceItem> items,
     required Map<String, String> supplierInfo,
     required Map<String, String> customerInfo,
+    required String profileId,
   }) async {
+    final type = profileId == 'clearance' ? 'CLEARED' : 'REPORTED';
     final uuid = const Uuid().v4();
     final now = DateTime.now();
     final pihZero = sha256.convert("0".codeUnits);
     final entityId = await extractSerial();
-    final lastInvoice = await DBService().getLastInvoiceForEntity(entityId!);
+    final lastInvoice = await InvoiceProcessingService()
+        .getLastInvoiceForEntityByType(entityId!, type);
     final icv = (lastInvoice?['icv'] as int? ?? 0) + 1;
     final previousInvoiceHash =
         lastInvoice != null
@@ -60,6 +63,7 @@ class InvoicePrepService {
       customerPhone: customerInfo['phone']!,
       customerEmail: customerInfo['email']!,
       customerCountry: customerInfo['country']!,
+      ProfileId: profileId,
     );
 
     return XmlDocument.parse(await xmlString);
@@ -204,13 +208,17 @@ class InvoicePrepService {
     required List<InvoiceItem> items,
     required Map<String, String> supplierInfo,
     required Map<String, String> customerInfo,
+    required bool clearance,
   }) async {
+    final profileId = clearance ? 'clearance' : 'reporing';
+
     /// Generate unsigned invoice
     final invoice = await generateUnsignedInvoice(
       invoiceNumber: invoiceNumber,
       items: items,
       supplierInfo: supplierInfo,
       customerInfo: customerInfo,
+      profileId: profileId,
     );
 
     /// Save invoice to input.xml
@@ -218,7 +226,6 @@ class InvoicePrepService {
 
     /// Canonicalize
     await runCanonicalizationCli(await inputXmlPath, await outputXmlPath);
-    //final unsignedInvoiceHash = await computeHashBase64(await outputXmlPath);
 
     /// Inject signature
     final xadesResult = await injectXadesSignature(
@@ -231,25 +238,24 @@ class InvoicePrepService {
     /// Save signed XML locally
     final signedPath =
         '${await AppPaths.invoicesDir()}/invoice_$invoiceNumber.xml';
+
     await writeXml(signedPath, signedInvoice.toXmlString(pretty: false));
 
-    // Add QR code to the signed XML
+    /// Add QR
     await addQrToInvoice(
       signedInvoicePath: signedPath,
       qrBase64: generateQr(
         sellerName: supplierInfo['name']!,
-        vatNumber: customerInfo['vat']!, //should be supplier .. fix later
+        vatNumber: customerInfo['vat']!,
         issueDate: DateTime.now(),
         total: items.fold(
           0.0,
-          (previousValue, item) =>
-              previousValue + (item.quantity * item.unitPrice),
+          (prev, item) => prev + (item.quantity * item.unitPrice),
         ),
         vatTotal: items.fold(
           0.0,
-          (previousValue, item) =>
-              previousValue +
-              (item.quantity * item.unitPrice * item.taxRate / 100),
+          (prev, item) =>
+              prev + (item.quantity * item.unitPrice * item.taxRate / 100),
         ),
         xmlHash: await computeHashBase64(await outputXmlPath),
         signature: xadesResult.signatureBytes,

@@ -3,10 +3,10 @@ import 'package:provider/provider.dart';
 import 'package:stc_client/application/controllers/invoice_controller.dart';
 import 'package:stc_client/state/providers/InvoiceProvider.dart';
 
-// Widget that displays a button to send the invoice, using the InvoiceProvider to handle the sending process, and providing feedback to the user through a SnackBar with the result of the operation
 class ReportInvoiceButton extends StatelessWidget {
   final InvoiceFormController c;
   final TextEditingController xmlController;
+  final TextEditingController responseController;
   final Color? color;
 
   const ReportInvoiceButton({
@@ -14,6 +14,7 @@ class ReportInvoiceButton extends StatelessWidget {
     required this.c,
     required this.color,
     required this.xmlController,
+    required this.responseController,
   });
 
   @override
@@ -31,15 +32,14 @@ class ReportInvoiceButton extends StatelessWidget {
               ? null
               : () async {
                 provider.signedXml = xmlController.text;
+
+                // Clear previous response
+                responseController.text = "Sending invoice...";
+
                 result = await provider.reportInvoice();
-                print(result.message);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(result.message),
-                    backgroundColor: result.success ? Colors.green : Colors.red,
-                    duration: const Duration(seconds: 5),
-                  ),
-                );
+
+                // Update the response area instead of showing SnackBar
+                responseController.text = result.message;
               },
       child:
           provider.isSendingReport

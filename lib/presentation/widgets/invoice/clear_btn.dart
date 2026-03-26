@@ -7,6 +7,7 @@ import 'package:stc_client/state/providers/InvoiceProvider.dart';
 class ClearInvoiceButton extends StatelessWidget {
   final InvoiceFormController c;
   final TextEditingController xmlController;
+  final TextEditingController responseController;
   final Color? color;
 
   const ClearInvoiceButton({
@@ -14,6 +15,7 @@ class ClearInvoiceButton extends StatelessWidget {
     required this.c,
     required this.color,
     required this.xmlController,
+    required this.responseController,
   });
 
   @override
@@ -31,15 +33,14 @@ class ClearInvoiceButton extends StatelessWidget {
               ? null
               : () async {
                 provider.signedXml = xmlController.text;
+
+                // Clear previous response
+                responseController.text = "Sending invoice...";
+
                 result = await provider.clearInvoice();
-                print(result.message);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(result.message),
-                    backgroundColor: result.success ? Colors.green : Colors.red,
-                    duration: const Duration(seconds: 5),
-                  ),
-                );
+
+                // Update the response area instead of showing SnackBar
+                responseController.text = result.message;
               },
       child:
           provider.isSendingClear
