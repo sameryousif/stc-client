@@ -26,9 +26,7 @@ class CertEnrollService {
     final String? certificatePem = await ApiService.sendCsr(
       csrFile: csrFile,
       token: token,
-      sandbox: false,
     );
-
     final Uint8List certBytes = pemToDer(certificatePem!);
     await fileService.saveCertificate(certBytes);
   }

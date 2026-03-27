@@ -91,21 +91,22 @@ class ApiService {
   static Future<String?> sendCsr({
     required File csrFile,
     required String token,
-    required bool sandbox,
+    // required bool sandbox,
   }) async {
     late String csrBase64;
 
-    if (csrFile.path.endsWith('.der')) {
-      final bytes = await csrFile.readAsBytes();
-      csrBase64 = base64Encode(bytes);
-    } else {
+    /*if (csrFile.path.endsWith('.der')) {
+     
+    }*/
+    /* else {
       final text = await csrFile.readAsString();
       csrBase64 = text
           .replaceAll('-----BEGIN CERTIFICATE REQUEST-----', '')
           .replaceAll('-----END CERTIFICATE REQUEST-----', '')
           .replaceAll(RegExp(r'\s+'), '');
-    }
-
+    }*/
+    final bytes = await csrFile.readAsBytes();
+    csrBase64 = base64Encode(bytes);
     final response = await _dio.post(
       _enrollCsrUrl,
       data: {'csr': csrBase64, 'token': token},
@@ -131,7 +132,7 @@ class ApiService {
       throw Exception('Certificate not found in response');
     }
 
-    if (!sandbox) {
+    /*  if (!sandbox) {
       final certBytes = base64Decode(
         certificate
             .replaceAll('-----BEGIN CERTIFICATE-----', '')
@@ -143,8 +144,17 @@ class ApiService {
       await File(path).writeAsBytes(certBytes, flush: true);
 
       return certificate.toString();
+    }*/
+    return certificate.toString();
+    //return "Response code: $statusCode\nBody:\n${const JsonEncoder.withIndent('  ').convert(body)}";
+  }
+
+  static Future<Response?> sendCsrSandbox({required String csr}) async {
+    try {
+      return await _dio.post(_enrollCsrUrl, data: csr);
+    } on DioException catch (e) {
+      return e.response;
     }
-    return "Response code: $statusCode\nBody:\n${const JsonEncoder.withIndent('  ').convert(body)}";
   }
 
   /* static Future<void> sendQr({required String qrbase64}) async {

@@ -6,14 +6,14 @@ import 'response_box.dart';
 class EnrollSection extends StatelessWidget {
   final SandboxController controller;
   final TextEditingController csrCtrl;
-  final TextEditingController tokenCtrl;
+  // final TextEditingController tokenCtrl;
   final Color? color;
 
   const EnrollSection({
     super.key,
     required this.controller,
     required this.csrCtrl,
-    required this.tokenCtrl,
+    //  required this.tokenCtrl,
     required this.color,
   });
 
@@ -28,20 +28,20 @@ class EnrollSection extends StatelessWidget {
               controller: csrCtrl,
               maxLines: 5,
               decoration: const InputDecoration(
-                labelText: "CSR",
+                labelText: "CSR JSON",
                 border: OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 12),
-            TextField(
+
+            /*TextField(
               controller: tokenCtrl,
               decoration: const InputDecoration(
                 labelText: "Token",
                 border: OutlineInputBorder(),
               ),
             ),
-            const SizedBox(height: 12),
-
+            const SizedBox(height: 12),*/
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -49,7 +49,7 @@ class EnrollSection extends StatelessWidget {
                     controller.isEnrolling
                         ? null
                         : () async {
-                          await controller.enroll(csrCtrl.text, tokenCtrl.text);
+                          await controller.enroll(csrCtrl.text);
                         },
 
                 style: ElevatedButton.styleFrom(

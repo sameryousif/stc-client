@@ -71,7 +71,7 @@ class _SandboxPageState extends State<SandboxPage> {
                     child: EnrollSection(
                       controller: controller,
                       csrCtrl: csrCtrl,
-                      tokenCtrl: tokenCtrl,
+                      //  tokenCtrl: tokenCtrl,
                       color: Color(0xFF2C365A),
                     ),
                   ),
@@ -92,7 +92,7 @@ class _SandboxPageState extends State<SandboxPage> {
                   EnrollSection(
                     controller: controller,
                     csrCtrl: csrCtrl,
-                    tokenCtrl: tokenCtrl,
+                    //tokenCtrl: tokenCtrl,
                     color: Color(0xFF2C365A),
                   ),
                   const SizedBox(height: 20),

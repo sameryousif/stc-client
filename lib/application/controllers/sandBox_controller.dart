@@ -17,8 +17,8 @@ class SandboxController {
   SandboxController({required this.enrollmentController});
 
   /// ENROLL
-  Future<void> enroll(String csr, String token) async {
-    if (csr.isEmpty || token.isEmpty) {
+  Future<void> enroll(String csr) async {
+    if (csr.isEmpty) {
       enrollResponse.value = "CSR and Token are required";
       return;
     }
@@ -27,16 +27,12 @@ class SandboxController {
     enrollResponse.value = "Enrolling...";
 
     try {
-      final csrFile = await _writeCsrToFile(csr);
+      //final csrFile = await _writeCsrToFile(csr);
 
-      final result = await ApiService.sendCsr(
-        csrFile: csrFile,
-        token: token,
-        sandbox: true,
-      );
+      final result = await ApiService.sendCsrSandbox(csr: csr);
 
       if (result != null) {
-        enrollResponse.value = result;
+        enrollResponse.value = result.data.toString();
       }
     } catch (e) {
       enrollResponse.value = "❌ ENROLL FAILED\n$e";
@@ -77,7 +73,7 @@ class SandboxController {
     }
   }
 
-  Future<File> _writeCsrToFile(String csr) async {
+  /* Future<File> _writeCsrToFile(String csr) async {
     try {
       // Create a temporary directory for the CSR
       final tempDir = await Directory.systemTemp.createTemp('csr_');
@@ -94,5 +90,5 @@ class SandboxController {
       debugPrint('Error writing CSR to file: $e');
       return null!; // Return null on failure
     }
-  }
+  }*/
 }
