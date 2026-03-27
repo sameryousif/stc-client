@@ -207,7 +207,7 @@ class InvoicePrepService {
     required Map<String, String> customerInfo,
     required bool clearance,
   }) async {
-    final profileId = clearance ? 'clearance' : 'reporing';
+    final profileId = clearance ? 'clearance' : 'reporting';
 
     /// Generate unsigned invoice
     final invoice = await generateUnsignedInvoice(
