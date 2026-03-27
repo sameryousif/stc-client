@@ -49,32 +49,6 @@ class ApiService {
   static const String _enrollCsrUrl = '$_baserUrl/enroll';
   // static const String _qrUrl = '$_baserUrl/verify_qr';
 
-  ///send invoice DTO to server and return response
-  /*  static Future<Response?> clearInvoiceDto(Map<String, String> dto) async {
-    try {
-      final response = await _dio.post(_clearanceUrl, data: jsonEncode(dto));
-      return response;
-    } on DioException catch (e) {
-      print(' NETWORK / DIO EXCEPTION');
-      return e.response;
-    } catch (e) {
-      print(' UNKNOWN ERROR: $e');
-      return null;
-    }
-  }
-
-  static Future<Response?> reportInvoiceDto(Map<String, String> dto) async {
-    try {
-      final response = await _dio.post(_reportingUrl, data: jsonEncode(dto));
-      return response;
-    } on DioException catch (e) {
-      print(' NETWORK / DIO EXCEPTION');
-      return e.response;
-    } catch (e) {
-      print(' UNKNOWN ERROR: $e');
-      return null;
-    }
-  }*/
   ///////////////////////////
   ///
   static Future<Response?> sendClear(
@@ -184,72 +158,4 @@ class ApiService {
       print("valid");
     }
   }*/
-
-  ///////////////////////////
-  /*  static Future<Response?> clearInvoiceSandBox(Map<String, String> dto) async {
-    try {
-      final response = await _dio.post(
-        _clearanceUrl,
-        data: jsonEncode(dto),
-        options: Options(
-          headers: {
-            "Content-Type": "application/json",
-            "Accept": "application/json",
-            "X-Sandbox-Mode": "true",
-          },
-        ),
-      );
-      return response;
-    } on DioException catch (e) {
-      print(' NETWORK / DIO EXCEPTION');
-      return e.response;
-    } catch (e) {
-      print(' UNKNOWN ERROR: $e');
-      return null;
-    }
-  }
-
-  static Future<Response?> reportInvoiceSandBox(Map<String, String> dto) async {
-    try {
-      final response = await _dio.post(
-        _reportingUrl,
-        data: jsonEncode(dto),
-        options: Options(
-          headers: {
-            "Content-Type": "application/json",
-            "Accept": "application/json",
-            "X-Sandbox-Mode": "true",
-          },
-        ),
-      );
-      return response;
-    } on DioException catch (e) {
-      print(' NETWORK / DIO EXCEPTION');
-      return e.response;
-    } catch (e) {
-      print(' UNKNOWN ERROR: $e');
-      return null;
-    }
-  }
-  ///////////////////////////////////////
-  static Future<Response?> sendClear(
-  Map<String, dynamic> dto, {
-  bool isSandbox = false,
-}) async {
-  try {
-    final response = await _dio.post(
-      _clearanceUrl,
-      data: dto, // ✅ no jsonEncode
-      options: isSandbox
-          ? Options(headers: {
-              "X-Sandbox-Mode": "true",
-            })
-          : null,
-    );
-
-    return response;
-  } on DioException catch (e) {
-    return e.response;
-  }
-}*/
 }
