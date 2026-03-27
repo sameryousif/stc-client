@@ -37,7 +37,7 @@ class ClearInvoiceButton extends StatelessWidget {
                 // Clear previous response
                 responseController.text = "Sending invoice...";
 
-                result = await provider.clearInvoice();
+                result = await provider.clearInvoice(isSandBox: false);
 
                 // Update the response area instead of showing SnackBar
                 responseController.text = result.message;

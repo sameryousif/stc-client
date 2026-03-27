@@ -12,6 +12,7 @@ class SandboxController {
   final submitResponse = ValueNotifier<String>("");
 
   bool isEnrolling = false;
+  bool isSending = false;
 
   SandboxController({required this.enrollmentController});
 
@@ -34,7 +35,6 @@ class SandboxController {
         sandbox: true,
       );
 
-      // ✅ HANDLE SUCCESS RESPONSE
       if (result != null) {
         enrollResponse.value = result;
       }
@@ -46,34 +46,34 @@ class SandboxController {
   }
 
   /// CLEAR
-  Future<void> clearInvoice(InvoiceProvider provider, String invoice) async {
-    if (invoice.isEmpty) {
-      submitResponse.value = "Invoice is empty";
-      return;
-    }
+  Future<void> clearInvoice(InvoiceProvider provider, String json) async {
+    provider.sandboxJson = json.trim();
+
+    submitResponse.value = "Sending clear request...";
 
     try {
-      provider.signedXml = invoice;
-      final result = await provider.clearInvoice();
+      final result = await provider.clearInvoice(isSandBox: true);
+
+      // Update with result
       submitResponse.value = result.message;
     } catch (e) {
-      submitResponse.value = "CLEAR FAILED\n$e";
+      submitResponse.value = "❌ Clear failed\n$e";
     }
   }
 
   /// REPORT
-  Future<void> reportInvoice(InvoiceProvider provider, String invoice) async {
-    if (invoice.isEmpty) {
-      submitResponse.value = "Invoice is empty";
-      return;
-    }
+  Future<void> reportInvoice(InvoiceProvider provider, String json) async {
+    provider.sandboxJson = json.trim();
+
+    submitResponse.value = "Sending report request...";
 
     try {
-      provider.signedXml = invoice;
-      final result = await provider.reportInvoice();
+      final result = await provider.reportInvoice(isSandBox: true);
+
+      // Update with result
       submitResponse.value = result.message;
     } catch (e) {
-      submitResponse.value = "REPORT FAILED\n$e";
+      submitResponse.value = "❌ Report failed\n$e";
     }
   }
 

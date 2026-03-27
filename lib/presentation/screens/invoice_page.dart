@@ -181,9 +181,27 @@ class _InvoicePageState extends State<InvoicePage> {
                           provider.notifyListeners();
                         },
                       ),
-                      Text(
-                        provider.showJson ? "JSON" : "XML",
-                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            "XML",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color:
+                                  provider.showJson ? Colors.black : Colors.red,
+                            ),
+                          ),
+                          const Text(" / "),
+                          Text(
+                            "JSON",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color:
+                                  provider.showJson ? Colors.red : Colors.black,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),

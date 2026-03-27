@@ -5,12 +5,13 @@ class CustomField extends StatelessWidget {
   final String value;
   final String label;
   final ValueChanged<String> onChanged;
-
+  final bool readOnly;
   const CustomField({
     super.key,
     required this.value,
     required this.label,
     required this.onChanged,
+    this.readOnly = false,
   });
 
   @override
@@ -22,6 +23,7 @@ class CustomField extends StatelessWidget {
       ),
       controller: TextEditingController(text: value),
       onChanged: onChanged,
+      readOnly: readOnly,
     );
   }
 }

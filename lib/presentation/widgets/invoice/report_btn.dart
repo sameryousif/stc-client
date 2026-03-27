@@ -36,7 +36,7 @@ class ReportInvoiceButton extends StatelessWidget {
                 // Clear previous response
                 responseController.text = "Sending invoice...";
 
-                result = await provider.reportInvoice();
+                result = await provider.reportInvoice(isSandBox: false);
 
                 // Update the response area instead of showing SnackBar
                 responseController.text = result.message;

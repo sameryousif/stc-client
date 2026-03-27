@@ -17,7 +17,10 @@ class MyApp extends StatelessWidget {
         ),
       ),
       home: SandboxPage(),
-      routes: {'/invoice': (context) => const InvoicePage()},
+      routes: {
+        '/invoice': (context) => const InvoicePage(),
+        '/enrollment': (context) => const EnrollmentPage(),
+      },
       debugShowCheckedModeBanner: false,
     );
   }

@@ -50,7 +50,7 @@ class ApiService {
   // static const String _qrUrl = '$_baserUrl/verify_qr';
 
   ///send invoice DTO to server and return response
-  static Future<Response?> clearInvoiceDto(Map<String, String> dto) async {
+  /*  static Future<Response?> clearInvoiceDto(Map<String, String> dto) async {
     try {
       final response = await _dio.post(_clearanceUrl, data: jsonEncode(dto));
       return response;
@@ -74,7 +74,44 @@ class ApiService {
       print(' UNKNOWN ERROR: $e');
       return null;
     }
+  }*/
+  ///////////////////////////
+  ///
+  static Future<Response?> sendClear(
+    Map<String, dynamic> dto, {
+    bool isSandbox = false,
+  }) async {
+    try {
+      return await _dio.post(
+        _clearanceUrl,
+        data: dto,
+        options:
+            isSandbox ? Options(headers: {"X-Sandbox-Mode": "true"}) : null,
+      );
+    } on DioException catch (e) {
+      return e.response;
+    }
   }
+
+  /// ============================
+  /// REPORT
+  /// ============================
+  static Future<Response?> sendReport(
+    Map<String, dynamic> dto, {
+    bool isSandbox = false,
+  }) async {
+    try {
+      return await _dio.post(
+        _reportingUrl,
+        data: dto,
+        options:
+            isSandbox ? Options(headers: {"X-Sandbox-Mode": "true"}) : null,
+      );
+    } on DioException catch (e) {
+      return e.response;
+    }
+  }
+  //////////////////////
 
   /// send CSR and get certificate
   static Future<String?> sendCsr({
@@ -82,10 +119,8 @@ class ApiService {
     required String token,
     required bool sandbox,
   }) async {
-    // ✅ Declare variable first
     late String csrBase64;
 
-    // ✅ Detect file type
     if (csrFile.path.endsWith('.der')) {
       final bytes = await csrFile.readAsBytes();
       csrBase64 = base64Encode(bytes);
@@ -97,7 +132,6 @@ class ApiService {
           .replaceAll(RegExp(r'\s+'), '');
     }
 
-    // ✅ Send request
     final response = await _dio.post(
       _enrollCsrUrl,
       data: {'csr': csrBase64, 'token': token},
@@ -123,7 +157,6 @@ class ApiService {
       throw Exception('Certificate not found in response');
     }
 
-    // ✅ Save certificate if NOT sandbox
     if (!sandbox) {
       final certBytes = base64Decode(
         certificate
@@ -137,8 +170,6 @@ class ApiService {
 
       return certificate.toString();
     }
-
-    // ✅ Sandbox → return response for UI
     return "Response code: $statusCode\nBody:\n${const JsonEncoder.withIndent('  ').convert(body)}";
   }
 
@@ -153,4 +184,72 @@ class ApiService {
       print("valid");
     }
   }*/
+
+  ///////////////////////////
+  /*  static Future<Response?> clearInvoiceSandBox(Map<String, String> dto) async {
+    try {
+      final response = await _dio.post(
+        _clearanceUrl,
+        data: jsonEncode(dto),
+        options: Options(
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "X-Sandbox-Mode": "true",
+          },
+        ),
+      );
+      return response;
+    } on DioException catch (e) {
+      print(' NETWORK / DIO EXCEPTION');
+      return e.response;
+    } catch (e) {
+      print(' UNKNOWN ERROR: $e');
+      return null;
+    }
+  }
+
+  static Future<Response?> reportInvoiceSandBox(Map<String, String> dto) async {
+    try {
+      final response = await _dio.post(
+        _reportingUrl,
+        data: jsonEncode(dto),
+        options: Options(
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "X-Sandbox-Mode": "true",
+          },
+        ),
+      );
+      return response;
+    } on DioException catch (e) {
+      print(' NETWORK / DIO EXCEPTION');
+      return e.response;
+    } catch (e) {
+      print(' UNKNOWN ERROR: $e');
+      return null;
+    }
+  }
+  ///////////////////////////////////////
+  static Future<Response?> sendClear(
+  Map<String, dynamic> dto, {
+  bool isSandbox = false,
+}) async {
+  try {
+    final response = await _dio.post(
+      _clearanceUrl,
+      data: dto, // ✅ no jsonEncode
+      options: isSandbox
+          ? Options(headers: {
+              "X-Sandbox-Mode": "true",
+            })
+          : null,
+    );
+
+    return response;
+  } on DioException catch (e) {
+    return e.response;
+  }
+}*/
 }

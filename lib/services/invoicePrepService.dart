@@ -1,11 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
-
 import 'package:crypto/crypto.dart';
-import 'package:dio/dio.dart';
 import 'package:stc_client/core/invoice/invoice_item.dart';
-import 'package:stc_client/services/api_service.dart';
 import 'package:stc_client/services/invoice_processing_service.dart';
 import 'package:stc_client/core/certificate/cert_info.dart';
 import 'package:stc_client/core/qr/qr_genrator.dart';
@@ -278,9 +275,9 @@ class InvoicePrepService {
     return dto;
   }
 
-  Future<Response?> sendInvoice(Map<String, String> dto) async {
-    return await ApiService.clearInvoiceDto(dto);
-  }
+  /* Future<Response?> sendInvoice(Map<String, String> dto) async {
+    return await ApiService.sendClear(dto);
+  }*/
 }
 
 ///////////xades class

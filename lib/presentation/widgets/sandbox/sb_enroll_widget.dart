@@ -19,58 +19,77 @@ class EnrollSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SandboxCard(
-      title: "🔐 Certificate Enrollment",
-      child: Column(
-        children: [
-          TextField(
-            controller: csrCtrl,
-            maxLines: 5,
-            decoration: const InputDecoration(
-              labelText: "CSR",
-              border: OutlineInputBorder(),
-            ),
-          ),
-          const SizedBox(height: 12),
-          TextField(
-            controller: tokenCtrl,
-            decoration: const InputDecoration(
-              labelText: "Token",
-              border: OutlineInputBorder(),
-            ),
-          ),
-          const SizedBox(height: 12),
-
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed:
-                  controller.isEnrolling
-                      ? null
-                      : () async {
-                        await controller.enroll(csrCtrl.text, tokenCtrl.text);
-                      },
-
-              style: ElevatedButton.styleFrom(
-                backgroundColor: color ?? Theme.of(context).primaryColor,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 12,
-                ),
+    return SingleChildScrollView(
+      child: SandboxCard(
+        title: "🔐 Certificate Enrollment",
+        child: Column(
+          children: [
+            TextField(
+              controller: csrCtrl,
+              maxLines: 5,
+              decoration: const InputDecoration(
+                labelText: "CSR",
+                border: OutlineInputBorder(),
               ),
-              child:
-                  controller.isEnrolling
-                      ? const CircularProgressIndicator(color: Colors.white)
-                      : const Text(
-                        "Enroll",
-                        style: TextStyle(color: Colors.white),
-                      ),
             ),
-          ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: tokenCtrl,
+              decoration: const InputDecoration(
+                labelText: "Token",
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 12),
 
-          const SizedBox(height: 12),
-          ResponseBox(notifier: controller.enrollResponse),
-        ],
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed:
+                    controller.isEnrolling
+                        ? null
+                        : () async {
+                          await controller.enroll(csrCtrl.text, tokenCtrl.text);
+                        },
+
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: color ?? Theme.of(context).primaryColor,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 12,
+                  ),
+                ),
+                child:
+                    controller.isEnrolling
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : const Text(
+                          "Enroll",
+                          style: TextStyle(color: Colors.white),
+                        ),
+              ),
+            ),
+
+            const SizedBox(height: 12),
+            ResponseBox(notifier: controller.enrollResponse),
+            const SizedBox(height: 12),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 14,
+                  horizontal: 24,
+                ),
+                backgroundColor: Color(0xFF2C365A),
+              ),
+              onPressed: () {
+                Navigator.pushNamed(context, '/enrollment');
+              },
+              child: const Text(
+                'Full Experience Mode',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
