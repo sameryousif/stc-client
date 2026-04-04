@@ -532,7 +532,7 @@ Future<String> generateUBLInvoice({
               builder.element(
                 'cac:PartyTaxScheme',
                 nest: () {
-                  builder.element('cbc:CompanyID', nest: 100011.toString());
+                  builder.element('cbc:CompanyID', nest: customerVAT);
                   builder.element(
                     'cac:TaxScheme',
                     nest: () {
