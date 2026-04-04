@@ -26,13 +26,13 @@ class InvoicePrepService {
     required Map<String, String> customerInfo,
     required String profileId,
   }) async {
-    final type = profileId == 'clearance' ? 'CLEARED' : 'REPORTED';
+    profileId == 'clearance' ? 'CLEARED' : 'REPORTED';
     final uuid = const Uuid().v4();
     final now = DateTime.now();
     final pihZero = sha256.convert("0".codeUnits);
     final entityId = await extractSerial();
     final lastInvoice = await InvoiceProcessingService()
-        .getLastInvoiceForEntityByType(entityId!, type);
+        .getLastInvoiceForEntityByType(entityId!);
     final icv = (lastInvoice?['icv'] as int? ?? 0) + 1;
     final previousInvoiceHash =
         lastInvoice != null
@@ -243,7 +243,7 @@ class InvoicePrepService {
       signedInvoicePath: signedPath,
       qrBase64: generateQr(
         sellerName: supplierInfo['name']!,
-        vatNumber: customerInfo['vat']!,
+        vatNumber: supplierInfo['vat']!,
         issueDate: DateTime.now(),
         total: items.fold(
           0.0,

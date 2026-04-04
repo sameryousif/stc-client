@@ -94,8 +94,4 @@ class CryptoService {
 
     print('CSR generated');
   }
-
-  static String normalizeCsr(String csr) {
-    return csr.replaceAll('\r\n', '\n').replaceAll('\\n', '\n').trim();
-  }
 }

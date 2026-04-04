@@ -6,6 +6,7 @@ import 'package:stc_client/services/crypto_service.dart';
 import 'package:stc_client/services/enrollment_service.dart';
 import 'package:stc_client/services/file_service.dart';
 import 'package:stc_client/presentation/widgets/enrollment/panel_widget.dart';
+import 'package:uuid/uuid.dart';
 
 // Widget that displays the enrollment page, allowing users to generate a CSR and enroll for a certificate by providing the necessary information and interacting with the EnrollmentController to handle the logic of generating the CSR and enrolling for the certificate, while also providing feedback to the user through the UI
 class EnrollmentPage extends StatefulWidget {
@@ -23,12 +24,12 @@ class _EnrollmentPageState extends State<EnrollmentPage> {
   String certificate = '';
 
   final cnCtrl = TextEditingController(text: 'My.Company.com');
-  final oCtrl = TextEditingController(text: 'Organization');
+  final onCtrl = TextEditingController();
   final ouCtrl = TextEditingController(text: 'IT');
   final cCtrl = TextEditingController(text: 'SD');
   final stCtrl = TextEditingController(text: 'Khartoum');
   final lCtrl = TextEditingController(text: 'Khartoum');
-  final serialCtrl = TextEditingController();
+  final serialCtrl = TextEditingController(text: const Uuid().v4());
   final tokenCtrl = TextEditingController();
 
   @override
@@ -48,7 +49,7 @@ class _EnrollmentPageState extends State<EnrollmentPage> {
   @override
   void dispose() {
     cnCtrl.dispose();
-    oCtrl.dispose();
+    onCtrl.dispose();
     ouCtrl.dispose();
     cCtrl.dispose();
     stCtrl.dispose();
@@ -60,10 +61,10 @@ class _EnrollmentPageState extends State<EnrollmentPage> {
 
   /// Generate CSR + private key
   Future<void> generateCsr() async {
-    if (serialCtrl.text.trim().isEmpty) {
+    if (onCtrl.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Serial Number is required'),
+          content: Text('Organization Name is required'),
           backgroundColor: Colors.red,
           duration: Duration(milliseconds: 300),
         ),
@@ -73,7 +74,7 @@ class _EnrollmentPageState extends State<EnrollmentPage> {
 
     final subject = EnrollmentSubject(
       cn: cnCtrl.text,
-      o: oCtrl.text,
+      on: onCtrl.text,
       ou: ouCtrl.text,
       c: cCtrl.text,
       st: stCtrl.text,
@@ -128,7 +129,7 @@ class _EnrollmentPageState extends State<EnrollmentPage> {
                           return LeftPanel(
                             privateKey: privateKeyValue,
                             cnCtrl: cnCtrl,
-                            oCtrl: oCtrl,
+                            oCtrl: onCtrl,
                             ouCtrl: ouCtrl,
                             cCtrl: cCtrl,
                             stCtrl: stCtrl,
@@ -169,7 +170,7 @@ class _EnrollmentPageState extends State<EnrollmentPage> {
                           return LeftPanel(
                             privateKey: privateKeyValue,
                             cnCtrl: cnCtrl,
-                            oCtrl: oCtrl,
+                            oCtrl: onCtrl,
                             ouCtrl: ouCtrl,
                             cCtrl: cCtrl,
                             stCtrl: stCtrl,

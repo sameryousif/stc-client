@@ -27,7 +27,7 @@ class SubjectFields extends StatelessWidget {
       children: [
         _rowFields(
           _field('Common Name (CN)', cnCtrl),
-          _field('Organization (O)', oCtrl),
+          _field('Organization Name (ON)', oCtrl),
         ),
         _rowFields(
           _field('Organizational Unit (OU)', ouCtrl),

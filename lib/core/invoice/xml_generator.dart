@@ -201,7 +201,7 @@ XmlElement buildSignedProperties({
                           );
                           builder.element(
                             'ds:X509SerialNumber',
-                            nest: 123.toString(),
+                            nest: serialNumber,
                           );
                         },
                       );
@@ -367,7 +367,8 @@ Future<String> generateUBLInvoice({
   }
 
   final total = subtotal + vatTotal;
-  final subjectSerial = await extractSerial();
+  final deviceID = await extractSerial();
+  final companyID = await extractON();
   builder.processing('xml', 'version="1.0" encoding="UTF-8"');
 
   builder.element(
@@ -403,7 +404,7 @@ Future<String> generateUBLInvoice({
 
       builder.element('cbc:ProfileID', nest: () => builder.text(ProfileId));
 
-      builder.element('cbc:ID', nest: () => builder.text("S003"));
+      builder.element('cbc:ID', nest: () => builder.text(deviceID!));
       builder.element('cbc:UUID', nest: () => builder.text(invoiceNumber));
       builder.element('cbc:IssueDate', nest: () => builder.text(issueDate));
       builder.element('cbc:IssueTime', nest: () => builder.text(issueTime));
@@ -478,7 +479,7 @@ Future<String> generateUBLInvoice({
               builder.element(
                 'cac:PartyTaxScheme',
                 nest: () {
-                  builder.element('cbc:CompanyID', nest: supplierVAT);
+                  builder.element('cbc:CompanyID', nest: companyID!);
                   builder.element(
                     'cac:TaxScheme',
                     nest: () {
@@ -531,7 +532,7 @@ Future<String> generateUBLInvoice({
               builder.element(
                 'cac:PartyTaxScheme',
                 nest: () {
-                  builder.element('cbc:CompanyID', nest: subjectSerial!);
+                  builder.element('cbc:CompanyID', nest: 100011.toString());
                   builder.element(
                     'cac:TaxScheme',
                     nest: () {

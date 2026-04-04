@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:dio/dio.dart';
-import 'package:stc_client/utils/paths/app_paths.dart';
 
 //// Service responsible for handling all API interactions, including invoice submission and certificate enrollment
 class ApiService {
@@ -44,7 +43,7 @@ class ApiService {
   ///endpoints
   static const String _baserUrl = 'https://stc-server.onrender.com';
   static const String _clearanceUrl = '$_baserUrl/clear';
-  static const String _reportingUrl = '$_baserUrl/reporting';
+  static const String _reportingUrl = '$_baserUrl/report';
 
   static const String _enrollCsrUrl = '$_baserUrl/enroll';
   // static const String _qrUrl = '$_baserUrl/verify_qr';
@@ -112,7 +111,7 @@ class ApiService {
       data: {'csr': csrBase64, 'token': token},
     );
 
-    final statusCode = response.statusCode ?? 0;
+    //final statusCode = response.statusCode ?? 0;
     final data = response.data;
 
     if (data is! Map) {

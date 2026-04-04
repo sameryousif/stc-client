@@ -78,3 +78,26 @@ Future<String?> extractSerial({String? opensslPath, String? certPath}) async {
 
   return match?.group(1) ?? '';
 }
+
+Future<String?> extractON({String? opensslPath, String? certPath}) async {
+  opensslPath ??= await ToolPaths.opensslPath;
+  certPath ??= await AppPaths.certPath();
+  final res = await Process.run(opensslPath, [
+    "x509",
+    "-in",
+    certPath,
+    "-noout",
+    "-subject",
+  ]);
+
+  if (res.exitCode != 0) {
+    throw Exception("OpenSSL subject failed: ${res.stderr}");
+  }
+
+  final subject = res.stdout.toString();
+
+  // Match serialNumber
+  final match = RegExp(r'O\s*=\s*([^,\/]+)').firstMatch(subject);
+
+  return match?.group(1) ?? '';
+}

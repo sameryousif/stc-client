@@ -32,7 +32,7 @@ class InvoiceFormController {
     Supplier? supplier,
     Customer? customer,
   }) async {
-    final String serial = await extractSerial() ?? 'UNKNOWN_TIN';
+    final String subjectON = await extractON() ?? 'UNKNOWN_TIN';
 
     final controller = InvoiceFormController._(
       invoiceNumber: const Uuid().v4(),
@@ -43,7 +43,7 @@ class InvoiceFormController {
           supplier ??
           Supplier(
             name: 'My Supplier',
-            tin: '123456789',
+            tin: subjectON,
             street: 'Baladyia st',
             address: 'Khartoum Bahri',
             city: 'Khartoum',
@@ -55,7 +55,7 @@ class InvoiceFormController {
           customer ??
           Customer(
             name: 'Default Customer',
-            tin: serial,
+            tin: '100011',
             street: 'Baladyia st',
             address: 'Omdurman',
             city: 'Omdurman',

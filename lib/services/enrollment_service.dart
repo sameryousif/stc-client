@@ -18,7 +18,7 @@ class EnrollmentService {
 
     await cryptoService.generateKeyAndCsr({
       'CN': subject.cn,
-      'O': subject.o,
+      'O': subject.on,
       'OU': subject.ou,
       'C': subject.c,
       'ST': subject.st,

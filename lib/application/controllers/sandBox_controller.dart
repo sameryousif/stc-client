@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:stc_client/application/controllers/enrollment_controller.dart';
 import 'package:stc_client/services/api_service.dart';

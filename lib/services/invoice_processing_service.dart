@@ -68,13 +68,13 @@ class InvoiceProcessingService {
     final db = await database;
 
     final result = await db.rawQuery(
-      'SELECT MAX(icv) as maxIcv FROM invoices WHERE entityId = ? AND type = ?',
-      [entityId, "CLEARED"],
+      'SELECT MAX(icv) as maxIcv FROM invoices WHERE entityId = ?',
+      [entityId],
     );
 
     final icv = (result.first['maxIcv'] as int? ?? 0) + 1;
 
-    await _saveInvoice(base64Invoice, invoiceHash, entityId, icv, "CLEARED");
+    await _saveInvoice(base64Invoice, invoiceHash, entityId, icv);
   }
 
   //////////////////////
@@ -110,17 +110,14 @@ class InvoiceProcessingService {
     // Get next ICV
     final db = await database;
     final result = await db.rawQuery(
-      'SELECT MAX(icv) as maxIcv FROM invoices WHERE entityId = ? AND type = ?',
-      [entityId, "REPORTED"],
+      'SELECT MAX(icv) as maxIcv FROM invoices WHERE entityId = ?',
+      [entityId],
     );
 
     final icv = (result.first['maxIcv'] as int? ?? 0) + 1;
 
-    // ✅ SAVE BEFORE sending
-    await _saveInvoice(base64Invoice, invoiceHash, entityId, icv, "REPORTED");
-
-    // 👉 Now you can send to server using:
-    // base64Invoice, invoiceHash, icv
+    // SAVE BEFORE sending
+    await _saveInvoice(base64Invoice, invoiceHash, entityId, icv);
   }
 
   ////////////////////
@@ -149,7 +146,6 @@ class InvoiceProcessingService {
     String hash,
     String entityId,
     int icv,
-    String type,
   ) async {
     final db = await database;
     await db.insert('invoices', {
@@ -157,7 +153,6 @@ class InvoiceProcessingService {
       'base64Invoice': base64Invoice,
       'hash': hash,
       'icv': icv,
-      'type': type,
       'createdAt': DateTime.now().toIso8601String(),
     }, conflictAlgorithm: ConflictAlgorithm.replace);
   }
@@ -196,14 +191,13 @@ class InvoiceProcessingService {
 
   Future<Map<String, dynamic>?> getLastInvoiceForEntityByType(
     String entityId,
-    String type,
   ) async {
     final db = await database;
 
     final invoices = await db.query(
       'invoices',
-      where: 'entityId = ? AND type = ?',
-      whereArgs: [entityId, type],
+      where: 'entityId = ?',
+      whereArgs: [entityId],
       orderBy: 'icv DESC',
       limit: 1,
     );
