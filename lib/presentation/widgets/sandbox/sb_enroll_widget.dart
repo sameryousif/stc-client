@@ -71,23 +71,6 @@ class EnrollSection extends StatelessWidget {
 
             const SizedBox(height: 12),
             ResponseBox(notifier: controller.enrollResponse),
-            const SizedBox(height: 12),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 14,
-                  horizontal: 24,
-                ),
-                backgroundColor: Color(0xFF2C365A),
-              ),
-              onPressed: () {
-                Navigator.pushNamed(context, '/enrollment');
-              },
-              child: const Text(
-                'Full Experience Mode',
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
           ],
         ),
       ),

@@ -60,7 +60,7 @@ class InvoicePrepService {
       customerPhone: customerInfo['phone']!,
       customerEmail: customerInfo['email']!,
       customerCountry: customerInfo['country']!,
-      ProfileId: profileId,
+      profileId: profileId,
     );
 
     return XmlDocument.parse(await xmlString);

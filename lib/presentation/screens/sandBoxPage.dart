@@ -58,6 +58,17 @@ class _SandboxPageState extends State<SandboxPage> {
           style: TextStyle(color: Colors.white),
         ),
         backgroundColor: const Color(0xFF2C365A),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pushNamed(context, '/enrollment');
+            },
+            child: const Text(
+              "Full Experience",
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),

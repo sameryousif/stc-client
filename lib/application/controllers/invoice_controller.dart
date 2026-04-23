@@ -32,7 +32,7 @@ class InvoiceFormController {
     Supplier? supplier,
     Customer? customer,
   }) async {
-    final String subjectON = await extractON() ?? 'UNKNOWN_TIN';
+    String subjectON = await extractON() ?? 'UNKNOWN_TIN';
 
     final controller = InvoiceFormController._(
       invoiceNumber: const Uuid().v4(),
