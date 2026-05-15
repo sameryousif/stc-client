@@ -78,7 +78,6 @@ class InvoiceFormController {
     return controller;
   }
 
-  // Supplier and Customer info getters
   Map<String, String> get supplierInfo => {
     "name": supplier.name,
     "vat": supplier.tin,
@@ -102,25 +101,12 @@ class InvoiceFormController {
   };
 
   void addItem(InvoiceItem item) {
-    item.quantityController.addListener(recalculateTotals);
-    item.unitPriceController.addListener(recalculateTotals);
-    item.taxRateController.addListener(recalculateTotals);
-
     items.add(item);
     recalculateTotals();
   }
 
-  void addItemListeners(InvoiceItem item) {
-    item.quantityController.addListener(recalculateTotals);
-    item.unitPriceController.addListener(recalculateTotals);
-    item.taxRateController.addListener(recalculateTotals);
-  }
-
   void removeItem(int index) {
-    final item = items.removeAt(index);
-    item.quantityController.removeListener(recalculateTotals);
-    item.unitPriceController.removeListener(recalculateTotals);
-    item.taxRateController.removeListener(recalculateTotals);
+    items.removeAt(index);
     recalculateTotals();
   }
 

@@ -1,19 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:stc_client/application/controllers/sandBox_controller.dart';
+import 'package:stc_client/application/controllers/sandbox_controller.dart';
 import 'package:stc_client/presentation/widgets/sandbox/sandBox_card.dart';
 import 'response_box.dart';
 
 class EnrollSection extends StatelessWidget {
   final SandboxController controller;
   final TextEditingController csrCtrl;
-  // final TextEditingController tokenCtrl;
   final Color? color;
 
   const EnrollSection({
     super.key,
     required this.controller,
     required this.csrCtrl,
-    //  required this.tokenCtrl,
     required this.color,
   });
 
@@ -34,14 +32,6 @@ class EnrollSection extends StatelessWidget {
             ),
             const SizedBox(height: 12),
 
-            /*TextField(
-              controller: tokenCtrl,
-              decoration: const InputDecoration(
-                labelText: "Token",
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 12),*/
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(

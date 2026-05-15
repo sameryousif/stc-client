@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:flutter/foundation.dart';
 import 'package:stc_client/utils/paths/app_paths.dart';
 
 /// Service responsible for managing certificate files, including saving and validating certificates
@@ -10,7 +11,7 @@ class FileService {
   Future<void> saveCertificate(Uint8List certificateContent) async {
     final path = await certPath;
     await File(path).writeAsBytes(certificateContent);
-    print('Certificate saved at: $path');
+    if (kDebugMode) print('Certificate saved at: $path');
   }
 
   /// Checks if the certificate file exists and is still valid

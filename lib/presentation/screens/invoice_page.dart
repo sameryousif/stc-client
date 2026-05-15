@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:stc_client/application/controllers/invoice_controller.dart';
-import 'package:stc_client/presentation/widgets/invoice/gen_clearnance_btn.dart';
+import 'package:stc_client/presentation/widgets/invoice/gen_clearance_btn.dart';
 import 'package:stc_client/presentation/widgets/invoice/report_btn.dart';
 import 'package:stc_client/state/providers/InvoiceProvider.dart';
 import 'package:stc_client/presentation/widgets/invoice/customer_info.dart';
@@ -113,6 +113,7 @@ class _InvoicePageState extends State<InvoicePage> {
                       onDelete:
                           (index) =>
                               setState(() => controller.removeItem(index)),
+                      onChanged: () => controller.recalculateTotals(),
                     ),
                     const SizedBox(height: 16),
                     ValueListenableBuilder<double>(
@@ -136,13 +137,13 @@ class _InvoicePageState extends State<InvoicePage> {
                       },
                     ),
                     const SizedBox(height: 20),
-                    GenrateReportingInvoice(
+                    GenerateReportingInvoice(
                       c: controller,
                       color: widget.appBarAndButtonColor,
                       xmlController: xmlController,
                     ),
                     const SizedBox(height: 16),
-                    GenrateClearanceInvoice(
+                    GenerateClearanceInvoice(
                       c: controller,
                       color: widget.appBarAndButtonColor,
                       xmlController: xmlController,

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:stc_client/application/controllers/invoice_controller.dart';
@@ -5,13 +6,13 @@ import 'package:stc_client/state/providers/InvoiceProvider.dart';
 import 'package:stc_client/utils/paths/tools_paths.dart';
 
 // Widget that displays a button to generate and sign the invoice, using the InvoiceProvider to handle the generation and signing process, and providing feedback to the user through a SnackBar with the result of the operation
-class GenrateReportingInvoice extends StatelessWidget {
+class GenerateReportingInvoice extends StatelessWidget {
   final InvoiceFormController c;
   final TextEditingController xmlController;
 
   final Color? color;
 
-  const GenrateReportingInvoice({
+  const GenerateReportingInvoice({
     super.key,
     required this.c,
     required this.xmlController,
@@ -48,7 +49,7 @@ class GenrateReportingInvoice extends StatelessWidget {
                     duration: const Duration(seconds: 1),
                   ),
                 );
-                print(result.message);
+                if (kDebugMode) print(result.message);
               },
       child:
           provider.isGeneratingB2C

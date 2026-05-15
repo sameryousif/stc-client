@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 
 //// Service responsible for handling all API interactions, including invoice submission and certificate enrollment
 class ApiService {
@@ -20,21 +21,27 @@ class ApiService {
     ..interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) {
-          print(' REQUEST :${options.method} ${options.uri}');
-          print('HEADERS: ${options.headers}');
-          print('BODY: ${options.data}');
+          if (kDebugMode) {
+            print(' REQUEST :${options.method} ${options.uri}');
+            print('HEADERS: ${options.headers}');
+            print('BODY: ${options.data}');
+          }
           handler.next(options);
         },
         onResponse: (response, handler) {
-          print(' RESPONSE : ${response.statusCode}');
-          print('BODY: ${response.data}');
+          if (kDebugMode) {
+            print(' RESPONSE : ${response.statusCode}');
+            print('BODY: ${response.data}');
+          }
           handler.next(response);
         },
         onError: (error, handler) {
-          print('DIO ERROR');
-          print('STATUS: ${error.response?.statusCode}');
-          print('BODY: ${error.response?.data}');
-          print('MESSAGE: ${error.message}');
+          if (kDebugMode) {
+            print('DIO ERROR');
+            print('STATUS: ${error.response?.statusCode}');
+            print('BODY: ${error.response?.data}');
+            print('MESSAGE: ${error.message}');
+          }
           handler.next(error);
         },
       ),
@@ -46,7 +53,6 @@ class ApiService {
   static const String _reportingUrl = '$_baserUrl/report';
 
   static const String _enrollCsrUrl = '$_baserUrl/enroll';
-  // static const String _qrUrl = '$_baserUrl/verify_qr';
 
   ///////////////////////////
   ///
@@ -84,26 +90,14 @@ class ApiService {
       return e.response;
     }
   }
-  //////////////////////
 
   /// send CSR and get certificate
   static Future<String?> sendCsr({
     required File csrFile,
     required String token,
-    // required bool sandbox,
   }) async {
     late String csrBase64;
 
-    /*if (csrFile.path.endsWith('.der')) {
-     
-    }*/
-    /* else {
-      final text = await csrFile.readAsString();
-      csrBase64 = text
-          .replaceAll('-----BEGIN CERTIFICATE REQUEST-----', '')
-          .replaceAll('-----END CERTIFICATE REQUEST-----', '')
-          .replaceAll(RegExp(r'\s+'), '');
-    }*/
     final bytes = await csrFile.readAsBytes();
     csrBase64 = base64Encode(bytes);
     final response = await _dio.post(
@@ -111,7 +105,6 @@ class ApiService {
       data: {'csr': csrBase64, 'token': token},
     );
 
-    //final statusCode = response.statusCode ?? 0;
     final data = response.data;
 
     if (data is! Map) {
@@ -131,21 +124,7 @@ class ApiService {
       throw Exception('Certificate not found in response');
     }
 
-    /*  if (!sandbox) {
-      final certBytes = base64Decode(
-        certificate
-            .replaceAll('-----BEGIN CERTIFICATE-----', '')
-            .replaceAll('-----END CERTIFICATE-----', '')
-            .replaceAll(RegExp(r'\s+'), ''),
-      );
-
-      final path = await AppPaths.certPath();
-      await File(path).writeAsBytes(certBytes, flush: true);
-
-      return certificate.toString();
-    }*/
     return certificate.toString();
-    //return "Response code: $statusCode\nBody:\n${const JsonEncoder.withIndent('  ').convert(body)}";
   }
 
   static Future<Response?> sendCsrSandbox({required String csr}) async {
@@ -156,15 +135,4 @@ class ApiService {
     }
   }
 
-  /* static Future<void> sendQr({required String qrbase64}) async {
-    final response = await _dio.post(_qrUrl, data: {'qr_b64': qrbase64});
-
-    if (response.statusCode != 200) {
-      throw Exception(
-        'qr not valid (${response.statusCode}): ${response.data}',
-      );
-    } else {
-      print("valid");
-    }
-  }*/
 }

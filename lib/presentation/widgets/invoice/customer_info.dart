@@ -3,10 +3,15 @@ import 'package:stc_client/application/controllers/invoice_controller.dart';
 import '../custom_field.dart';
 import '../section_title.dart';
 
-// Widget that displays the customer information section of the invoice form, allowing users to input the customer's name, TIN, address, city, country, phone number, and email address, and using the SectionTitle widget to label the section
 class CustomerSection extends StatelessWidget {
   final InvoiceFormController c;
   const CustomerSection({super.key, required this.c});
+
+  String? _validateVat(String v) {
+    if (v.trim().isEmpty) return "TIN is required";
+    if (v.trim().length < 5) return "TIN seems too short";
+    return null;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,6 +31,7 @@ class CustomerSection extends StatelessWidget {
           value: cust.tin,
           label: "Customer TIN",
           onChanged: (v) => cust.tin = v,
+          validator: _validateVat,
         ),
         const SizedBox(height: 10),
         CustomField(

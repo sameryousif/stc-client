@@ -5,7 +5,7 @@ import 'package:crypto/crypto.dart';
 import 'package:stc_client/core/invoice/invoice_item.dart';
 import 'package:stc_client/services/invoice_processing_service.dart';
 import 'package:stc_client/core/certificate/cert_info.dart';
-import 'package:stc_client/core/qr/qr_genrator.dart';
+import 'package:stc_client/core/qr/qr_generator.dart';
 import 'package:stc_client/utils/paths/tools_paths.dart';
 import 'package:stc_client/core/invoice/xml_generator.dart';
 import 'package:uuid/uuid.dart';
@@ -26,7 +26,7 @@ class InvoicePrepService {
     required Map<String, String> customerInfo,
     required String profileId,
   }) async {
-    profileId == 'clearance' ? 'CLEARED' : 'REPORTED';
+    final mappedProfileId = profileId == 'clearance' ? 'CLEARED' : 'REPORTED';
     final uuid = const Uuid().v4();
     final now = DateTime.now();
     final pihZero = sha256.convert("0".codeUnits);
@@ -60,7 +60,7 @@ class InvoicePrepService {
       customerPhone: customerInfo['phone']!,
       customerEmail: customerInfo['email']!,
       customerCountry: customerInfo['country']!,
-      profileId: profileId,
+      profileId: mappedProfileId,
     );
 
     return XmlDocument.parse(await xmlString);
@@ -179,7 +179,6 @@ class InvoicePrepService {
     // Read certificate and encode in Base64
     final certBytes = await File(certificatePath).readAsBytes();
     final certificateBase64 = base64.encode(certBytes);
-    // print(certificateBase64);
     //  Build final XAdES signature USING CANONICAL SignedInfo
     final xadesSignature = buildXadesSignature(
       signedInfo: XmlDocument.parse(
@@ -275,9 +274,6 @@ class InvoicePrepService {
     return dto;
   }
 
-  /* Future<Response?> sendInvoice(Map<String, String> dto) async {
-    return await ApiService.sendClear(dto);
-  }*/
 }
 
 ///////////xades class

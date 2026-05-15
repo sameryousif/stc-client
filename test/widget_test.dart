@@ -1,31 +1,80 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
-import 'package:flutter/material.dart';
+import 'dart:typed_data';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:stc_client/app.dart';
-
-//import 'package:stc_client/main.dart';
+import 'package:stc_client/core/qr/qr_generator.dart';
+import 'package:stc_client/core/invoice/invoice_item.dart';
+import 'package:stc_client/services/invoice_processing_service.dart';
+import 'package:xml/xml.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  group('generateQr', () {
+    test('produces deterministic output for identical inputs', () {
+      final signature = Uint8List.fromList([1, 2, 3, 4]);
+      final certificate = Uint8List.fromList([5, 6, 7, 8]);
+      final issueDate = DateTime(2024, 1, 15);
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+      final result1 = generateQr(
+        sellerName: 'Test Seller',
+        vatNumber: '399999999900003',
+        issueDate: issueDate,
+        total: 100.0,
+        vatTotal: 15.0,
+        xmlHash: 'abc123',
+        signature: signature,
+        certificate: certificate,
+      );
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+      final result2 = generateQr(
+        sellerName: 'Test Seller',
+        vatNumber: '399999999900003',
+        issueDate: issueDate,
+        total: 100.0,
+        vatTotal: 15.0,
+        xmlHash: 'abc123',
+        signature: signature,
+        certificate: certificate,
+      );
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+      expect(result1, equals(result2));
+    });
+  });
+
+  group('InvoiceItem', () {
+    test('total calculates correctly', () {
+      final item = InvoiceItem(
+        name: 'Test Item',
+        description: 'A test item',
+        quantity: 5,
+        unitPrice: 100.0,
+        taxRate: 15.0,
+      );
+
+      expect(item.total, equals(500.0));
+    });
+  });
+
+  group('removeSections', () {
+    test('removes UBLExtensions element', () {
+      final doc = XmlDocument.parse('''
+<?xml version="1.0" encoding="UTF-8"?>
+<Invoice xmlns:ext="urn:oasis:names:specification:ubl:schema:xsd:CommonExtensionComponents-2">
+  <ext:UBLExtensions>
+    <ext:UBLExtension>
+      <ext:ExtensionURI>test</ext:ExtensionURI>
+    </ext:UBLExtension>
+  </ext:UBLExtensions>
+</Invoice>''');
+
+      expect(
+        doc.findAllElements('UBLExtensions', namespace: '*').length,
+        greaterThan(0),
+      );
+
+      InvoiceProcessingService.removeSections(doc);
+
+      expect(
+        doc.findAllElements('UBLExtensions', namespace: '*').length,
+        equals(0),
+      );
+    });
   });
 }

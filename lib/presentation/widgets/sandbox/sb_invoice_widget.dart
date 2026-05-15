@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:stc_client/application/controllers/sandBox_controller.dart';
+import 'package:stc_client/application/controllers/sandbox_controller.dart';
 import 'package:stc_client/presentation/widgets/custom_field.dart';
 import 'package:stc_client/state/providers/InvoiceProvider.dart';
 import 'package:stc_client/presentation/widgets/sandbox/sandBox_card.dart';

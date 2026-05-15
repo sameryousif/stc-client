@@ -303,31 +303,9 @@ class InvoiceProvider extends ChangeNotifier {
     isGeneratingB2C = false;
     isSendingReport = false;
     isSendingClear = false;
-    isCheckingQr = false;
     showJson = false;
 
     notifyListeners();
   }
 
-  bool isCheckingQr = false;
-
-  /* Future<InvoiceResult> checkQrValidity() async {
-    if (qrValue == null || qrValue!.isEmpty) {
-      return InvoiceResult(success: false, message: "No QR available");
-    }
-
-    isCheckingQr = true;
-    notifyListeners();
-
-    try {
-      await ApiService.sendQr(qrbase64: qrValue!);
-
-      return InvoiceResult(success: true, message: "QR is valid");
-    } catch (e) {
-      return InvoiceResult(success: false, message: "QR validation failed: $e");
-    } finally {
-      isCheckingQr = false;
-      notifyListeners();
-    }
-  }*/
 }

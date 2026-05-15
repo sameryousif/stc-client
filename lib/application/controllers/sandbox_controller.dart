@@ -71,22 +71,4 @@ class SandboxController {
     }
   }
 
-  /* Future<File> _writeCsrToFile(String csr) async {
-    try {
-      // Create a temporary directory for the CSR
-      final tempDir = await Directory.systemTemp.createTemp('csr_');
-
-      // Create a file inside that directory
-      final file = File('${tempDir.path}/request.csr');
-
-      // Write the CSR content into the file
-      await file.writeAsString(csr);
-
-      // Return the File object
-      return file;
-    } catch (e) {
-      debugPrint('Error writing CSR to file: $e');
-      return null!; // Return null on failure
-    }
-  }*/
 }

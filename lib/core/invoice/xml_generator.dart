@@ -646,7 +646,7 @@ Future<String> generateUBLInvoice({
               nest:
                   () => builder.element(
                     'cbc:Name',
-                    nest: item.nameController.text,
+                    nest: item.name,
                   ),
             );
 

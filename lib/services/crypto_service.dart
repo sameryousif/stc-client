@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:flutter/foundation.dart';
 import 'package:stc_client/utils/paths/tools_paths.dart';
 import '../utils/paths/app_paths.dart';
 
@@ -65,7 +66,7 @@ class CryptoService {
       throw Exception('Failed to generate private key: ${keyResult.stderr}');
     }
 
-    print('Private key generated');
+    if (kDebugMode) print('Private key generated');
 
     final subj =
         subject.entries
@@ -92,6 +93,6 @@ class CryptoService {
       throw Exception('Failed to generate CSR: ${csrResult.stderr}');
     }
 
-    print('CSR generated');
+    if (kDebugMode) print('CSR generated');
   }
 }

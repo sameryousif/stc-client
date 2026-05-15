@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
@@ -82,6 +83,6 @@ class ToolPaths {
       throw Exception("openssl not found at: ${openssl.path}");
     }
 
-    print("All required tools are present.");
+    if (kDebugMode) print("All required tools are present.");
   }
 }
