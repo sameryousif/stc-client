@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:meta/meta.dart';
 import 'package:stc_client/core/certificate/cert_info.dart';
 import 'package:stc_client/core/invoice/invoice_item.dart';
 import 'package:stc_client/models/data_model.dart';
@@ -76,6 +77,25 @@ class InvoiceFormController {
     );
 
     return controller;
+  }
+
+  @visibleForTesting
+  static InvoiceFormController createForTest({
+    required Supplier supplier,
+    required Customer customer,
+    String invoiceNumber = 'TEST-001',
+    DateTime? invoiceDate,
+    String invoiceType = '380',
+    String currencyCode = 'SDG',
+  }) {
+    return InvoiceFormController._(
+      invoiceNumber: invoiceNumber,
+      invoiceDate: invoiceDate ?? DateTime(2024, 1, 15),
+      invoiceType: invoiceType,
+      currencyCode: currencyCode,
+      supplier: supplier,
+      customer: customer,
+    );
   }
 
   Map<String, String> get supplierInfo => {

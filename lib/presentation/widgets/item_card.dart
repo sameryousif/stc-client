@@ -55,10 +55,10 @@ class _ItemCardState extends State<ItemCard> {
       _taxError = null;
 
       final qty = int.tryParse(_qtyCtrl.text);
-      if (qty == null || qty < 0) _qtyError = "Must be >= 0";
+      if (qty == null || qty <= 0) _qtyError = "Must be > 0";
 
       final price = double.tryParse(_priceCtrl.text);
-      if (price == null || price < 0) _priceError = "Must be >= 0";
+      if (price == null || price <= 0) _priceError = "Must be > 0";
 
       final tax = double.tryParse(_taxCtrl.text);
       if (tax == null || tax < 0 || tax > 100) _taxError = "Must be 0-100";
