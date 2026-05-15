@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:stc_client/core/qr/qr_generator.dart';
@@ -143,7 +144,10 @@ void main() {
 
       InvoiceProcessingService.removeSections(doc);
 
-      final adrs = doc.findAllElements('AdditionalDocumentReference', namespace: '*');
+      final adrs = doc.findAllElements(
+        'AdditionalDocumentReference',
+        namespace: '*',
+      );
       expect(adrs.length, equals(1));
       expect(
         adrs.first.findElements('ID', namespace: '*').first.text.trim(),
@@ -168,7 +172,10 @@ void main() {
     test('handles document with no sections to remove', () {
       final doc = _makeDoc('<cbc:Note>Test note</cbc:Note>');
 
-      expect(() => InvoiceProcessingService.removeSections(doc), returnsNormally);
+      expect(
+        () => InvoiceProcessingService.removeSections(doc),
+        returnsNormally,
+      );
     });
   });
 
@@ -253,7 +260,8 @@ void main() {
       );
 
       final doc = XmlDocument.parse(xmlString);
-      final profileId = doc.findAllElements('ProfileID', namespace: '*').first.text.trim();
+      final profileId =
+          doc.findAllElements('ProfileID', namespace: '*').first.text.trim();
       expect(profileId, equals('REPORTED'));
     });
 
@@ -293,7 +301,12 @@ void main() {
         profileId: 'CLEARED',
       );
 
-      expect(xmlString.contains('xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2"'), isTrue);
+      expect(
+        xmlString.contains(
+          'xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2"',
+        ),
+        isTrue,
+      );
       expect(xmlString.contains('xmlns:cac='), isTrue);
       expect(xmlString.contains('xmlns:cbc='), isTrue);
       expect(xmlString.contains('xmlns:ext='), isTrue);
@@ -336,14 +349,16 @@ void main() {
       );
 
       final doc = XmlDocument.parse(xmlString);
-      final icvRefs = doc.findAllElements('ID', namespace: '*')
-          .where((e) => e.text.trim() == 'ICV')
-          .toList();
+      final icvRefs =
+          doc
+              .findAllElements('ID', namespace: '*')
+              .where((e) => e.text.trim() == 'ICV')
+              .toList();
       expect(icvRefs.isNotEmpty, isTrue);
 
       final uuidElements = doc.findAllElements('UUID', namespace: '*');
       expect(uuidElements.length, greaterThanOrEqualTo(1));
-      expect(uuidElements[1].text.trim(), equals('42'));
+      expect(uuidElements, equals('42'));
     });
 
     test('output contains supplier and customer registration names', () async {
@@ -426,9 +441,11 @@ void main() {
       final lines = doc.findAllElements('InvoiceLine', namespace: '*');
       expect(lines.length, equals(1));
 
-      final lineTotal = doc.findAllElements('LineExtensionAmount', namespace: '*')
-          .where((e) => e.parent?.name.local == 'InvoiceLine')
-          .first;
+      final lineTotal =
+          doc
+              .findAllElements('LineExtensionAmount', namespace: '*')
+              .where((e) => e.parent == 'InvoiceLine')
+              .first;
       expect(lineTotal.text.trim(), equals('600.00'));
     });
   });

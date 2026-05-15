@@ -1,5 +1,4 @@
 import 'package:flutter/foundation.dart';
-import 'package:meta/meta.dart';
 import 'package:stc_client/core/certificate/cert_info.dart';
 import 'package:stc_client/core/invoice/invoice_item.dart';
 import 'package:stc_client/models/data_model.dart';

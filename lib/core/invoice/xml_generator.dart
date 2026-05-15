@@ -368,7 +368,7 @@ Future<String> generateUBLInvoice({
 
   final total = subtotal + vatTotal;
   final deviceID = await extractSerial();
-  final companyID = await extractON();
+  //final companyID = await extractON();
   builder.processing('xml', 'version="1.0" encoding="UTF-8"');
 
   builder.element(
@@ -643,11 +643,7 @@ Future<String> generateUBLInvoice({
 
             builder.element(
               'cac:Item',
-              nest:
-                  () => builder.element(
-                    'cbc:Name',
-                    nest: item.name,
-                  ),
+              nest: () => builder.element('cbc:Name', nest: item.name),
             );
 
             builder.element(

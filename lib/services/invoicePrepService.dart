@@ -26,7 +26,7 @@ class InvoicePrepService {
     required Map<String, String> customerInfo,
     required String profileId,
   }) async {
-    final mappedProfileId = profileId == 'clearance' ? 'CLEARED' : 'REPORTED';
+    // profileId = clearance ? 'clearance' : 'reporting';
     final uuid = const Uuid().v4();
     final now = DateTime.now();
     final pihZero = sha256.convert("0".codeUnits);
@@ -60,7 +60,7 @@ class InvoicePrepService {
       customerPhone: customerInfo['phone']!,
       customerEmail: customerInfo['email']!,
       customerCountry: customerInfo['country']!,
-      profileId: mappedProfileId,
+      profileId: profileId,
     );
 
     return XmlDocument.parse(await xmlString);
@@ -273,7 +273,6 @@ class InvoicePrepService {
     };
     return dto;
   }
-
 }
 
 ///////////xades class
