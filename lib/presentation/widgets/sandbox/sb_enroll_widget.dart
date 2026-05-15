@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:stc_client/application/controllers/sandbox_controller.dart';
-import 'package:stc_client/presentation/widgets/sandbox/sandBox_card.dart';
+import 'package:stc_client/presentation/widgets/sandbox/sandbox_card.dart';
 import 'response_box.dart';
 
 class EnrollSection extends StatelessWidget {

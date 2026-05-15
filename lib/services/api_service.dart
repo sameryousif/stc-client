@@ -2,12 +2,19 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:meta/meta.dart';
 
 //// Service responsible for handling all API interactions, including invoice submission and certificate enrollment
 class ApiService {
   ApiService._();
 
-  static final Dio _dio = Dio(
+  /// Test-only: allows injecting a mock Dio instance
+  @visibleForTesting
+  static Dio get dio => _dio;
+  @visibleForTesting
+  static set dio(Dio value) => _dio = value;
+
+  static Dio _dio = Dio(
       BaseOptions(
         connectTimeout: const Duration(seconds: 20),
         receiveTimeout: const Duration(seconds: 20),

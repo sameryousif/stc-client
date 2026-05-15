@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:stc_client/presentation/screens/enrollment_page.dart';
 import 'package:stc_client/presentation/screens/invoice_page.dart';
-import 'package:stc_client/presentation/screens/sandBoxPage.dart';
+import 'package:stc_client/presentation/screens/sandbox_page.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

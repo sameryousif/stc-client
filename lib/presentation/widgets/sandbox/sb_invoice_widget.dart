@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:stc_client/application/controllers/sandbox_controller.dart';
 import 'package:stc_client/presentation/widgets/custom_field.dart';
 import 'package:stc_client/state/providers/InvoiceProvider.dart';
-import 'package:stc_client/presentation/widgets/sandbox/sandBox_card.dart';
+import 'package:stc_client/presentation/widgets/sandbox/sandbox_card.dart';
 import 'response_box.dart';
 
 class InvoiceSection extends StatelessWidget {
