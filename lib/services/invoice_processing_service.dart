@@ -23,7 +23,6 @@ class InvoiceProcessingService {
   entityId TEXT,
   icv INTEGER,
   base64Invoice TEXT,
-  type TEXT,
   hash TEXT,
   createdAt TEXT
 )
