@@ -19,10 +19,14 @@ Future<CertInfo> extractCertDetails({
   // issuer
   final issuerRes = await Process.run(opensslPath, [
     "x509",
+    "-inform",
+    "DER",
     "-in",
     certPath,
     "-noout",
     "-issuer",
+    "-nameopt",
+    "RFC2253",
   ]);
 
   if (issuerRes.exitCode != 0) {
@@ -32,6 +36,8 @@ Future<CertInfo> extractCertDetails({
   // serial (hex)
   final serialRes = await Process.run(opensslPath, [
     "x509",
+    "-inform",
+    "DER",
     "-in",
     certPath,
     "-noout",
@@ -61,10 +67,14 @@ Future<String?> extractSerial({String? opensslPath, String? certPath}) async {
   certPath ??= await AppPaths.certPath();
   final res = await Process.run(opensslPath, [
     "x509",
+    "-inform",
+    "DER",
     "-in",
     certPath,
     "-noout",
     "-subject",
+    "-nameopt",
+    "RFC2253",
   ]);
 
   if (res.exitCode != 0) {
@@ -84,10 +94,14 @@ Future<String?> extractON({String? opensslPath, String? certPath}) async {
   certPath ??= await AppPaths.certPath();
   final res = await Process.run(opensslPath, [
     "x509",
+    "-inform",
+    "DER",
     "-in",
     certPath,
     "-noout",
     "-subject",
+    "-nameopt",
+    "RFC2253",
   ]);
 
   if (res.exitCode != 0) {

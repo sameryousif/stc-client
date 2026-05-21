@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
+import 'package:path/path.dart' as p;
 import 'package:stc_client/core/invoice/invoice_item.dart';
 import 'package:stc_client/services/invoice_processing_service.dart';
 import 'package:stc_client/core/certificate/cert_info.dart';
@@ -76,20 +77,41 @@ class InvoicePrepService {
     String inputPath,
     String outputPath,
   ) async {
-    final dir = await workingDir;
     await ToolPaths.ensureToolsReady(); // copy assets if missing
     await ToolPaths.verifyToolsExist(); // confirm they exist
-    final result = await Process.run(
-      await ToolPaths.cliToolPath,
-      [inputPath, outputPath],
-      workingDirectory: dir.path,
-      runInShell: true,
-    );
 
-    if (result.exitCode != 0) {
-      throw Exception(
-        'Canonicalization failed\nSTDOUT: ${result.stdout}\nSTDERR: ${result.stderr}',
-      );
+    final inputFile = File(inputPath);
+    if (!await inputFile.exists()) {
+      throw Exception('Canonicalization input not found: $inputPath');
+    }
+
+    final tempDir = await Directory.systemTemp.createTemp('stc-c14n-');
+    try {
+      final cliInputPath = p.join(tempDir.path, 'input.xml');
+      final cliOutputPath = p.join(tempDir.path, 'output.xml');
+      await inputFile.copy(cliInputPath);
+
+      final result = await Process.run(await ToolPaths.cliToolPath, [
+        'input.xml',
+        'output.xml',
+      ], workingDirectory: tempDir.path);
+
+      if (result.exitCode != 0) {
+        throw Exception(
+          'Canonicalization failed\nSTDOUT: ${result.stdout}\nSTDERR: ${result.stderr}',
+        );
+      }
+
+      final canonicalizedFile = File(cliOutputPath);
+      if (!await canonicalizedFile.exists()) {
+        throw Exception('Canonicalization failed: output.xml was not created');
+      }
+
+      final outputFile = File(outputPath);
+      await outputFile.parent.create(recursive: true);
+      await canonicalizedFile.copy(outputPath);
+    } finally {
+      await tempDir.delete(recursive: true);
     }
   }
 
@@ -141,14 +163,11 @@ class InvoicePrepService {
       serialNumber: certInfo.serialNumberDecimal,
     );
 
-    // final dir = await workingDir;
     final tempPropsPath = await AppPaths.signedPropsPath();
-    await File(
-      tempPropsPath,
-    ).writeAsString(signedProperties.toXmlString(pretty: true));
+    await File(tempPropsPath).writeAsString(
+      xmlForServerSignedPropertiesCanonicalization(signedProperties),
+    );
     await runCanonicalizationCli(tempPropsPath, tempPropsPath);
-
-    //final canonicalSignedPropsXml = await File(tempPropsPath).readAsString();
 
     final signedPropertiesHashBase64 = await computeHashBase64(tempPropsPath);
 
@@ -157,19 +176,13 @@ class InvoicePrepService {
       signedPropertiesHashBase64: signedPropertiesHashBase64,
     );
 
-    // save SignedInfo
     final signedInfoPath = await AppPaths.signedInfoPath();
     await File(
       signedInfoPath,
-    ).writeAsString(signedInfo.toXmlString(pretty: true));
+    ).writeAsString(xmlForServerSignedInfoCanonicalization(signedInfo));
 
     ////  Canonicalize SignedInfo
     await runCanonicalizationCli(signedInfoPath, signedInfoPath);
-
-    //// Read the canonical SignedInfo
-    final canonicalSignedInfoXml = await File(signedInfoPath).readAsString();
-
-    final canonicalSignedInfo = XmlDocument.parse(canonicalSignedInfoXml);
 
     //  Sign the canonical SignedInfo
     final signaturePath = await signXml(signedInfoPath);
@@ -181,9 +194,7 @@ class InvoicePrepService {
     final certificateBase64 = base64.encode(certBytes);
     //  Build final XAdES signature USING CANONICAL SignedInfo
     final xadesSignature = buildXadesSignature(
-      signedInfo: XmlDocument.parse(
-        canonicalSignedInfo.toXmlString(pretty: true),
-      ),
+      signedInfoXml: signedInfo.rootElement.toXmlString(pretty: false),
       signatureValueBase64: signatureBase64,
       certificateBase64: certificateBase64,
       signedProperties: signedProperties,

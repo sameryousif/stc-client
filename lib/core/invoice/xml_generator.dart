@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:stc_client/core/certificate/cert_info.dart';
 import 'package:xml/xml.dart';
 import 'package:stc_client/core/invoice/invoice_item.dart';
 // Core functions for generating UBL invoices, constructing the necessary XML structures for the invoice, the XAdES signature, and the UBLExtensions, as well as injecting the signature into the invoice and adding a QR code reference to the invoice
@@ -142,6 +141,43 @@ XmlDocument buildSignedInfo({
   return builder.buildDocument();
 }
 
+String xmlForServerSignedInfoCanonicalization(XmlDocument signedInfo) {
+  return _addRootNamespaces(
+    signedInfo.rootElement.toXmlString(pretty: false),
+    const {'ds': 'http://www.w3.org/2000/09/xmldsig#'},
+  );
+}
+
+String xmlForServerSignedPropertiesCanonicalization(
+  XmlElement qualifyingProperties,
+) {
+  final signedProperties =
+      qualifyingProperties
+          .findElements('SignedProperties', namespace: '*')
+          .first;
+
+  return _addRootNamespaces(signedProperties.toXmlString(pretty: false), const {
+    'xades': 'http://uri.etsi.org/01903/v1.3.2#',
+    'ds': 'http://www.w3.org/2000/09/xmldsig#',
+  });
+}
+
+String _addRootNamespaces(String xml, Map<String, String> namespaces) {
+  final rootEnd = xml.indexOf('>');
+  if (rootEnd == -1) {
+    throw ArgumentError('Invalid XML fragment');
+  }
+
+  final rootStart = xml.substring(0, rootEnd);
+  final attrs =
+      namespaces.entries
+          .where((entry) => !rootStart.contains('xmlns:${entry.key}='))
+          .map((entry) => ' xmlns:${entry.key}="${entry.value}"')
+          .join();
+
+  return '${xml.substring(0, rootEnd)}$attrs${xml.substring(rootEnd)}';
+}
+
 /// Build the XAdES SignedProperties block
 XmlElement buildSignedProperties({
   required String signatureId,
@@ -223,7 +259,7 @@ XmlElement buildSignedProperties({
 ///////////////construct XAdES Signature
 /// Build the full XAdES Signature block
 XmlDocument buildXadesSignature({
-  required XmlDocument signedInfo,
+  required String signedInfoXml,
   required String signatureValueBase64,
   required String certificateBase64,
   required XmlElement signedProperties,
@@ -237,7 +273,7 @@ XmlDocument buildXadesSignature({
       builder.attribute('Id', 'signature');
 
       // Insert SignedInfo
-      builder.xml(signedInfo.rootElement.toXmlString(pretty: false));
+      builder.xml(signedInfoXml);
 
       // SignatureValue
       builder.element('ds:SignatureValue', nest: signatureValueBase64);
@@ -293,7 +329,7 @@ XmlElement buildUBLExtensions(XmlDocument signatureDoc) {
                     'sac:SignatureInformation',
                     nest: () {
                       builder.xml(
-                        signatureDoc.rootElement.toXmlString(pretty: true),
+                        signatureDoc.rootElement.toXmlString(pretty: false),
                       );
                     },
                   );
@@ -367,8 +403,6 @@ Future<String> generateUBLInvoice({
   }
 
   final total = subtotal + vatTotal;
-  final deviceID = await extractSerial();
-  //final companyID = await extractON();
   builder.processing('xml', 'version="1.0" encoding="UTF-8"');
 
   builder.element(
@@ -404,8 +438,8 @@ Future<String> generateUBLInvoice({
 
       builder.element('cbc:ProfileID', nest: () => builder.text(profileId));
 
-      builder.element('cbc:ID', nest: () => builder.text(deviceID!));
-      builder.element('cbc:UUID', nest: () => builder.text(invoiceNumber));
+      builder.element('cbc:ID', nest: () => builder.text(invoiceNumber));
+      builder.element('cbc:UUID', nest: () => builder.text(uuid));
       builder.element('cbc:IssueDate', nest: () => builder.text(issueDate));
       builder.element('cbc:IssueTime', nest: () => builder.text(issueTime));
 

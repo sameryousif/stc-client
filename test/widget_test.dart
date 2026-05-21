@@ -358,7 +358,7 @@ void main() {
 
       final uuidElements = doc.findAllElements('UUID', namespace: '*');
       expect(uuidElements.length, greaterThanOrEqualTo(1));
-      expect(uuidElements, equals('42'));
+      expect(uuidElements.any((e) => e.text.trim() == '42'), isTrue);
     });
 
     test('output contains supplier and customer registration names', () async {
@@ -444,7 +444,11 @@ void main() {
       final lineTotal =
           doc
               .findAllElements('LineExtensionAmount', namespace: '*')
-              .where((e) => e.parent == 'InvoiceLine')
+              .where(
+                (e) =>
+                    e.parent is XmlElement &&
+                    (e.parent as XmlElement).name.local == 'InvoiceLine',
+              )
               .first;
       expect(lineTotal.text.trim(), equals('600.00'));
     });
