@@ -251,7 +251,7 @@ class InvoiceProvider extends ChangeNotifier {
       }
 
       // PRODUCTION: process reported invoice if response is OK
-      if (response?.statusCode == 200) {
+      if (response?.statusCode == 200 || response?.statusCode == 202) {
         final invoiceString = signedXml!;
         final invoiceBase64 = base64.encode(utf8.encode(invoiceString));
 
@@ -307,5 +307,4 @@ class InvoiceProvider extends ChangeNotifier {
 
     notifyListeners();
   }
-
 }
