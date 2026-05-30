@@ -80,49 +80,55 @@ class _ItemCardState extends State<ItemCard> {
   Widget build(BuildContext context) {
     return Card(
       color: Colors.white,
-      margin: const EdgeInsets.symmetric(vertical: 6),
+      margin: const EdgeInsets.symmetric(vertical: 3),
       child: Padding(
-        padding: const EdgeInsets.all(8),
+        padding: const EdgeInsets.all(6),
         child: Column(
           children: [
-            TextField(
-              controller: _nameCtrl,
-              decoration: const InputDecoration(
-                labelText: "Item Name",
-                border: OutlineInputBorder(),
-              ),
-              onChanged: (_) => _updateItem(),
-            ),
-            const SizedBox(height: 8),
-            TextField(
-              controller: _descCtrl,
-              decoration: const InputDecoration(
-                labelText: "Description",
-                border: OutlineInputBorder(),
-              ),
-              onChanged: (_) => _updateItem(),
-            ),
-            const SizedBox(height: 8),
             Row(
               children: [
                 Expanded(
                   child: TextField(
+                    controller: _nameCtrl,
+                    style: const TextStyle(fontSize: 13),
+                    decoration: const InputDecoration(
+                      labelText: "Item Name",
+                      labelStyle: const TextStyle(fontSize: 10),
+                      border: OutlineInputBorder(),
+                      isDense: true,
+                      contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                    ),
+                    onChanged: (_) => _updateItem(),
+                  ),
+                ),
+                const SizedBox(width: 6),
+                SizedBox(
+                  width: 60,
+                  child: TextField(
                     controller: _qtyCtrl,
+                    style: const TextStyle(fontSize: 13),
                     decoration: InputDecoration(
                       labelText: "Qty",
+                      labelStyle: const TextStyle(fontSize: 10),
                       border: const OutlineInputBorder(),
+                      isDense: true,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
                       errorText: _qtyError,
                     ),
                     onChanged: (_) => _updateItem(),
                   ),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 6),
                 Expanded(
                   child: TextField(
                     controller: _priceCtrl,
+                    style: const TextStyle(fontSize: 13),
                     decoration: InputDecoration(
                       labelText: "Price",
+                      labelStyle: const TextStyle(fontSize: 10),
                       border: const OutlineInputBorder(),
+                      isDense: true,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
                       errorText: _priceError,
                     ),
                     onChanged: (_) => _updateItem(),
@@ -131,21 +137,46 @@ class _ItemCardState extends State<ItemCard> {
               ],
             ),
             const SizedBox(height: 8),
-            TextField(
-              controller: _taxCtrl,
-              decoration: InputDecoration(
-                labelText: "Tax (%)",
-                border: const OutlineInputBorder(),
-                errorText: _taxError,
-              ),
-              onChanged: (_) => _updateItem(),
-            ),
-            Align(
-              alignment: Alignment.centerRight,
-              child: IconButton(
-                icon: const Icon(Icons.delete, color: Colors.red),
-                onPressed: widget.onDelete,
-              ),
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _descCtrl,
+                    style: const TextStyle(fontSize: 13),
+                    decoration: const InputDecoration(
+                      labelText: "Description",
+                      labelStyle: const TextStyle(fontSize: 10),
+                      border: OutlineInputBorder(),
+                      isDense: true,
+                      contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                    ),
+                    onChanged: (_) => _updateItem(),
+                  ),
+                ),
+                const SizedBox(width: 6),
+                SizedBox(
+                  width: 100,
+                  child: TextField(
+                    controller: _taxCtrl,
+                    style: const TextStyle(fontSize: 13),
+                    decoration: InputDecoration(
+                      labelText: "Tax (%)",
+                      labelStyle: const TextStyle(fontSize: 10),
+                      border: const OutlineInputBorder(),
+                      isDense: true,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                      errorText: _taxError,
+                    ),
+                    onChanged: (_) => _updateItem(),
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.delete, color: Colors.red, size: 20),
+                  onPressed: widget.onDelete,
+                  constraints: const BoxConstraints(),
+                  padding: EdgeInsets.zero,
+                ),
+              ],
             ),
           ],
         ),

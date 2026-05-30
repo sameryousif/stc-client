@@ -55,11 +55,11 @@ class ApiService {
     );
 
   ///endpoints
-  static const String _baserUrl = 'https://stc-server.onrender.com';
-  static const String _clearanceUrl = '$_baserUrl/clear';
-  static const String _reportingUrl = '$_baserUrl/report';
+  static const String baserUrl = 'https://stc-server.onrender.com';
+  static const String clearanceUrl = '$baserUrl/clear';
+  static const String reportingUrl = '$baserUrl/report';
 
-  static const String _enrollCsrUrl = '$_baserUrl/enroll';
+  static const String enrollCsrUrl = '$baserUrl/enroll';
 
   ///////////////////////////
   ///
@@ -69,7 +69,7 @@ class ApiService {
   }) async {
     try {
       return await _dio.post(
-        _clearanceUrl,
+        clearanceUrl,
         data: dto,
         options:
             isSandbox ? Options(headers: {"X-Sandbox-Mode": "true"}) : null,
@@ -88,7 +88,7 @@ class ApiService {
   }) async {
     try {
       return await _dio.post(
-        _reportingUrl,
+        reportingUrl,
         data: dto,
         options:
             isSandbox ? Options(headers: {"X-Sandbox-Mode": "true"}) : null,
@@ -108,7 +108,7 @@ class ApiService {
     final bytes = await csrFile.readAsBytes();
     csrBase64 = base64Encode(bytes);
     final response = await _dio.post(
-      _enrollCsrUrl,
+      enrollCsrUrl,
       data: {'csr': csrBase64, 'token': token},
     );
 
@@ -136,7 +136,7 @@ class ApiService {
 
   static Future<Response?> sendCsrSandbox({required String csr}) async {
     try {
-      return await _dio.post(_enrollCsrUrl, data: csr);
+      return await _dio.post(enrollCsrUrl, data: csr);
     } on DioException catch (e) {
       return e.response;
     }

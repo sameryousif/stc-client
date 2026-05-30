@@ -144,8 +144,11 @@ class InvoiceFormController {
   }
 
   void clearAll() {
-    recalculateTotals();
+    while (items.length > 1) {
+      items.removeLast();
+    }
     invoiceNumber = const Uuid().v4();
     invoiceDate = DateTime.now();
+    recalculateTotals();
   }
 }

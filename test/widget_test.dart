@@ -214,6 +214,7 @@ void main() {
         customerCountry: 'SA',
         items: items,
         profileId: 'CLEARED',
+        invoiceTypeCode: '388',
       );
 
       final doc = XmlDocument.parse(xmlString);
@@ -257,6 +258,7 @@ void main() {
         customerCountry: 'SA',
         items: items,
         profileId: 'REPORTED',
+        invoiceTypeCode: '388',
       );
 
       final doc = XmlDocument.parse(xmlString);
@@ -299,6 +301,7 @@ void main() {
         customerCountry: 'SA',
         items: items,
         profileId: 'CLEARED',
+        invoiceTypeCode: '388',
       );
 
       expect(
@@ -346,6 +349,7 @@ void main() {
         customerCountry: 'SA',
         items: items,
         profileId: 'CLEARED',
+        invoiceTypeCode: '388',
       );
 
       final doc = XmlDocument.parse(xmlString);
@@ -395,6 +399,7 @@ void main() {
         customerCountry: 'SA',
         items: items,
         profileId: 'CLEARED',
+        invoiceTypeCode: '388',
       );
 
       expect(xmlString.contains('Acme Corp'), isTrue);
@@ -435,6 +440,7 @@ void main() {
         customerCountry: 'SA',
         items: items,
         profileId: 'CLEARED',
+        invoiceTypeCode: '388',
       );
 
       final doc = XmlDocument.parse(xmlString);

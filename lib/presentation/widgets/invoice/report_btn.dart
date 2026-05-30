@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:stc_client/application/controllers/invoice_controller.dart';
+import 'package:stc_client/services/api_service.dart';
 import 'package:stc_client/state/providers/InvoiceProvider.dart';
 
 class ReportInvoiceButton extends StatelessWidget {
@@ -22,32 +23,46 @@ class ReportInvoiceButton extends StatelessWidget {
     final provider = context.watch<InvoiceProvider>();
     late InvoiceResult result = InvoiceResult(success: false, message: "");
 
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: color ?? Theme.of(context).primaryColor,
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-      ),
-      onPressed:
-          provider.isSendingReport
-              ? null
-              : () async {
-                provider.signedXml = xmlController.text;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: color ?? Theme.of(context).primaryColor,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            ),
+            onPressed:
+                provider.isSendingReport
+                    ? null
+                    : () async {
+                      provider.signedXml = xmlController.text;
 
-                // Clear previous response
-                responseController.text = "Sending invoice...";
+                      // Clear previous response
+                      responseController.text = "Sending invoice...";
 
-                result = await provider.reportInvoice(isSandBox: false);
+                      result = await provider.reportInvoice(isSandBox: false);
 
-                // Update the response area instead of showing SnackBar
-                responseController.text = result.message;
-              },
-      child:
-          provider.isSendingReport
-              ? const CircularProgressIndicator(color: Colors.white)
-              : const Text(
-                "Report Invoice",
-                style: TextStyle(color: Colors.white),
-              ),
+                      // Update the response area instead of showing SnackBar
+                      responseController.text = result.message;
+                    },
+            child:
+                provider.isSendingReport
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : const Text(
+                      "Report Invoice",
+                      style: TextStyle(color: Colors.white),
+                    ),
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          ApiService.reportingUrl,
+          style: TextStyle(fontSize: 10, color: Colors.grey[600]),
+          textAlign: TextAlign.center,
+        ),
+      ],
     );
   }
 }

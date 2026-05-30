@@ -13,34 +13,50 @@ class InvoiceInfoSection extends StatelessWidget {
     return Column(
       children: [
         const SectionTitle("Invoice Information"),
-        const SizedBox(height: 10),
-        CustomField(
-          value: c.invoiceNumber,
-          label: "Invoice Number",
-          onChanged: (String value) {
-            c.invoiceNumber = value;
-          },
+        const SizedBox(height: 6),
+        Row(
+          children: [
+            Expanded(
+              child: CustomField(
+                value: c.invoiceNumber,
+                label: "Invoice Number",
+                onChanged: (v) => c.invoiceNumber = v,
+                compact: true,
+              ),
+            ),
+            const SizedBox(width: 6),
+            Expanded(
+              child: CustomField(
+                value: c.invoiceDate.toString().split(' ').first,
+                label: "Invoice Date",
+                onChanged: (v) =>
+                    c.invoiceDate = DateTime.tryParse(v) ?? c.invoiceDate,
+                compact: true,
+              ),
+            ),
+          ],
         ),
-        const SizedBox(height: 10),
-        CustomField(
-          value: c.invoiceDate.toString().split(' ').first,
-          label: "Invoice Date",
-          onChanged: (v) {
-            // parse date if needed
-            c.invoiceDate = DateTime.tryParse(v) ?? c.invoiceDate;
-          },
-        ),
-        const SizedBox(height: 10),
-        CustomField(
-          value: c.invoiceType,
-          label: "Invoice Type",
-          onChanged: (v) => c.invoiceType = v,
-        ),
-        const SizedBox(height: 10),
-        CustomField(
-          value: c.currencyCode,
-          label: "Currency Code",
-          onChanged: (v) => c.currencyCode = v,
+        const SizedBox(height: 6),
+        Row(
+          children: [
+            Expanded(
+              child: CustomField(
+                value: c.invoiceType,
+                label: "Invoice Type",
+                onChanged: (v) => c.invoiceType = v,
+                compact: true,
+              ),
+            ),
+            const SizedBox(width: 6),
+            Expanded(
+              child: CustomField(
+                value: c.currencyCode,
+                label: "Currency Code",
+                onChanged: (v) => c.currencyCode = v,
+                compact: true,
+              ),
+            ),
+          ],
         ),
       ],
     );

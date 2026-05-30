@@ -391,6 +391,7 @@ Future<String> generateUBLInvoice({
   required String customerCountry,
   required List<InvoiceItem> items,
   required String profileId,
+  required String invoiceTypeCode,
 }) async {
   final builder = XmlBuilder();
 
@@ -447,7 +448,7 @@ Future<String> generateUBLInvoice({
         'cbc:InvoiceTypeCode',
         nest: () {
           builder.attribute('name', '0100000');
-          builder.text('388');
+          builder.text(invoiceTypeCode);
         },
       );
 

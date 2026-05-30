@@ -26,6 +26,7 @@ class InvoicePrepService {
     required Map<String, String> supplierInfo,
     required Map<String, String> customerInfo,
     required String profileId,
+    required String invoiceTypeCode,
   }) async {
     // profileId = clearance ? 'clearance' : 'reporting';
     final uuid = const Uuid().v4();
@@ -62,6 +63,7 @@ class InvoicePrepService {
       customerEmail: customerInfo['email']!,
       customerCountry: customerInfo['country']!,
       profileId: profileId,
+      invoiceTypeCode: invoiceTypeCode,
     );
 
     return XmlDocument.parse(await xmlString);
@@ -218,6 +220,7 @@ class InvoicePrepService {
     required bool clearance,
   }) async {
     final profileId = clearance ? 'clearance' : 'reporting';
+    final invoiceTypeCode = clearance ? '388' : '380';
 
     /// Generate unsigned invoice
     final invoice = await generateUnsignedInvoice(
@@ -226,6 +229,7 @@ class InvoicePrepService {
       supplierInfo: supplierInfo,
       customerInfo: customerInfo,
       profileId: profileId,
+      invoiceTypeCode: invoiceTypeCode,
     );
 
     /// Save invoice to input.xml

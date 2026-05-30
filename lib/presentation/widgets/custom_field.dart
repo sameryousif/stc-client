@@ -6,6 +6,7 @@ class CustomField extends StatefulWidget {
   final ValueChanged<String> onChanged;
   final bool readOnly;
   final String? Function(String)? validator;
+  final bool compact;
 
   const CustomField({
     super.key,
@@ -14,6 +15,7 @@ class CustomField extends StatefulWidget {
     required this.onChanged,
     this.readOnly = false,
     this.validator,
+    this.compact = false,
   });
 
   @override
@@ -56,10 +58,18 @@ class _CustomFieldState extends State<CustomField> {
   @override
   Widget build(BuildContext context) {
     return TextField(
+      style: widget.compact ? const TextStyle(fontSize: 13) : null,
       decoration: InputDecoration(
         labelText: widget.label,
+        labelStyle: widget.compact
+            ? const TextStyle(fontSize: 12)
+            : null,
         border: const OutlineInputBorder(),
         errorText: _error,
+        isDense: widget.compact,
+        contentPadding: widget.compact
+            ? const EdgeInsets.symmetric(horizontal: 8, vertical: 8)
+            : null,
       ),
       controller: _controller,
       onChanged: _onChanged,

@@ -20,54 +20,78 @@ class CustomerSection extends StatelessWidget {
     return Column(
       children: [
         const SectionTitle("Customer Information"),
-        const SizedBox(height: 10),
-        CustomField(
-          value: cust.name,
-          label: "Customer Name",
-          onChanged: (v) => cust.name = v,
+        const SizedBox(height: 6),
+        Row(
+          children: [
+            Expanded(
+              child: CustomField(
+                value: cust.name, label: "Customer Name",
+                onChanged: (v) => cust.name = v, compact: true,
+              ),
+            ),
+            const SizedBox(width: 6),
+            Expanded(
+              child: CustomField(
+                value: cust.tin, label: "Customer TIN",
+                onChanged: (v) => cust.tin = v, compact: true,
+                validator: _validateVat,
+              ),
+            ),
+          ],
         ),
-        const SizedBox(height: 10),
-        CustomField(
-          value: cust.tin,
-          label: "Customer TIN",
-          onChanged: (v) => cust.tin = v,
-          validator: _validateVat,
+        const SizedBox(height: 6),
+        Row(
+          children: [
+            Expanded(
+              child: CustomField(
+                value: cust.street, label: "Street Name",
+                onChanged: (v) => cust.street = v, compact: true,
+              ),
+            ),
+            const SizedBox(width: 6),
+            Expanded(
+              child: CustomField(
+                value: cust.address, label: "Address",
+                onChanged: (v) => cust.address = v, compact: true,
+              ),
+            ),
+          ],
         ),
-        const SizedBox(height: 10),
-        CustomField(
-          value: cust.street,
-          label: "Customer street",
-          onChanged: (v) => cust.street = v,
+        const SizedBox(height: 6),
+        Row(
+          children: [
+            Expanded(
+              child: CustomField(
+                value: cust.city, label: "City",
+                onChanged: (v) => cust.city = v, compact: true,
+              ),
+            ),
+            const SizedBox(width: 6),
+            Expanded(
+              child: CustomField(
+                value: cust.country, label: "Country",
+                onChanged: (v) => cust.country = v, compact: true,
+              ),
+            ),
+          ],
         ),
-        const SizedBox(height: 10),
-        CustomField(
-          value: cust.address,
-          label: "Customer Address",
-          onChanged: (v) => cust.address = v,
-        ),
-        const SizedBox(height: 10),
-        CustomField(
-          value: cust.city,
-          label: "Customer City",
-          onChanged: (v) => cust.city = v,
-        ),
-        const SizedBox(height: 10),
-        CustomField(
-          value: cust.country,
-          label: "Customer Country",
-          onChanged: (v) => cust.country = v,
-        ),
-        const SizedBox(height: 10),
-        CustomField(
-          value: cust.phone,
-          label: "Customer Phone",
-          onChanged: (v) => cust.phone = v,
-        ),
-        const SizedBox(height: 10),
-        CustomField(
-          value: cust.email,
-          label: "Customer Email",
-          onChanged: (v) => cust.email = v,
+        const SizedBox(height: 6),
+        Row(
+          children: [
+            Expanded(
+              child: CustomField(
+                value: cust.phone, label: "Phone",
+                onChanged: (v) => cust.phone = v, compact: true,
+              ),
+            ),
+            const SizedBox(width: 6),
+            Expanded(
+              child: CustomField(
+                value: cust.email, label: "Email",
+                onChanged: (v) => cust.email = v, compact: true,
+              ),
+            ),
+          ],
         ),
       ],
     );
