@@ -336,7 +336,7 @@ Clear/report DTO shape:
 
 ### Clearance
 
-On HTTP 200:
+On HTTP 202:
 
 1. Read `response.data.data.cleared_invoice`.
 2. Extract `entityId` from the merchant certificate subject `serialNumber`.
