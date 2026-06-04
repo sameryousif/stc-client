@@ -103,7 +103,10 @@ class InvoiceProvider extends ChangeNotifier {
   }
 
   /// Send invoice to server and process cleared invoice
-  Future<InvoiceResult> clearInvoice({required bool isSandBox}) async {
+  Future<InvoiceResult> clearInvoice({
+    required bool isSandBox,
+    String? sandboxModeValue,
+  }) async {
     isSendingClear = true;
     notifyListeners();
 
@@ -142,7 +145,11 @@ class InvoiceProvider extends ChangeNotifier {
         lastDto = dto;
       }
 
-      final response = await ApiService.sendClear(dto, isSandbox: isSandBox);
+      final response = await ApiService.sendClear(
+        dto,
+        isSandbox: isSandBox,
+        sandboxModeValue: sandboxModeValue,
+      );
 
       //  SANDBOX → just return response
       if (isSandBox) {
@@ -197,7 +204,10 @@ class InvoiceProvider extends ChangeNotifier {
   }
 
   ///report invoice
-  Future<InvoiceResult> reportInvoice({required bool isSandBox}) async {
+  Future<InvoiceResult> reportInvoice({
+    required bool isSandBox,
+    String? sandboxModeValue,
+  }) async {
     isSendingReport = true;
     notifyListeners();
 
@@ -239,7 +249,11 @@ class InvoiceProvider extends ChangeNotifier {
       }
 
       // Send report request
-      final response = await ApiService.sendReport(dto, isSandbox: isSandBox);
+      final response = await ApiService.sendReport(
+        dto,
+        isSandbox: isSandBox,
+        sandboxModeValue: sandboxModeValue,
+      );
 
       // SANDBOX: skip processing, just return response
       if (isSandBox) {

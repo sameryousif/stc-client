@@ -10,11 +10,13 @@ import 'response_box.dart';
 class InvoiceSection extends StatelessWidget {
   final SandboxController controller;
   final TextEditingController jsonCtrl;
+  final TextEditingController sandboxCtrl;
 
   const InvoiceSection({
     super.key,
     required this.controller,
     required this.jsonCtrl,
+    required this.sandboxCtrl,
   });
 
   @override
@@ -27,10 +29,9 @@ class InvoiceSection extends StatelessWidget {
         child: Column(
           children: [
             CustomField(
-              value: "X-Sandbox-Mode",
-              label: "Headers",
-              onChanged: (v) => v,
-              readOnly: true,
+              value: "true",
+              label: "X-Sandbox-Mode Header Value",
+              onChanged: (v) => sandboxCtrl.text = v,
             ),
             const SizedBox(height: 12),
             TextField(
@@ -56,6 +57,7 @@ class InvoiceSection extends StatelessWidget {
                                 : () => controller.clearInvoice(
                                   provider,
                                   jsonCtrl.text,
+                                  sandboxCtrl.text,
                                 ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Color(0xFF2C365A),
@@ -90,6 +92,7 @@ class InvoiceSection extends StatelessWidget {
                                 : () => controller.reportInvoice(
                                   provider,
                                   jsonCtrl.text,
+                                  sandboxCtrl.text,
                                 ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Color(0xFF2C365A),

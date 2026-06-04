@@ -66,13 +66,18 @@ class ApiService {
   static Future<Response?> sendClear(
     Map<String, dynamic> dto, {
     bool isSandbox = false,
+    String? sandboxModeValue,
   }) async {
     try {
       return await _dio.post(
         clearanceUrl,
         data: dto,
         options:
-            isSandbox ? Options(headers: {"X-Sandbox-Mode": "true"}) : null,
+            isSandbox
+                ? Options(headers: {
+                  "X-Sandbox-Mode": sandboxModeValue ?? "true",
+                })
+                : null,
       );
     } on DioException catch (e) {
       return e.response;
@@ -85,13 +90,18 @@ class ApiService {
   static Future<Response?> sendReport(
     Map<String, dynamic> dto, {
     bool isSandbox = false,
+    String? sandboxModeValue,
   }) async {
     try {
       return await _dio.post(
         reportingUrl,
         data: dto,
         options:
-            isSandbox ? Options(headers: {"X-Sandbox-Mode": "true"}) : null,
+            isSandbox
+                ? Options(headers: {
+                  "X-Sandbox-Mode": sandboxModeValue ?? "true",
+                })
+                : null,
       );
     } on DioException catch (e) {
       return e.response;

@@ -40,13 +40,20 @@ class SandboxController {
   }
 
   /// CLEAR
-  Future<void> clearInvoice(InvoiceProvider provider, String json) async {
+  Future<void> clearInvoice(
+    InvoiceProvider provider,
+    String json,
+    String sandboxMode,
+  ) async {
     provider.sandboxJson = json.trim();
 
     submitResponse.value = "Sending clear request...";
 
     try {
-      final result = await provider.clearInvoice(isSandBox: true);
+      final result = await provider.clearInvoice(
+        isSandBox: true,
+        sandboxModeValue: sandboxMode,
+      );
 
       // Update with result
       submitResponse.value = result.message;
@@ -56,13 +63,20 @@ class SandboxController {
   }
 
   /// REPORT
-  Future<void> reportInvoice(InvoiceProvider provider, String json) async {
+  Future<void> reportInvoice(
+    InvoiceProvider provider,
+    String json,
+    String sandboxMode,
+  ) async {
     provider.sandboxJson = json.trim();
 
     submitResponse.value = "Sending report request...";
 
     try {
-      final result = await provider.reportInvoice(isSandBox: true);
+      final result = await provider.reportInvoice(
+        isSandBox: true,
+        sandboxModeValue: sandboxMode,
+      );
 
       // Update with result
       submitResponse.value = result.message;

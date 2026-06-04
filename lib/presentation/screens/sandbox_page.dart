@@ -21,6 +21,7 @@ class _SandboxPageState extends State<SandboxPage> {
   final csrCtrl = TextEditingController();
   final tokenCtrl = TextEditingController();
   final jsonCtrl = TextEditingController();
+  final sandboxCtrl = TextEditingController(text: "true");
 
   @override
   void initState() {
@@ -46,6 +47,7 @@ class _SandboxPageState extends State<SandboxPage> {
     csrCtrl.dispose();
     tokenCtrl.dispose();
     jsonCtrl.dispose();
+    sandboxCtrl.dispose();
     super.dispose();
   }
 
@@ -98,6 +100,7 @@ class _SandboxPageState extends State<SandboxPage> {
                     child: InvoiceSection(
                       controller: controller,
                       jsonCtrl: jsonCtrl,
+                      sandboxCtrl: sandboxCtrl,
                     ),
                   ),
                 ],
@@ -113,7 +116,11 @@ class _SandboxPageState extends State<SandboxPage> {
                     color: Color(0xFF2C365A),
                   ),
                   const SizedBox(height: 20),
-                  InvoiceSection(controller: controller, jsonCtrl: jsonCtrl),
+                  InvoiceSection(
+                    controller: controller,
+                    jsonCtrl: jsonCtrl,
+                    sandboxCtrl: sandboxCtrl,
+                  ),
                 ],
               ),
             );
