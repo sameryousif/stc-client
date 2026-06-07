@@ -58,9 +58,14 @@ class ClearInvoiceButton extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 4),
-        Text(
-          ApiService.clearanceUrl,
-          style: TextStyle(fontSize: 10, color: Colors.grey[600]),
+        SelectableText(
+          "Endpoint: ${ApiService.clearanceUrl}",
+          style: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF546E7A),
+            decoration: TextDecoration.none,
+          ),
           textAlign: TextAlign.center,
         ),
       ],

@@ -120,20 +120,22 @@ class _InvoicePageState extends State<InvoicePage> {
                           InvoiceItemsSection(
                             items: controller.items,
                             onDelete:
-                                (index) =>
-                                    setState(() => controller.removeItem(index)),
-                            onChanged: () => controller.recalculateTotals(),
-                            onAddItem: () => setState(
-                              () => controller.addItem(
-                                InvoiceItem(
-                                  name: "New Item",
-                                  description: "",
-                                  quantity: 1,
-                                  unitPrice: 0,
-                                  taxRate: 15,
+                                (index) => setState(
+                                  () => controller.removeItem(index),
                                 ),
-                              ),
-                            ),
+                            onChanged: () => controller.recalculateTotals(),
+                            onAddItem:
+                                () => setState(
+                                  () => controller.addItem(
+                                    InvoiceItem(
+                                      name: "New Item",
+                                      description: "",
+                                      quantity: 1,
+                                      unitPrice: 0,
+                                      taxRate: 15,
+                                    ),
+                                  ),
+                                ),
                           ),
                           const SizedBox(height: 8),
                           ValueListenableBuilder<double>(
@@ -198,7 +200,9 @@ class _InvoicePageState extends State<InvoicePage> {
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     color:
-                                        provider.showJson ? Colors.black : Colors.red,
+                                        provider.showJson
+                                            ? Colors.black
+                                            : Colors.red,
                                   ),
                                 ),
                                 const Text(" / "),
@@ -207,7 +211,9 @@ class _InvoicePageState extends State<InvoicePage> {
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     color:
-                                        provider.showJson ? Colors.red : Colors.black,
+                                        provider.showJson
+                                            ? Colors.red
+                                            : Colors.black,
                                   ),
                                 ),
                               ],
@@ -217,11 +223,17 @@ class _InvoicePageState extends State<InvoicePage> {
                         const SizedBox(height: 8),
 
                         // Expanded Preview
-                        Expanded(flex: 2, child: _buildPreviewContent(provider)),
+                        Expanded(
+                          flex: 2,
+                          child: _buildPreviewContent(provider),
+                        ),
                         const SizedBox(height: 16),
                         Text(
                           "Response",
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          ),
                         ),
                         const SizedBox(height: 8),
                         // Server response read-only field
@@ -272,7 +284,7 @@ class _InvoicePageState extends State<InvoicePage> {
                       Expanded(
                         child: GenerateReportingInvoice(
                           c: controller,
-                          color: widget.appBarAndButtonColor,
+                          color: const Color.fromARGB(255, 146, 14, 14),
                           xmlController: xmlController,
                         ),
                       ),
@@ -280,7 +292,7 @@ class _InvoicePageState extends State<InvoicePage> {
                       Expanded(
                         child: GenerateClearanceInvoice(
                           c: controller,
-                          color: widget.appBarAndButtonColor,
+                          color: const Color(0xFF00838F),
                           xmlController: xmlController,
                         ),
                       ),
@@ -295,7 +307,7 @@ class _InvoicePageState extends State<InvoicePage> {
                       Expanded(
                         child: ClearInvoiceButton(
                           c: controller,
-                          color: widget.appBarAndButtonColor,
+                          color: const Color(0xFF00838F),
                           xmlController: xmlController,
                           responseController: responseController,
                         ),
@@ -304,7 +316,7 @@ class _InvoicePageState extends State<InvoicePage> {
                       Expanded(
                         child: ReportInvoiceButton(
                           c: controller,
-                          color: widget.appBarAndButtonColor,
+                          color: const Color.fromARGB(255, 146, 14, 14),
                           xmlController: xmlController,
                           responseController: responseController,
                         ),

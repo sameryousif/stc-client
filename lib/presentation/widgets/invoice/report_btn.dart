@@ -57,9 +57,14 @@ class ReportInvoiceButton extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 4),
-        Text(
-          ApiService.reportingUrl,
-          style: TextStyle(fontSize: 10, color: Colors.grey[600]),
+        SelectableText(
+          "Endpoint: ${ApiService.reportingUrl}",
+          style: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF546E7A),
+            decoration: TextDecoration.none,
+          ),
           textAlign: TextAlign.center,
         ),
       ],

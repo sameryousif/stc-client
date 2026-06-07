@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:stc_client/presentation/widgets/preview.dart';
 import 'package:stc_client/presentation/widgets/enrollment/subject_fields.dart';
+import 'package:stc_client/services/api_service.dart';
 
 // Widget that contains the left and right panels for the enrollment page, displaying the private key, CSR subject fields, generated CSR, enrollment token input, and received certificate
 class LeftPanel extends StatelessWidget {
@@ -115,16 +116,33 @@ class RightPanel extends StatelessWidget {
           ),
 
           const SizedBox(height: 12),
-          ElevatedButton.icon(
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 14),
-              backgroundColor: Color(0xFF2C365A),
-            ),
-            label: const Text(
-              'Generate Certificate',
-              style: TextStyle(color: Colors.white),
-            ),
-            onPressed: onGenerateCert,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  backgroundColor: Color(0xFF2C365A),
+                ),
+                onPressed: onGenerateCert,
+                child: const Text(
+                  'Generate Certificate',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+              const SizedBox(height: 4),
+              SelectableText(
+                "Endpoint: ${ApiService.enrollCsrUrl}",
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF546E7A),
+                  decoration: TextDecoration.none,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
           ),
 
           const SizedBox(height: 16),

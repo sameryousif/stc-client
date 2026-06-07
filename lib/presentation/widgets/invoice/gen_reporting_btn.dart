@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:stc_client/application/controllers/invoice_controller.dart';
-import 'package:stc_client/services/api_service.dart';
+//import 'package:stc_client/services/api_service.dart';
 import 'package:stc_client/state/providers/InvoiceProvider.dart';
 import 'package:stc_client/utils/paths/tools_paths.dart';
 
@@ -51,7 +51,8 @@ class GenerateReportingInvoice extends StatelessWidget {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(result.message),
-                          backgroundColor: result.success ? Colors.green : Colors.red,
+                          backgroundColor:
+                              result.success ? Colors.green : Colors.red,
                           duration: const Duration(seconds: 1),
                         ),
                       );
@@ -67,11 +68,16 @@ class GenerateReportingInvoice extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 4),
-        Text(
+        /*SelectableText(
           "Endpoint: ${ApiService.reportingUrl}",
-          style: TextStyle(fontSize: 10, color: Colors.grey[600]),
+          style: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF546E7A),
+            decoration: TextDecoration.none,
+          ),
           textAlign: TextAlign.center,
-        ),
+        ),*/
       ],
     );
   }

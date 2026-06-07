@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:stc_client/presentation/screens/enrollment_page.dart';
+import 'package:stc_client/presentation/screens/home_page.dart';
 import 'package:stc_client/presentation/screens/invoice_page.dart';
-import 'package:stc_client/presentation/screens/sandbox_page.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: SandboxPage(),
+      home: const HomePage(),
       routes: {
         '/invoice': (context) => const InvoicePage(),
         '/enrollment': (context) => const EnrollmentPage(),
