@@ -56,10 +56,10 @@ class ApiService {
 
   ///endpoints
   static const String baserUrl = 'https://stc-server.onrender.com';
-  static const String clearanceUrl = '$baserUrl/clear';
-  static const String reportingUrl = '$baserUrl/report';
+  static const String clearanceUrl = '$baserUrl/prod/invoices/clear';
+  static const String reportingUrl = '$baserUrl/prod/invoices/report';
 
-  static const String enrollCsrUrl = '$baserUrl/enroll';
+  static const String enrollCsrUrl = '$baserUrl/prod/enrollment/enroll';
 
   ///////////////////////////
   ///
@@ -74,9 +74,9 @@ class ApiService {
         data: dto,
         options:
             isSandbox
-                ? Options(headers: {
-                  "X-Sandbox-Mode": sandboxModeValue ?? "true",
-                })
+                ? Options(
+                  headers: {"X-Sandbox-Mode": sandboxModeValue ?? "true"},
+                )
                 : null,
       );
     } on DioException catch (e) {
@@ -98,9 +98,9 @@ class ApiService {
         data: dto,
         options:
             isSandbox
-                ? Options(headers: {
-                  "X-Sandbox-Mode": sandboxModeValue ?? "true",
-                })
+                ? Options(
+                  headers: {"X-Sandbox-Mode": sandboxModeValue ?? "true"},
+                )
                 : null,
       );
     } on DioException catch (e) {
@@ -151,5 +151,4 @@ class ApiService {
       return e.response;
     }
   }
-
 }
