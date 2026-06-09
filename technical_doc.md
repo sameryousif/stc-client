@@ -41,7 +41,7 @@ Registered providers:
 | `CertificateProvider` | `CertEnrollService` | Tracks certificate validity and enrollment state. |
 | `InvoiceProvider` | `InvoicePrepService` | Manages invoice generation, DTO generation, clearance, and reporting state. |
 
-The default route is `SandboxPage`. Named routes are registered for `/invoice` and `/enrollment` in `lib/app.dart`.
+The default route is `HomePage`. Named routes are registered for `/invoice` and `/enrollment` in `lib/app.dart`.
 
 ## Architecture
 
@@ -193,7 +193,7 @@ The current query is by `entityId`. Although the method name includes `ByType`, 
 | `cbc:ID` | Invoice number. |
 | `cbc:UUID` | Generated UUID v4. |
 | `cbc:IssueDate` / `IssueTime` | Current local date/time split from `DateTime.now()`. |
-| `cbc:InvoiceTypeCode` | Current hardcoded value `388` with `name="0100000"`. |
+| `cbc:InvoiceTypeCode` | `388` for clearance (B2B) or `380` for reporting (B2C), with `name="0100000"`. |
 | Currency | `SDG` for document and tax currency. |
 | ICV reference | `AdditionalDocumentReference` with `ID=ICV`. |
 | PIH reference | `AdditionalDocumentReference` with `ID=PIH`. |
@@ -313,10 +313,9 @@ Debug builds log requests, responses, and Dio errors through the configured inte
 
 | Method | Endpoint | Function | Notes |
 |---|---|---|---|
-| `POST` | `/enroll` | `sendCsr()` | Sends Base64 CSR and token. |
-| `POST` | `/enroll` | `sendCsrSandbox()` | Sends raw sandbox CSR body. |
-| `POST` | `/clear` | `sendClear()` | Sends signed invoice DTO. Sandbox mode adds `X-Sandbox-Mode: true`. |
-| `POST` | `/report` | `sendReport()` | Sends signed invoice DTO. Sandbox mode adds `X-Sandbox-Mode: true`. |
+| `POST` | `/prod/enrollment/enroll` | `sendCsr()` | Sends Base64 CSR and token. |
+| `POST` | `/prod/invoices/clear` | `sendClear()` | Sends signed invoice DTO. |
+| `POST` | `/prod/invoices/report` | `sendReport()` | Sends signed invoice DTO. |
 
 Clear/report DTO shape:
 
@@ -355,8 +354,6 @@ On HTTP 200:
 3. Remove signature/QR sections from a working copy.
 4. Canonicalize and hash the stripped XML.
 5. Insert invoice metadata into SQLite.
-
-Sandbox submissions return the HTTP status and response body without local response processing.
 
 ## SQLite Storage
 
@@ -467,7 +464,7 @@ Primary runtime packages:
 | `sqflite` / `sqflite_common_ffi` | SQLite on mobile/desktop. |
 | `path_provider` | Platform support-directory resolution. |
 | `path` | Path joining/manipulation. |
-| `basic_utils`, `pointycastle`, `x509` | Certificate/crypto support utilities. |
+| `basic_utils`, `pointycastle`, `x509` | Listed in pubspec but not currently imported in code. |
 
 Primary dev packages:
 
@@ -480,6 +477,7 @@ Primary dev packages:
 
 ## Known Implementation Notes
 
+- `file_picker`, `mobile_scanner`, `basic_utils`, `pointycastle`, and `x509` are in `pubspec.yaml` but not currently imported in the codebase; they may be intended for future use.
 - The API base URL is hardcoded and not environment-driven.
 - Certificate validity currently checks file age, not certificate expiration metadata.
 - The invoice DTO `uuid` is built from `currentInvoiceNumber`, while UBL XML also contains a separately generated UUID.

@@ -17,13 +17,12 @@ For implementation details, see [`technical_doc.md`](technical_doc.md).
 
 | Area | What It Does |
 |---|---|
-| Sandbox mode | Test certificate enrollment and invoice submission against the sandbox API path. |
 | Certificate enrollment | Generates a private key and CSR, submits the CSR with an enrollment token, and stores the returned certificate locally. |
 | Invoice authoring | Captures invoice metadata, supplier/customer details, line items, totals, and tax amounts. |
 | UBL XML generation | Produces UBL invoice XML with ICV and previous invoice hash references. |
 | XAdES signing | Canonicalizes XML, hashes signed sections, signs `SignedInfo`, and injects the signature into `UBLExtensions`. |
 | QR generation | Builds a TLV Base64 QR payload from invoice totals, hash, signature, and certificate data. |
-| Clearance/reporting | Sends signed invoice DTOs to `/clear` or `/report` and records successful submissions locally. |
+| Clearance/reporting | Sends signed invoice DTOs to `/prod/invoices/clear` or `/prod/invoices/report` and records successful submissions locally. |
 | Local history | Uses SQLite to track invoice hashes and ICV values for invoice chaining. |
 
 ## Supported Platforms
@@ -81,18 +80,19 @@ flutter build windows --release
 
 ## Usage
 
-### Sandbox Mode
+### Home Page
 
-The app opens on the sandbox page by default. Use it to submit sandbox enrollment or invoice JSON payloads without going through the full invoice UI.
+The app opens on the home page, which presents two options:
 
-### Full Enrollment Flow
+- **Go to Enrollment** — navigate to the certificate enrollment screen.
+- **Go to Invoice Generation** — navigate to the invoice generation and submission screen.
 
-1. Open the full experience from the sandbox page.
-2. Go to the certificate enrollment screen.
-3. Enter the X.509 subject fields for the merchant.
-4. Generate the CSR and private key.
-5. Enter the enrollment token issued by the authority.
-6. Submit the CSR and save the returned certificate locally.
+### Enrollment Flow
+
+1. On the enrollment screen, enter the X.509 subject fields for the merchant.
+2. Generate the CSR and private key.
+3. Enter the enrollment token issued by the authority.
+4. Submit the CSR and save the returned certificate locally.
 
 Generated enrollment files are stored in the application support directory, not in the repository.
 
@@ -117,15 +117,9 @@ Derived endpoints:
 
 | Operation | Endpoint |
 |---|---|
-| Enrollment | `POST /enroll` |
-| Clearance | `POST /clear` |
-| Reporting | `POST /report` |
-
-Sandbox clearance/reporting calls add this header:
-
-```text
-X-Sandbox-Mode: true
-```
+| Enrollment | `POST /prod/enrollment/enroll` |
+| Clearance | `POST /prod/invoices/clear` |
+| Reporting | `POST /prod/invoices/report` |
 
 ## Local Files
 
